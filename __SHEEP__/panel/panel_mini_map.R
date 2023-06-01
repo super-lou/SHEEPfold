@@ -82,11 +82,11 @@ panel_mini_map = function (meta, Shapefiles,
     }
 
     # Plot the white back of boundaries
-    map = map +
-        geom_sf(data=france,
-                color="white",
-                fill=NA,
-                linewidth=0.7)
+    # map = map +
+    #     geom_sf(data=france,
+    #             color="white",
+    #             fill=NA,
+    #             linewidth=0.7)
     map = map +
         geom_sf(data=france,
                 color=IPCCgrey40,

@@ -226,7 +226,10 @@ load_shapefile = function (resources_path, Code,
                            entiteHydro_dir, entiteHydro_file,
                            entiteHydro_coord,
                            river_dir, river_file,
-                           river_selection=c('all'),
+                           return_river=TRUE,
+                           river_class=NULL,
+                           river_length=NULL,
+                           river_selection=NULL,
                            toleranceRel=10000) {
     
     # Path for shapefile
@@ -249,24 +252,24 @@ load_shapefile = function (resources_path, Code,
     # France
     france = st_read(france_path)
     france = st_union(france)
+    france = st_transform(france, 2154)
     france = st_simplify(france,
                          preserveTopology=TRUE,
                          dTolerance=toleranceRel)
-    france = st_transform(france, 2154)
     
     # Hydrological basin
     basinHydro = st_read(basinHydro_path)
+    basinHydro = st_transform(basinHydro, 2154)
     basinHydro = st_simplify(basinHydro,
                              preserveTopology=TRUE,
-                             dTolerance=toleranceRel/2)
-    basinHydro = st_transform(basinHydro, 2154)
+                             dTolerance=toleranceRel*0.6)
     
     # Hydrological sub-basin
-    regionHydro = st_read(regionHydro_path)    
+    regionHydro = st_read(regionHydro_path)
+    regionHydro = st_transform(regionHydro, 2154)
     regionHydro = st_simplify(regionHydro,
                               preserveTopology=TRUE,
-                              dTolerance=toleranceRel/2)
-    regionHydro = st_transform(regionHydro, 2154)
+                              dTolerance=toleranceRel*0.6)
     
     # Hydrological code bassin
     entiteHydro_list = lapply(entiteHydro_path, read_sf)
@@ -275,26 +278,30 @@ load_shapefile = function (resources_path, Code,
     entiteHydro = entiteHydro[entiteHydro$Code %in% Code,]
     entiteHydro = st_simplify(entiteHydro,
                               preserveTopology=TRUE,
-                              dTolerance=toleranceRel/3)
+                              dTolerance=toleranceRel*0.4)
     
-    entiteHydro = st_transform(entiteHydro, 2154)
-    
-
     # If the river shapefile needs to be load
-    if (!("none" %in% river_selection)) {
+    if (return_river) {
         # Hydrographic network
         river = st_read(river_path)
+        river = st_transform(river, 2154)
+        
+        if (!is.null(river_class)) {
+            river = river[river$Classe %in% river_class,]
 
-        if ('all' %in% river_selection) {
-            river = river[river$Classe == 1,]
-        } else {
+        }
+        if (!is.null(river_length)) {
+            river$length = as.numeric(st_length(river$geometry))
+            river = river[river$length >= river_length,]
+        }
+        if (!is.null(river_selection)) {
             river = river[grepl(paste(river_selection, collapse='|'),
                                 river$NomEntiteH),]
         }
+        
         river = st_simplify(river,
                             preserveTopology=TRUE,
-                            dTolerance=toleranceRel/3)
-        river = st_transform(river, 2154) 
+                            dTolerance=toleranceRel*0.4) 
     } else {
         river = NULL
     }
