@@ -203,13 +203,7 @@ sheet_diagnostic_station = function (data,
         flock$sheep$label[flock$sheep$id == "chronicle.spag"] = "align"
         flock$sheep$label[flock$sheep$id == "QA.spag"] = "align"
         
-        # print("QA")
-        # print(flock)
-
-        
         dataMOD = dataEXserie_code[["median{QJ}C5"]]
-        # dataMOD$Date = as.Date(dataMOD$Yearday-1,
-                               # origin=as.Date("1972-01-01"))
         dataMOD = dplyr::rename(dataMOD,
                                 Date="Yearday",
                                 Q_obs="median{QJ}C5_obs",

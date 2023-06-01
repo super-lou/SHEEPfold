@@ -73,15 +73,36 @@ panel_info_region = function(meta,
 
     # Spatial info about station
     if ('spatial' %in% to_do | 'all' %in% to_do) {
+        if (all(is.na(meta_region$Surface_km2))) {
+            if (all(is.na(meta_region$surface_km2_IN))) {
+                surface_min = "inconnue"
+                surface_max = "inconnue"
+            } else {
+                surface_min = paste0(round(min(meta_region$surface_km2_IN, na.rm=TRUE)), " km<sup>2</sup>")
+                surface_max = paste0(round(max(meta_region$surface_km2_IN, na.rm=TRUE)), " km<sup>2</sup>")
+            }
+        } else {
+            surface_min = paste0(round(min(meta_region$Surface_km2, na.rm=TRUE)), " km<sup>2</sup>")
+            surface_max = paste0(round(max(meta_region$Surface_km2, na.rm=TRUE)), " km<sup>2</sup>")
+        }
+        if (all(is.na(meta_region$Altitude_m))) {
+            if (all(is.na(meta_region$altitude_m_IN))) {
+                altitude_min = "inconnue"
+                altitude_max = "inconnue"
+            } else {
+                altitude_min = paste0(round(min(meta_region$altitude_m_IN, na.rm=TRUE)), " m")
+                altitude_max = paste0(round(max(meta_region$altitude_m_IN, na.rm=TRUE)), " m")
+            }
+        } else {
+            altitude_min = paste0(round(min(meta_region$Altitude_m, na.rm=TRUE)), " m")
+            altitude_max = paste0(round(max(meta_region$Altitude_m, na.rm=TRUE)), " m")
+        }
+
         text3 = paste0(
-            "Superficie minimale : ",
-            min(meta_region$Surface_km2), " km<sup>2</sup><br>",
-            "Superficie maximale : ",
-            max(meta_region$Surface_km2), " km<sup>2</sup><br>",
-            "Altitude minimale (station) : ",
-            min(meta_region$Altitude_m), " m<br>",
-            "Altitude maximale (station) : ",
-            max(meta_region$Altitude_m), " m")
+            "Superficie minimale : ", surface_min, "<br>",
+            "Superficie maximale : ", surface_max, "<br>",
+            "Altitude minimale (station) : ", altitude_min, "<br>",
+            "Altitude maximale (station) : ", altitude_max)
         gtext3 = richtext_grob(text3,
                                x=0, y=1,
                                margin=unit(c(t=0, r=0, b=0, l=0),
@@ -92,25 +113,35 @@ panel_info_region = function(meta,
         gtext3 = void()
     }
 
-    # Makes a list of all plots
-    P = list(gtext1, gtext2, gtext3, void(), map)
+    plan = matrix(c("text1", "text1", "text1", "map",
+                    "text2", "text2", "text2", "map",
+                    "text3", "text3", "text3", "map",
+                    "text3", "text3", "text3", "map"),
+                  nrow=4, 
+                  byrow=TRUE)
     
-    # Creates the matrix layout
-    LM = matrix(c(1, 1, 1, 5,
-                  2, 2, 4, 5,
-                  3, 3, 4, 5,
-                  3, 3, 4, 5),
-                nrow=4, 
-                byrow=TRUE)
-    # And sets the relative height of each plot
-    heights = rep(1, times=nrow(LM))
-    heights[1] = 0.57
-    heights[2] = 0.65
+    flock = bring_grass()
+    flock = plan_of_flock(flock, plan)
 
-    # Arranges all the graphical objetcs
-    plot = grid.arrange(grobs=P,
-                        layout_matrix=LM,
-                        heights=heights)
+    flock = add_sheep(flock,
+                      sheep=gtext1,
+                      id="text1",
+                      height=0.4)
+    flock = add_sheep(flock,
+                      sheep=gtext2,
+                      id="text2",
+                      height=0.5)
+    flock = add_sheep(flock,
+                      sheep=gtext3,
+                      id="text3",
+                      height=1)
+    flock = add_sheep(flock,
+                      sheep=map,
+                      id="map",
+                      height=1)
+    
+    flock = shear_sheeps(flock)
+    
     # Return the plot object
-    return(plot)
+    return (flock)
 }  

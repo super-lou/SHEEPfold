@@ -45,10 +45,10 @@ sheet_diagnostic_region = function (meta,
     medQJ_width = 10
 
     
-    NAME = matrix(c(
-        "info", "void", "medQJ_1", "medQJ_0.25", "criteria", "foot",
-        "info", "void", "medQJ_0.75", "medQJ_0", "criteria", "foot"),
-    ncol=2)
+    plan = matrix(c(
+        "info", "void", "medQJ_1", "medQJ_025", "criteria", "foot",
+        "info", "void", "medQJ_075", "medQJ_0", "criteria", "foot"),
+        ncol=2)
     WIP = FALSE
 
 
@@ -103,22 +103,23 @@ sheet_diagnostic_region = function (meta,
         Code_KGEprobs[duplicated(Code_KGEprobs)] = NA
         names(Code_KGEprobs) = KGEprobs
 
-        STOCK = tibble()
+        flock = bring_grass()
+        flock = plan_of_flock(flock, plan)
 
         info = panel_info_region(meta,
                                  Shapefiles=Shapefiles,
                                  regionLight=region,
                                  to_do='all')
-        STOCK = add_plot(STOCK,
-                         plot=info,
-                         name="info",
-                         height=info_height)
-
+        flock = add_sheep(flock,
+                          sheep=info,
+                          id="info",
+                          height=info_height)
+        
 
         for (j in 1:length(KGEprobs)) {
             code = Code_KGEprobs[j]
             prob = names(Code_KGEprobs)[j]
-            
+
             if (is.na(code)) {
                 medQJ = void()
                 
@@ -142,11 +143,11 @@ sheet_diagnostic_region = function (meta,
                 }
                 
                 dataMOD = dataEXserie_code[["median{QJ}C5"]]
-                dataMOD$Date = as.Date(dataMOD$Yearday-1,
-                                       origin=as.Date("1972-01-01"))
                 dataMOD = dplyr::rename(dataMOD,
+                                        Date="Yearday",
                                         Q_obs="median{QJ}C5_obs",
                                         Q_sim="median{QJ}C5_sim")
+                
                 medQJ = panel_spaghetti(dataMOD,
                                         Colors,
                                         title=title,
@@ -159,6 +160,8 @@ sheet_diagnostic_region = function (meta,
                                         date_labels="%d %b",
                                         breaks="3 months",
                                         minor_breaks="1 months",
+                                        add_x_breaks=
+                                            as.Date("1970-12-31"),
                                         Xlabel="",
                                         limits_ymin=0,
                                         isBackObsAbove=TRUE,
@@ -167,17 +170,17 @@ sheet_diagnostic_region = function (meta,
                                         margin_title=
                                             margin(t=0, r=7, b=0, l=0, "mm"),
                                         margin_spag=
-                                            margin(t=0, r=3.5, b=0, l=0, "mm"),
+                                            margin(t=0, r=5, b=0, l=0, "mm"),
                                         first=FALSE,
                                         last=TRUE)
             }
-            STOCK = add_plot(STOCK,
-                             plot=medQJ,
-                             name=paste0("medQJ", "_", prob),
-                             height=medQJ_height,
-                             width=medQJ_width)
+            flock = add_sheep(flock,
+                              sheep=medQJ,
+                              id=paste0("medQJ", "_",
+                                        gsub("[.]", "", prob)),
+                              height=medQJ_height,
+                              width=medQJ_width)
         }
-        
 
         criteria = panel_diagnostic_criteria(
             dataEXind,
@@ -193,17 +196,19 @@ sheet_diagnostic_region = function (meta,
             Probs=0.1,
             dTitle=0,
             add_name=TRUE,
+            nLim_interp=125,
             margin_add=
-                margin(t=-3, r=0, b=0, l=0, "cm"))
-        STOCK = add_plot(STOCK,
-                         plot=criteria,
-                         name="criteria",
-                         height=criteria_height)
+                margin(t=-4, r=0, b=0, l=0, "cm"))
 
-        STOCK = add_plot(STOCK,
-                         plot=void(),
-                         name="void",
-                         height=void_height)
+        flock = add_sheep(flock,
+                          sheep=criteria,
+                          id="criteria",
+                          height=criteria_height)
+
+        flock = add_sheep(flock,
+                          sheep=void(),
+                          id="void",
+                          height=void_height)
 
 
         footName = 'Fiche région de diagnostic'
@@ -223,15 +228,16 @@ sheet_diagnostic_region = function (meta,
         }
         foot = panel_foot(footName, n_page,
                           foot_height, logo_path)
-        STOCK = add_plot(STOCK,
-                         plot=foot,
-                         name="foot",
-                         height=foot_height)
+        flock = add_sheep(flock,
+                          sheep=foot,
+                          id="foot",
+                          height=foot_height)
 
-        res = merge_panel(STOCK, NAME=NAME,
-                          page_margin=page_margin,
-                          paper_size="A4",
-                          hjust=0, vjust=1)
+        res = return_to_sheepfold(flock,
+                                  page_margin=page_margin,
+                                  paper_size="A4",
+                                  hjust=0, vjust=1,
+                                  verbose=TRUE)
 
         plot = res$plot
         paper_size = res$paper_size

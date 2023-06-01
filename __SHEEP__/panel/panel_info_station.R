@@ -137,8 +137,8 @@ panel_info_station = function(data_code,
         text3 = paste0(
             "Superficie : ", surface, "<br>",
             "Altitude : ", altitude, "<br>",
-            "X = ", round(meta_code$XL93_m), "  m (Lambert93)<br>",
-            "Y = ", round(meta_code$YL93_m), "  m (Lambert93)")
+            "X = ", round(meta_code$XL93_m), " m (Lambert93)<br>",
+            "Y = ", round(meta_code$YL93_m), " m (Lambert93)")
         gtext3 = richtext_grob(text3,
                                x=0, y=0.98,
                                margin=unit(c(t=0, r=0, b=0, l=0),
@@ -173,28 +173,6 @@ panel_info_station = function(data_code,
         gtext4 = void()
     }
 
-
-    # # Makes a list of all plots
-    # P = list(gtext1, gtext2, gtext3, gtext4, hyd, map)
-    
-    # # Creates the matrix layout
-    # LM = matrix(c(1, 1, 1, 6,
-    #               2, 2, 5, 6,
-    #               3, 4, 5, 6,
-    #               3, 4, 5, 6),
-    #             nrow=4, 
-    #             byrow=TRUE)
-    # # And sets the relative height of each plot
-    # heights = rep(1, times=nrow(LM))
-    # # heights[2] = 0.1
-    # heights[2] = 0.8
-
-    # # Arranges all the graphical objetcs
-    # plot = grid.arrange(grobs=P,
-    #                     layout_matrix=LM,
-    #                     heights=heights)
-
-
     plan = matrix(c("text1", "text1", "text1", "map",
                     "text2", "text2", "hyd", "map",
                     "text3", "text4", "hyd", "map",
@@ -207,12 +185,10 @@ panel_info_station = function(data_code,
 
     flock = add_sheep(flock,
                       sheep=gtext1,
-                      # sheep=contour(),
                       id="text1",
                       height=0.4)
     flock = add_sheep(flock,
                       sheep=gtext2,
-                      # sheep=contour(),
                       id="text2",
                       height=0.5)
     flock = add_sheep(flock,
@@ -232,11 +208,7 @@ panel_info_station = function(data_code,
                       id="map",
                       height=1)    
 
-    # print(flock)
-    
     flock = shear_sheeps(flock)
-
-    # print(flock)
     
     return (flock)
 }  
