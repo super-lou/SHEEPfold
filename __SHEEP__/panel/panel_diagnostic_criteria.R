@@ -950,6 +950,11 @@ panel_diagnostic_criteria = function (dataEXind,
                      hjust=0, vjust=0, size=2.8)
         
         if (!is.null(codeLight)) {
+            S_code_model =
+                round(
+                    meta[meta$Code == codeLight,][[paste0("Surface_",
+                                                          Model[i],
+                                                          "_km2")]])
             Ind = Ind +
                 annotate("text",
                          x=(dx_mod_name + dx_mod_space*(i-1) +
@@ -961,7 +966,7 @@ panel_diagnostic_criteria = function (dataEXind,
                               dy_mod +
                               dy_mod_name +
                               dy_mod_surf),
-                         label="(xxxx)",
+                         label=paste0("(", S_code_model, ")"),
                          color=IPCCgrey25,
                          hjust=0, vjust=0, size=2)
         }

@@ -36,6 +36,7 @@ panel_spaghetti = function (data_code, Colors=NULL,
                             minor_breaks="2 years",
                             d_breaks=0,
                             break_round=-1,
+                            add_x_breaks=NULL,
                             isNormLaw=FALSE,
                             Xlabel=NULL,
                             isZeroLine=TRUE,
@@ -310,7 +311,7 @@ panel_spaghetti = function (data_code, Colors=NULL,
         position = 'bottom'
     }
 
-    get_breaks = function(X) {
+    get_breaks = function(X, add_breaks=add_x_breaks) {
         if (isDate) {
             Xmin = round(lubridate::year(min(X)), break_round)
             Xmax = round(lubridate::year(max(X)), break_round)
@@ -328,6 +329,11 @@ panel_spaghetti = function (data_code, Colors=NULL,
                       to=Xmax + d_breaks,
                       by=breaks)
         }
+
+        if (!is.null(add_breaks)) {
+            res = sort(c(res, add_breaks))
+        }
+
         return (res)
     }
 
@@ -399,9 +405,7 @@ panel_spaghetti = function (data_code, Colors=NULL,
         spag = spag +
             scale_x_continuous(
                 trans=scales::probability_trans("norm"),
-                # breaks=get_breaks,
                 breaks=major_breaks,
-                # minor_breaks=get_minor_breaks,
                 minor_breaks=minor_breaks,
                 guide='axis_minor',
                 limits=limits,
