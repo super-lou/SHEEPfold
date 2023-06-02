@@ -119,19 +119,34 @@ panel_info_regime = function(QM_code,
 
     # Spatial info about station
     if ('spatial' %in% to_do | 'all' %in% to_do) {
+        if (all(is.na(meta_regime$Surface_km2))) {
+            surface_min = "inconnue"
+            surface_max = "inconnue"
+        } else {
+            surface_min = paste0(round(min(meta_regime$Surface_km2,
+                                           na.rm=TRUE)),
+                                 " km<sup>2</sup>")
+            surface_max = paste0(round(max(meta_regime$Surface_km2,
+                                           na.rm=TRUE)),
+                                 " km<sup>2</sup>")
+        }
+        if (all(is.na(meta_regime$Altitude_m))) {
+            altitude_min = "inconnue"
+            altitude_max = "inconnue"
+        } else {
+            altitude_min = paste0(round(min(meta_regime$Altitude_m,
+                                            na.rm=TRUE)), " m")
+            altitude_max = paste0(round(max(meta_regime$Altitude_m,
+                                            na.rm=TRUE)), " m")
+        }
+
         text3 = paste0(
-            "Superficie minimale : ",
-            min(meta_regime$Surface_km2, na.rm=TRUE),
-            " km<sup>2</sup><br>",
-            "Superficie maximale : ",
-            max(meta_regime$Surface_km2, na.rm=TRUE),
-            " km<sup>2</sup><br>",
-            "Altitude minimale (station) : ",
-            min(meta_regime$Altitude_m, na.rm=TRUE), " m<br>",
-            "Altitude maximale (station) : ",
-            max(meta_regime$Altitude_m, na.rm=TRUE), " m")
+            "Superficie minimale : ", surface_min, "<br>",
+            "Superficie maximale : ", surface_max, "<br>",
+            "Altitude minimale (station) : ", altitude_min, "<br>",
+            "Altitude maximale (station) : ", altitude_max)
         gtext3 = richtext_grob(text3,
-                               x=0, y=1,
+                               x=0, y=0.75,
                                margin=unit(c(t=0, r=0, b=0, l=0),
                                            "mm"),
                                hjust=0, vjust=1,

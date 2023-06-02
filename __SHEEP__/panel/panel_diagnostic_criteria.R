@@ -239,7 +239,14 @@ panel_diagnostic_criteria = function (dataEXind,
     CodeIN = c(codeLight, groupCode)
     
     Model = levels(factor(dataEXind$Model[dataEXind$Code %in% CodeIN]))
-    Model_codeLight = levels(factor(dataEXind$Model[dataEXind$Code %in% codeLight]))
+    if (!is.null(codeLight)) {
+        Model_codeLight =
+            levels(factor(dataEXind$Model[dataEXind$Code %in%
+                                          codeLight]))
+    } else {
+        Model_codeLight = Model
+    }
+
     nModel = length(Model)
 
     dataEXind_tmp = dataEXind

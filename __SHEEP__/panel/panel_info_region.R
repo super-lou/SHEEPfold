@@ -74,28 +74,24 @@ panel_info_region = function(meta,
     # Spatial info about station
     if ('spatial' %in% to_do | 'all' %in% to_do) {
         if (all(is.na(meta_region$Surface_km2))) {
-            if (all(is.na(meta_region$surface_km2_IN))) {
-                surface_min = "inconnue"
-                surface_max = "inconnue"
-            } else {
-                surface_min = paste0(round(min(meta_region$surface_km2_IN, na.rm=TRUE)), " km<sup>2</sup>")
-                surface_max = paste0(round(max(meta_region$surface_km2_IN, na.rm=TRUE)), " km<sup>2</sup>")
-            }
+            surface_min = "inconnue"
+            surface_max = "inconnue"
         } else {
-            surface_min = paste0(round(min(meta_region$Surface_km2, na.rm=TRUE)), " km<sup>2</sup>")
-            surface_max = paste0(round(max(meta_region$Surface_km2, na.rm=TRUE)), " km<sup>2</sup>")
+            surface_min = paste0(round(min(meta_region$Surface_km2,
+                                           na.rm=TRUE)),
+                                 " km<sup>2</sup>")
+            surface_max = paste0(round(max(meta_region$Surface_km2,
+                                           na.rm=TRUE)),
+                                 " km<sup>2</sup>")
         }
         if (all(is.na(meta_region$Altitude_m))) {
-            if (all(is.na(meta_region$altitude_m_IN))) {
-                altitude_min = "inconnue"
-                altitude_max = "inconnue"
-            } else {
-                altitude_min = paste0(round(min(meta_region$altitude_m_IN, na.rm=TRUE)), " m")
-                altitude_max = paste0(round(max(meta_region$altitude_m_IN, na.rm=TRUE)), " m")
-            }
+            altitude_min = "inconnue"
+            altitude_max = "inconnue"
         } else {
-            altitude_min = paste0(round(min(meta_region$Altitude_m, na.rm=TRUE)), " m")
-            altitude_max = paste0(round(max(meta_region$Altitude_m, na.rm=TRUE)), " m")
+            altitude_min = paste0(round(min(meta_region$Altitude_m,
+                                            na.rm=TRUE)), " m")
+            altitude_max = paste0(round(max(meta_region$Altitude_m,
+                                            na.rm=TRUE)), " m")
         }
 
         text3 = paste0(

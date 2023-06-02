@@ -114,22 +114,13 @@ panel_info_station = function(data_code,
     # Spatial info about station
     if ('spatial' %in% to_do | 'all' %in% to_do) {
         if (is.na(meta_code$Surface_km2)) {
-            if (is.na(meta_code$surface_km2_IN)) {
-                surface = "inconnue"
-            } else {
-                surface = paste0(round(meta_code$surface_km2_IN),
-                                 " km<sup>2</sup>")
-            }
+            surface = "inconnue"
         } else {
             surface = paste0(round(meta_code$Surface_km2),
                              " km<sup>2</sup>")
         }
         if (is.na(meta_code$Altitude_m)) {
-            if (is.na(meta_code$altitude_m_IN)) {
-                altitude = "inconnue"
-            } else {
-                altitude = paste0(round(meta_code$altitude_m_IN), " m")
-            }
+            altitude = "inconnue"
         } else {
             altitude = paste0(round(meta_code$Altitude_m), " m")
         }

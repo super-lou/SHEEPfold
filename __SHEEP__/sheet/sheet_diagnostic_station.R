@@ -307,7 +307,7 @@ sheet_diagnostic_station = function (data,
             dTitle=0,
             add_name=TRUE,
             group_name="dans la région",
-            text2px_lim=50,
+            text2px_lim=70,
             margin_add=
                 margin(t=-3, r=0, b=0, l=0, "cm"))
         # criteria = contour()
