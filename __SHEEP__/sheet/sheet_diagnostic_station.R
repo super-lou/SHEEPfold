@@ -233,7 +233,7 @@ sheet_diagnostic_station = function (data,
                                 margin_title=
                                     margin(t=0, r=7, b=0, l=0, "mm"),
                                 margin_spag=
-                                    margin(t=0, r=5, b=0, l=0, "mm"),
+                                    margin(t=0, r=6, b=0, l=0, "mm"),
                                 first=FALSE,
                                 last=TRUE)
         # medQJ = contour()
@@ -307,6 +307,7 @@ sheet_diagnostic_station = function (data,
             dTitle=0,
             add_name=TRUE,
             group_name="dans la région",
+            text2px_lim=50,
             margin_add=
                 margin(t=-3, r=0, b=0, l=0, "cm"))
         # criteria = contour()

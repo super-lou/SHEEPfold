@@ -35,7 +35,7 @@ panel_diagnostic_criteria = function (dataEXind,
                                       add_name=FALSE,
                                       group_name="dans la région",
                                       dx_interp=7.6,
-                                      nLim_interp=130,
+                                      text2px_lim=50,
                                       margin_add=margin(t=0, r=0,
                                                         b=0, l=0,
                                                         "mm")) {
@@ -186,13 +186,15 @@ panel_diagnostic_criteria = function (dataEXind,
     dy_T2 = 0.15
     dy_T2line = 0.4
     size_T2 = 2.7
-    ech_T2 = 7
+    ech_T2 = 7.5
 
     # dx_I2 = 0.2
     dy_I2 = 0.6
     size_I2 = 0.5
     
     ech_x = 2
+
+    PX = get_alphabet_in_px()
 
 ## 2. DATA FORMATTING ________________________________________________
     complete = function (X) {
@@ -237,6 +239,7 @@ panel_diagnostic_criteria = function (dataEXind,
     CodeIN = c(codeLight, groupCode)
     
     Model = levels(factor(dataEXind$Model[dataEXind$Code %in% CodeIN]))
+    Model_codeLight = levels(factor(dataEXind$Model[dataEXind$Code %in% codeLight]))
     nModel = length(Model)
 
     dataEXind_tmp = dataEXind
@@ -833,7 +836,16 @@ panel_diagnostic_criteria = function (dataEXind,
         space = spaces[1]
         
         nLim = as.integer((endMainTopic[i] - startMainTopic[i])*ech_T2)
-        label = guess_newline(mainTopic[i], nLim=nLim)
+        # label = guess_newline(mainTopic[i], px=7, PX=PX)
+        label = mainTopic[i]
+
+        if (!grepl("Performance", label) & !grepl("Sensibilité", label)) {
+            label = gsub(" ", "\n", label)
+        }
+        if (grepl("Sensibilité", label)) {
+            label = gsub("la ", "la\n", label)
+        }
+        
         label =  rev(unlist(strsplit(label, "\n")))
         nLine = length(label)
         
@@ -900,12 +912,11 @@ panel_diagnostic_criteria = function (dataEXind,
                      fill=NA, label.color=NA,
                      hjust=0, vjust=0.43, size=2.2)
     }
-
-    PX = get_alphabet_in_px(save=TRUE)
     
-    Span = lapply(strsplit(Model, "*"), X2px, PX=PX)
-    Span = lapply(Span, sum)
-    Span = unlist(Span)
+    # Span = lapply(strsplit(Model, "*"), X2px, PX=PX)
+    # Span = lapply(Span, sum)
+    # Span = unlist(Span)
+    Span = sapply(Model, text2px, PX=PX)
     Span = c(0, Span)
 
     find = function (x, table) {
@@ -916,6 +927,9 @@ panel_diagnostic_criteria = function (dataEXind,
     for (i in 1:nModel) {
 
         for (k in 1:length(dl_mod_line)) {
+            if (k == 2 & !(Model[i] %in% Model_codeLight)) {
+                next
+            }
             Ind = Ind +
                 annotate("line",
                          x=c(dx_mod_name + dx_mod_space*(i-1) +
@@ -955,6 +969,11 @@ panel_diagnostic_criteria = function (dataEXind,
                     meta[meta$Code == codeLight,][[paste0("Surface_",
                                                           Model[i],
                                                           "_km2")]])
+
+            if (is.na(S_code_model)) {
+                S_code_model = "X"
+            }
+            
             Ind = Ind +
                 annotate("text",
                          x=(dx_mod_name + dx_mod_space*(i-1) +
@@ -1264,7 +1283,7 @@ panel_diagnostic_criteria = function (dataEXind,
 
         Label = "Les stations choisies pour illustrer les résultats à l'échelle régionale illustrent la variabilité des performances obtenues sur les hydrogrammes des débits journaliers médians (stations associées aux maximum, quantile 75 % et 25 %, et minimum du KGE\u221A)."
         
-        Label = guess_newline(Label, nLim=nLim_interp)
+        Label = guess_newline(Label, px=text2px_lim, PX=PX)
         Label = unlist(strsplit(Label, "\n"))
             
         for (j in 1:length(Label)) {
@@ -1303,7 +1322,7 @@ panel_diagnostic_criteria = function (dataEXind,
             }
 
             Label = guess_newline(Warnings_code$warning[i],
-                                  nLim=nLim_interp)
+                                  px=text2px_lim, PX=PX)
             Label = unlist(strsplit(Label, "\n"))
 
             if (i + nLine + length(Label)-1 > nWar_lim | i > nWar) {

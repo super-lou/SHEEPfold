@@ -359,29 +359,13 @@ split_path = function (path) {
 }
 
 
-guess_newline = function (text, nLim=20, newlineId="\n") {
-    nbNewline = 0
-    nbChar = nchar(text)
-    while (nbChar > nLim | sum(grepl(" ", text)) == 0) {
-        nbNewline = nbNewline + 1
-        posSpace = which(strsplit(text, "")[[1]] == " ")
-        idNewline = which.min(abs(posSpace - nLim * nbNewline))
-        posNewline = posSpace[idNewline]
-        text = paste(substring(text,
-                               c(1, posNewline + 1),
-                               c(posNewline - 1,
-                                 nchar(text))),
-                     collapse=newlineId)
-        if (sum(grepl(" ", text)) == 0) {
-            break
-        }
-        Newline = substr(text,
-                         posNewline + 2,
-                         nchar(text))
-        nbChar = nchar(Newline)
-    }
-    return (text)
-}
+# X2px(unlist(strsplit(text, "")), PX)
+
+    # PX = get_alphabet_in_px(save=TRUE)
+    
+    # Span = lapply(strsplit(Model, "*"), X2px, PX=PX)
+    # Span = lapply(Span, sum)
+    # Span = unlist(Span)
 
 
 plotly_save = function (fig, path) {
@@ -393,9 +377,10 @@ plotly_save = function (fig, path) {
 }
 
 
+strsplit_unlist = function (...) {unlist(strsplit(...))}
 other_letters = c("é", "è", "à")
 numbers = c("1", "2", "3", "4", "5", "6", "7", "8", "9", "0")
-symbols = c("-", "_", ".", ",", "*")
+symbols = c("-", "_", ".", ",", "*", "'", "%", "(", ")", "[", "]", "{", "}", "!", "?", "+", "=", "@", "|", "#", "&")
 get_alphabet_in_px = function (alphabet=c(letters, LETTERS,
                                           other_letters,
                                           numbers, symbols),
@@ -460,8 +445,18 @@ get_alphabet_in_px = function (alphabet=c(letters, LETTERS,
 }
 
 
-X2px = function (X, PX) {
-    PX[X]
+text2px = function (text, PX) {
+    text = unlist(strsplit(text, ""))
+    px = PX[text]
+    px[is.na(px)] = mean(px, na.rm=TRUE)
+    px = sum(px)
+    return (px)
+}
+
+char2px = function (char, PX) {
+    px = PX[char]
+    px[is.na(px)] = mean(px, na.rm=TRUE)
+    return (px)
 }
 
 
@@ -472,4 +467,55 @@ select_good = function (X) {
         value = mean(value, na.rm=TRUE)
     }
     return (value)
+}
+
+guess_newline = function (text, px=40, nChar=100,
+                          PX=NULL, newlineId="\n") {
+
+    if (is.null(px)) {
+        lim = nChar
+        estimator = nchar
+    } else {
+        lim = px
+        if (is.null(PX)) {
+            PX = get_alphabet_in_px()
+        }
+        estimator = function (text) {
+            text2px(text, PX=PX)
+        }
+    }
+    Newline = text
+    distance = estimator(Newline)
+    begin = 0
+    
+    while (distance > lim & sum(grepl(" ", text)) > 0) {        
+        posSpace = which(strsplit(Newline, "")[[1]] == " ")
+        posSpace_distance = sapply(lapply(
+            posSpace, substr, x=Newline, start=1),
+            estimator)
+        idNewline = which.min(abs(posSpace_distance - lim))
+        posNewline = posSpace[idNewline] + begin
+
+        # print(posNewline)
+        # print(Newline)
+        # print(distance)
+        # print(begin)
+        # print("")
+        
+        text = paste(substring(text,
+                               c(1, posNewline + 1),
+                               c(posNewline - 1,
+                                 nchar(text))),
+                     collapse=newlineId)
+        if (sum(grepl(" ", text)) == 0) {
+            break
+        }
+        Newline = substr(text,
+                         posNewline + 1,
+                         nchar(text))
+        distance = estimator(Newline)
+        begin = nchar(text) - nchar(Newline) + begin
+    }
+    
+    return (text)
 }

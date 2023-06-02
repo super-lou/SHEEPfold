@@ -165,12 +165,16 @@ sheet_diagnostic_region = function (meta,
                                         Xlabel="",
                                         limits_ymin=0,
                                         isBackObsAbove=TRUE,
+                                        lwObs=0.6,
+                                        lwObs_back=1,
+                                        lwSim=0.4,
+                                        lwSim_back=0.7,
                                         grid=TRUE,
                                         ratio_title=1/15,
                                         margin_title=
                                             margin(t=0, r=7, b=0, l=0, "mm"),
                                         margin_spag=
-                                            margin(t=0, r=5, b=0, l=0, "mm"),
+                                            margin(t=0, r=6, b=0, l=0, "mm"),
                                         first=FALSE,
                                         last=TRUE)
             }
@@ -182,6 +186,9 @@ sheet_diagnostic_region = function (meta,
                               width=medQJ_width)
         }
 
+        flock$sheep$label[flock$sheep$id %in% c("medQJ_1.spag", "medQJ_025.spag")] = "align1"
+        flock$sheep$label[flock$sheep$id %in% c("medQJ_075.spag", "medQJ_0.spag")] = "align2"
+        
         criteria = panel_diagnostic_criteria(
             dataEXind,
             metaEXind,
@@ -196,7 +203,7 @@ sheet_diagnostic_region = function (meta,
             Probs=0.1,
             dTitle=0,
             add_name=TRUE,
-            nLim_interp=125,
+            text2px_lim=51,
             margin_add=
                 margin(t=-4, r=0, b=0, l=0, "cm"))
 

@@ -190,9 +190,8 @@ sheet_diagnostic_regime = function (meta,
                 }
                 
                 dataMOD = dataEXserie_code[["median{QJ}C5"]]
-                dataMOD$Date = as.Date(dataMOD$Yearday-1,
-                                       origin=as.Date("1972-01-01"))
                 dataMOD = dplyr::rename(dataMOD,
+                                        Date="Yearday",
                                         Q_obs="median{QJ}C5_obs",
                                         Q_sim="median{QJ}C5_sim")
                 medQJ = panel_spaghetti(
@@ -211,12 +210,16 @@ sheet_diagnostic_regime = function (meta,
                     Xlabel="",
                     limits_ymin=0,
                     isBackObsAbove=TRUE,
+                    lwObs=0.6,
+                    lwObs_back=1,
+                    lwSim=0.4,
+                    lwSim_back=0.7,
                     grid=TRUE,
                     ratio_title=1/15,
                     margin_title=
                         margin(t=0, r=7, b=0, l=0, "mm"),
                     margin_spag=
-                        margin(t=0, r=3.5, b=0, l=0, "mm"),
+                        margin(t=0, r=6, b=0, l=0, "mm"),
                     first=FALSE,
                     last=TRUE)
             }
@@ -242,6 +245,7 @@ sheet_diagnostic_regime = function (meta,
             Probs=0.1,
             dTitle=0,
             add_name=TRUE,
+            text2px_lim=51,
             margin_add=
                 margin(t=-3.8, r=0, b=0, l=0, "cm"))
         STOCK = add_plot(STOCK,

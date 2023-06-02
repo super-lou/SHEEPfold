@@ -166,11 +166,11 @@ panel_mini_map = function (meta, Shapefiles,
             geom_sf(data=regionHydro[regionHydro$CdRegionHy == regionLight,],
                     color="white",
                     fill=NA,
-                    linewidth=1) +
+                    linewidth=1.1) +
             geom_sf(data=regionHydro[regionHydro$CdRegionHy == regionLight,],
                     color=INRAEdarkcyan,
                     fill=NA,
-                    linewidth=0.3)
+                    linewidth=0.5)
     }
 
     if (!is.null(regimeCodeLight)) {
