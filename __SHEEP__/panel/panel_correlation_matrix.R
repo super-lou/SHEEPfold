@@ -434,7 +434,7 @@ panel_correlation_matrix = function (dataEX,
     nLine = c()
     for (i in 1:nMainTopic) {
         nLim = as.integer((endMainTopic[i] - startMainTopic[i])*ech_T2)
-        label = guess_newline(mainTopic[i], nLim=nLim)
+        label = guess_newline(mainTopic[i], px=NULL, nChar=nLim)
         nLine = c(nLine, length(label))
     }
     dy_I2 = dy_I2 + dy_T2line*max(nLine)
@@ -442,7 +442,7 @@ panel_correlation_matrix = function (dataEX,
     for (i in 1:nMainTopic) {
         
         nLim = as.integer((endMainTopic[i] - startMainTopic[i])*ech_T2)
-        label = guess_newline(mainTopic[i], nLim=nLim)
+        label = guess_newline(mainTopic[i], px=NULL, nChar=nLim)
         label =  rev(unlist(strsplit(label, "\n")))
         nLine = length(label)
         

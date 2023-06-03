@@ -37,7 +37,6 @@ sheet_correlation_matrix = function (dataEX, metaEX,
     page_margin = c(t=0.5, r=0.5, b=0.5, l=0.5)
 
     leg_width = 11
-    # tl_width = 21 - leg_width - page_margin["l"] - page_margin["r"]
     void_width = 21 - leg_width - page_margin["l"] - page_margin["r"]
     
     info_height = 1
@@ -57,10 +56,7 @@ sheet_correlation_matrix = function (dataEX, metaEX,
     ssg_shift = c(x=2.5, y=0)
     si_shift = c(x=2.5, y=0.2)
 
-    # NAME = matrix(c("info", "cm", "cb", "ssg", "si", "foot",
-    #                 "info", "cm", "tl", "tl", "tl", "foot"),
-    #               ncol=2)
-    NAME = matrix(c("info", "cm", "cb", "ssg", "si", "foot",
+    plan = matrix(c("info", "cm", "cb", "ssg", "si", "foot",
                     "info", "cm", "void", "void", "void", "foot"),
                   ncol=2)
     WIP = FALSE
@@ -87,7 +83,9 @@ sheet_correlation_matrix = function (dataEX, metaEX,
                          "   ", round(i/nModelGroup*100, 1), "% done"))
         }
 
-        STOCK = tibble()
+        flock = bring_grass()
+        flock = plan_of_flock(flock, plan)
+        
         var_plotted = c()
         
         dataEX_model = dataEX[dataEX$Model %in% Model,]
@@ -100,10 +98,10 @@ sheet_correlation_matrix = function (dataEX, metaEX,
                              margin=unit(c(t=0, r=0, b=0, l=0), "mm"),
                              hjust=0, vjust=1,
                              gp=gpar(col="#00A3A8", fontsize=16))
-        STOCK = add_plot(STOCK,
-                         plot=info,
-                         name="info",
-                         height=info_height)
+        flock = add_sheep(flock,
+                          sheep=info,
+                          id="info",
+                          height=info_height)
         
         cm = panel_correlation_matrix(dataEX_model,
                                        metaEX,
@@ -111,10 +109,10 @@ sheet_correlation_matrix = function (dataEX, metaEX,
                                        margin=cm_margin)
         # cm = res$cm
         # subTopic_path = res$info
-        STOCK = add_plot(STOCK,
-                         plot=cm,
-                         name="cm",
-                         height=cm_height)
+        flock = add_sheep(flock,
+                          sheep=cm,
+                          id="cm",
+                          height=cm_height)
 
         # tl = leg_shape_info(Shape=subTopic_path,
         #                     Size=0.5,
@@ -129,10 +127,10 @@ sheet_correlation_matrix = function (dataEX, metaEX,
         #                  plot=tl,
         #                  name="tl",
         #                  width=tl_width)
-        STOCK = add_plot(STOCK,
-                         plot=void(),
-                         name="void",
-                         width=void_width)
+        flock = add_sheep(flock,
+                          sheep=void(),
+                          id="void",
+                          width=void_width)
         
         cb = panel_colorbar(-1, 1, Palette=Palette_rainbow(),
                           colorStep=6, include=TRUE,
@@ -145,11 +143,11 @@ sheet_correlation_matrix = function (dataEX, metaEX,
                           width=leg_width,
                           shift=cb_shift,
                           WIP=WIP)
-        STOCK = add_plot(STOCK,
-                         plot=cb,
-                         name="cb",
-                         height=cb_height,
-                         width=leg_width)
+        flock = add_sheep(flock,
+                          sheep=cb,
+                          id="cb",
+                          height=cb_height,
+                          width=leg_width)
 
         ssg = panel_shape_size_gradient(shape="rect",
                                       Size=c(0.1, 0.15, 0.2, 0.25),
@@ -167,11 +165,11 @@ sheet_correlation_matrix = function (dataEX, metaEX,
                                       width=leg_width,
                                       shift=ssg_shift,
                                       WIP=WIP)
-        STOCK = add_plot(STOCK,
-                         plot=ssg,
-                         name="ssg",
-                         height=ssg_height,
-                         width=leg_width)
+        flock = add_sheep(flock,
+                          sheep=ssg,
+                          id="ssg",
+                          height=ssg_height,
+                          width=leg_width)
 
         if (nModel == 1) {
             si = panel_shape_info(Shape="rect",
@@ -190,12 +188,11 @@ sheet_correlation_matrix = function (dataEX, metaEX,
         } else {
             si = void()
         }
-        
-        STOCK = add_plot(STOCK,
-                         plot=si,
-                         name="si",
-                         height=si_height,
-                         width=leg_width)
+        flock = add_sheep(flock,
+                          sheep=si,
+                          id="si",
+                          height=si_height,
+                          width=leg_width)
 
         footName = paste0('Matrice de corrélation : ', Model2Disp)
         if (is.null(df_page)) {
@@ -214,20 +211,19 @@ sheet_correlation_matrix = function (dataEX, metaEX,
         }
         foot = panel_foot(footName, n_page,
                           foot_height, logo_path)
-        STOCK = add_plot(STOCK,
-                         plot=foot,
-                         name="foot",
-                         height=foot_height)
+        flock = add_sheep(flock,
+                          sheep=foot,
+                          id="foot",
+                          height=foot_height)
 
-        res = merge_panel(STOCK, NAME=NAME,
-                          page_margin=page_margin,
-                          paper_size="A4",
-                          hjust=0, vjust=1)
-
+        res = return_to_sheepfold(flock,
+                                  page_margin=page_margin,
+                                  paper_size="A4",
+                                  hjust=0, vjust=1,
+                                  verbose=TRUE)
+        
         plot = res$plot
         paper_size = res$paper_size
-
-        print(paper_size)
 
         filename = paste0("matrice_correlation_", Model4Save, ".pdf")
 

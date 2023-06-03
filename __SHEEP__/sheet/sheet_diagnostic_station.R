@@ -79,7 +79,7 @@ sheet_diagnostic_station = function (data,
     Code = levels(factor(data$Code))
     CodeALL = levels(factor(dataEXind$Code))
     nCode = length(Code)
-    
+
     for (i in 1:nCode) {
         code = Code[i]
         if (verbose) {
