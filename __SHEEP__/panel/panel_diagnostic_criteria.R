@@ -235,7 +235,8 @@ panel_diagnostic_criteria = function (dataEXind,
 
     dataEXind = dplyr::select(dataEXind, vars2keep)
 
-
+    # print(dataEXind)
+    
     CodeIN = c(codeLight, groupCode)
     
     Model = levels(factor(dataEXind$Model[dataEXind$Code %in% CodeIN]))
@@ -252,23 +253,34 @@ panel_diagnostic_criteria = function (dataEXind,
     dataEXind_tmp = dataEXind
     dataEXind_tmp = dplyr::select(dataEXind_tmp, -c(Code, Model))
 
+    # print(metaEXind)
+    
     matchVar = match(names(dataEXind_tmp), metaEXind$var)
     matchVar = matchVar[!is.na(matchVar)]
+
+    # print(names(dataEXind_tmp))
+    # print(metaEXind$var)
+    # print(matchVar)
+
+    # print("")
     dataEXind_tmp = dataEXind_tmp[matchVar]
 
     nameCol = names(dataEXind_tmp)
     Var = nameCol
     nVar = length(Var)
-    
+
     VarTEX = gsub("etiage", "étiage", Var)
     for (i in 1:nVar) {
         var = VarTEX[i]
         
         if (grepl("[_]", var) & !grepl("[_][{]", var)) {
-            var = gsub("[_]", "$_{$", var)
+            var = sub("[_]", "$_{$", var)
             var = paste0(var, "}")
+
+            print(var)
+            
         } else if (grepl("[_]", var) & grepl("[_][{]", var)) {
-            var = gsub("[_][{]", "$_{$", var)
+            var = sub("[_][{]", "$_{$", var)
         }
 
         if (grepl("alpha", var)) {
@@ -327,7 +339,14 @@ panel_diagnostic_criteria = function (dataEXind,
     space = 0
     Spaces = c()
 
+    print(VarTEX)
+    print(Var)
 
+
+
+
+
+    
 ## 3. GRAPHICAL INITIALISATION _______________________________________
     Ind = ggplot() + theme_void() + coord_fixed(clip="off") +
         theme(plot.margin=margin_add,

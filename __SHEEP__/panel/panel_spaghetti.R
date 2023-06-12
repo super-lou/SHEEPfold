@@ -91,7 +91,7 @@ panel_spaghetti = function (data_code, Colors=NULL,
             annotate("line",
                      x=c(0.25, 0.27),
                      y=rep(0.25, 2),
-                     color=IPCCgrey25,
+                     color=IPCCgrey23,
                      linewidth=0.7,
                      lineend="round") +
             annotate("text",
@@ -287,7 +287,7 @@ panel_spaghetti = function (data_code, Colors=NULL,
             ggplot2::annotate("line",
                               x=data_code_obs$Date,
                               y=data_code_obs$Q,
-                              color=IPCCgrey25,
+                              color=IPCCgrey23,
                               linewidth=lwObs,#0.55,
                               lineend="round")
     } else {
@@ -295,7 +295,7 @@ panel_spaghetti = function (data_code, Colors=NULL,
             ggplot2::annotate("line",
                               x=data_code_obs$Date,
                               y=data_code_obs$Q,
-                              color=IPCCgrey25,
+                              color=IPCCgrey23,
                               linewidth=lwObs,#0.2,
                               lineend="round") 
     }

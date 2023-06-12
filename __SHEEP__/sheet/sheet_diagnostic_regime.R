@@ -65,9 +65,9 @@ sheet_diagnostic_regime = function (meta,
 
     dataEXseriePA_med = dplyr::summarise(dplyr::group_by(dataEXserie$PA,
                                                          Code, Date),
-                                         PAs=median(PAs, na.rm=TRUE),
-                                         PAl=median(PAl, na.rm=TRUE),
-                                         PA=median(PA, na.rm=TRUE),
+                                         PAs=median(PAs_obs, na.rm=TRUE),
+                                         PAl=median(PAl_obs, na.rm=TRUE),
+                                         PA=median(PA_obs, na.rm=TRUE),
                                          .groups="drop")
 
     regimeHydro = find_regimeHydro(dataEXserieQM_obs, lim_number=2,
@@ -189,11 +189,11 @@ sheet_diagnostic_regime = function (meta,
                     margin_add = margin(t=0, r=3.5, b=0, l=0, "mm")
                 }
                 
-                dataMOD = dataEXserie_code[["median{QJ}C5"]]
+                dataMOD = dataEXserie_code[["medQJC5"]]
                 dataMOD = dplyr::rename(dataMOD,
                                         Date="Yearday",
-                                        Q_obs="median{QJ}C5_obs",
-                                        Q_sim="median{QJ}C5_sim")
+                                        Q_obs="medQJC5_obs",
+                                        Q_sim="medQJC5_sim")
                 medQJ = panel_spaghetti(
                     dataMOD,
                     Colors,

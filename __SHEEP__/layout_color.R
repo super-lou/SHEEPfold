@@ -34,6 +34,7 @@ IPCCgrey50 = "#81848b" # low important annotation
 IPCCgrey48 = "#847b73" # major line
 IPCCgrey40 = "#656769" # low important label
 IPCCgrey25 = "#454547"
+IPCCgrey23 = "#3b3b3c"
 IPCCgrey20 = "#060403" # important title, label or annotation
 IPCCgrey18 = "#2f2f32" # low important title
 IPCCgrey13 = "#231f20" # font

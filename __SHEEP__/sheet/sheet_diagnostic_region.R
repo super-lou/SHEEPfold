@@ -142,11 +142,11 @@ sheet_diagnostic_region = function (meta,
                     margin_add = margin(t=0, r=3.5, b=0, l=0, "mm")
                 }
                 
-                dataMOD = dataEXserie_code[["median{QJ}C5"]]
+                dataMOD = dataEXserie_code[["medQJC5"]]
                 dataMOD = dplyr::rename(dataMOD,
                                         Date="Yearday",
-                                        Q_obs="median{QJ}C5_obs",
-                                        Q_sim="median{QJ}C5_sim")
+                                        Q_obs="medQJC5_obs",
+                                        Q_sim="medQJC5_sim")
                 
                 medQJ = panel_spaghetti(dataMOD,
                                         Colors,

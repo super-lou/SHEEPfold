@@ -40,18 +40,18 @@ sheet_diagnostic_station = function (data,
     chronicle_height = 3
     QA_height = 3
     medQJ_height = 7
-    FDC_height = 7
+    CDC_height = 7
     criteria_height = 15
 
     foot_height = 1.25
     
     medQJ_width = 10
-    FDC_width = 10
+    CDC_width = 10
 
     
     plan = matrix(c(
         "info", "chronicle", "QA", "medQJ", "criteria", "foot",
-        "info", "chronicle", "QA", "FDC", "criteria", "foot"),
+        "info", "chronicle", "QA", "CDC", "criteria", "foot"),
         ncol=2)
     WIP = FALSE
     
@@ -60,15 +60,15 @@ sheet_diagnostic_station = function (data,
                          Q=select_good(Q_obs),
                          .groups="drop")
     dataEXserieQM_obs =
-        dplyr::summarise(dplyr::group_by(dataEXserie$QM, Code, Month),
+        dplyr::summarise(dplyr::group_by(dataEXserie$QM, Code, Date),
                          QM=select_good(QM_obs),
                          .groups="drop")
 
     dataEXseriePA_med = dplyr::summarise(dplyr::group_by(dataEXserie$PA,
                                                          Code, Date),
-                                         PAs=median(PAs, na.rm=TRUE),
-                                         PAl=median(PAl, na.rm=TRUE),
-                                         PA=median(PA, na.rm=TRUE),
+                                         PAs=median(PAs_obs, na.rm=TRUE),
+                                         PAl=median(PAl_obs, na.rm=TRUE),
+                                         PA=median(PA_obs, na.rm=TRUE),
                                          .groups="drop")
 
     regimeHydro = find_regimeHydro(dataEXserieQM_obs, lim_number=2, dataEXseriePA_med)
@@ -202,12 +202,12 @@ sheet_diagnostic_station = function (data,
 
         flock$sheep$label[flock$sheep$id == "chronicle.spag"] = "align"
         flock$sheep$label[flock$sheep$id == "QA.spag"] = "align"
-        
-        dataMOD = dataEXserie_code[["median{QJ}C5"]]
+
+        dataMOD = dataEXserie_code[["medQJC5"]]
         dataMOD = dplyr::rename(dataMOD,
                                 Date="Yearday",
-                                Q_obs="median{QJ}C5_obs",
-                                Q_sim="median{QJ}C5_sim")
+                                Q_obs="medQJC5_obs",
+                                Q_sim="medQJC5_sim")
         medQJ = panel_spaghetti(dataMOD,
                                 Colors,
                                 title="(c) Débit journalier médian inter-annuel",
@@ -246,12 +246,12 @@ sheet_diagnostic_station = function (data,
         # print("medQJ")
         # print(flock)
 
-        dataMOD = dataEXserie_code[["FDC"]]
+        dataMOD = dataEXserie_code[["CDC"]]
         dataMOD = dplyr::rename(dataMOD,
-                                Date="FDC_obs_p",
-                                Q_obs="FDC_obs_Q",
-                                Q_sim="FDC_sim_Q")
-        FDC = panel_spaghetti(dataMOD,
+                                Date="CDC_p",
+                                Q_obs="CDC_Q_obs",
+                                Q_sim="CDC_Q_sim")
+        CDC = panel_spaghetti(dataMOD,
                               Colors,
                               title="(d) Courbe des débits classés",
                               unit="m^{3}.s^{-1}",
@@ -279,14 +279,14 @@ sheet_diagnostic_station = function (data,
                                   margin(t=0, r=0, b=0, l=3.5, "mm"),
                               first=FALSE,
                               last=TRUE)
-        # FDC = contour()
+        # CDC = contour()
         flock = add_sheep(flock,
-                          sheep=FDC,
-                          id="FDC",
-                          height=FDC_height,
-                          width=FDC_width)
+                          sheep=CDC,
+                          id="CDC",
+                          height=CDC_height,
+                          width=CDC_width)
 
-        # print("FDC")
+        # print("CDC")
         # print(flock)
 
         Code_region = CodeALL[substr(CodeALL, 1, 1) == substr(code, 1, 1)]
