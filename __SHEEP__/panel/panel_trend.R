@@ -22,20 +22,89 @@
 
 #' @title Time panel
 #' @export
-panel_trend = function (dataEx_code, trend_code, var, unit,
-                       samplePeriod_code=NULL,
-                       linetype_per='solid', level=0.1,
-                       colorForce=FALSE, missRect=FALSE,
-                       unit2day=365.25, trend_period=NULL,
-                       mean_period=NULL, axis_xlim=NULL, grid=TRUE,
-                       ymin_lim=NULL, color=NULL,
-                       first=FALSE, last=FALSE, lim_pct=10) {
+panel_trend = function (dataEx, trendEX,
+                        mean_period=NULL,
+                        linetype_per='solid',
+                        colorForce=FALSE, missRect=FALSE,
+                        axis_xlim=NULL, grid=TRUE,
+                        ymin_lim=NULL,
+                        first=FALSE, last=FALSE) {
 
+
+
+
+
+
+
+
+    unit = metaEX$unit[metaEX$var == var]
+    samplePeriod = metaEX$samplePeriod[metaEX$var == var]
+
+    color = c()
+
+    # For all the period
+    for (j in 1:nPeriod) {
+        period = Period[[j]]
+        Start = period[1]
+        End = period[2]
+        
+        dataEX_period_code = dataEX[dataEX$Date >= Start &
+                                    dataEX$Date <= End &
+                                    dataEX$Code == code,]
+
+        trendEX_period_code_var =
+            trendEX[sapply(lapply(trendEX$period,
+                                  '==', period), all) &
+                    trendEX$Code == code &
+                    trendEX$var == var,]
+
+        Ntrend = nrow(trendEX_period_code_var)
+        if (Ntrend > 1) {
+            trendEX_period_code_var = trendEX_period_code_var[1,]
+        }
+
+        if (!trendEX_period_code_var$H) {
+            color = append(color, color_tmp)
+            color = append(color, color_tmp)
+            next
+        }
+
+        if (unit == 'hm^{3}' | unit == 'm^{3}.s^{-1}') {
+            value = trendEX_period_code_var$a / mean(dataEX_period_code[[var]],
+                                                     na.rm=TRUE)
+
+        } else if (unit == "jour de l'année" | unit == 'jour' | unit == 'jour.an^{-1}') {
+            value = trendEX_period_code_var$a
+        }
+
+        reverse = get_reverse(var)
+        Palette = get_palette("BrBG",
+                              10,
+                              reverse)
+        res = compute_colorBin(minTrend[j, i],
+                               maxTrend[j, i],
+                               colorStep=10,
+                               center=TRUE,
+                               include=FALSE)
+        color_tmp = get_color(value,
+                              upBin=res$upBin,
+                              lowBin=res$lowBin,
+                              Palette=Palette)
+        color = append(color, color_tmp)
+
+
+
+
+
+        
+
+
+    
     isDate = as.Date("1970-01-01")
     
     # # Compute max and min of flow
-    maxX = max(dataEx_code$X, na.rm=TRUE)
-    minX = min(dataEx_code$X, na.rm=TRUE)
+    maxX = max(dataEx$X, na.rm=TRUE)
+    minX = min(dataEx$X, na.rm=TRUE)
 
     maxX_win = maxX * 1.05
     minX_win = minX * 0.95#expansion
@@ -89,11 +158,11 @@ panel_trend = function (dataEx_code, trend_code, var, unit,
             
         # If there is no 'axis_lim'
         } else {
-            if (minPer < min(dataEx_code$Date)) {
-                minPer = min(dataEx_code$Date)
+            if (minPer < min(dataEx$Date)) {
+                minPer = min(dataEx$Date)
             }
-            if (maxPer > max(dataEx_code$Date)) {
-                maxPer = max(dataEx_code$Date)
+            if (maxPer > max(dataEx$Date)) {
+                maxPer = max(dataEx$Date)
             }
         }
     }
@@ -119,14 +188,14 @@ panel_trend = function (dataEx_code, trend_code, var, unit,
             xmax = as.Date(mean_period[[j]][2])
 
             # Extract the data corresponding to this sub period
-            dataEx_code_per =
-                dataEx_code[dataEx_code$Date >= xmin
-                             & dataEx_code$Date <= xmax,]
+            dataEx_per =
+                dataEx[dataEx$Date >= xmin
+                             & dataEx$Date <= xmax,]
             
             # If the min over the sub period is greater
             # than the min of the entier period and
             # it is not the first sub period
-            if (xmin > min(dataEx_code$Date) & j != 1) {
+            if (xmin > min(dataEx$Date) & j != 1) {
                 # Substract 6 months to be in the middle of
                 # the previous year
                 xmin = xmin - months(6)
@@ -147,7 +216,7 @@ panel_trend = function (dataEx_code, trend_code, var, unit,
             # If the max over the sub period is smaller
             # than the max of the entier period and
             # it is not the last sub period
-            if (xmax < max(dataEx_code$Date) & j != nPeriod_mean) {
+            if (xmax < max(dataEx$Date) & j != nPeriod_mean) {
                 # Add 6 months to be in the middle of
                 # the following year
                 xmax = xmax + months(6)
@@ -173,7 +242,7 @@ panel_trend = function (dataEx_code, trend_code, var, unit,
             }
 
             # Mean of the flow over the sub period
-            ymax = mean(dataEx_code_per$X, na.rm=TRUE)
+            ymax = mean(dataEx_per$X, na.rm=TRUE)
 
             # Create temporary tibble with variable
             # to create rectangle for mean step
@@ -304,8 +373,8 @@ panel_trend = function (dataEx_code, trend_code, var, unit,
     if (var == '\\sqrt{Q}' | var == 'Q') {
         # Plot the data as line
         p = p +
-            geom_line(aes(x=dataEx_code$Date,
-                          y=dataEx_code$X),
+            geom_line(aes(x=dataEx$Date,
+                          y=dataEx$X),
                       color='grey20',
                       size=0.3,
                       lineend="round")
@@ -313,14 +382,14 @@ panel_trend = function (dataEx_code, trend_code, var, unit,
         # Plot the data as point
         if (unit == "jour de l'année") {
             p = p +
-                geom_point(aes(x=dataEx_code$Date,
-                               y=as.Date(dataEx_code$X + isDate)),
+                geom_point(aes(x=dataEx$Date,
+                               y=as.Date(dataEx$X + isDate)),
                            shape=19, color='grey50', alpha=1,
                            stroke=0, size=1)
         } else {
             p = p +
-                geom_point(aes(x=dataEx_code$Date,
-                               y=dataEx_code$X),
+                geom_point(aes(x=dataEx$Date,
+                               y=dataEx$X),
                            shape=19, color='grey50', alpha=1,
                            stroke=0, size=1)
         }
@@ -330,7 +399,7 @@ panel_trend = function (dataEx_code, trend_code, var, unit,
     # If the option is TRUE
     if (missRect) {
         # Remove NA data
-        NAdate = dataEx_code$Date[is.na(dataEx_code$X)]
+        NAdate = dataEx$Date[is.na(dataEx$X)]
         # Get the difference between each point of date data without NA
         dNAdate = diff(NAdate)
         # If difference of day is not 1 then
@@ -351,11 +420,11 @@ panel_trend = function (dataEx_code, trend_code, var, unit,
         
     ### Trend ###
     # If there is trends
-    if (!is.null(trend_code)) {
+    if (!is.null(trendEX)) {
 
         # Extract start and end of trend periods
-        Start = trend_code$start
-        End = trend_code$end
+        Start = trendEX$start
+        End = trendEX$end
         # Get the name of the different period
         UStart = levels(factor(Start))        
         UEnd = levels(factor(End))
@@ -371,37 +440,37 @@ panel_trend = function (dataEx_code, trend_code, var, unit,
         for (i in 1:nPeriod_trend) {
 
             # Extracts the corresponding data for the period
-            dataEx_code_per =
-                dataEx_code[dataEx_code$Date >= Start[i] 
-                             & dataEx_code$Date <= End[i],]
+            dataEx_per =
+                dataEx[dataEx$Date >= Start[i] 
+                             & dataEx$Date <= End[i],]
 
             # Computes the mean of the data on the period
-            dataExMean = mean(dataEx_code_per$X,
+            dataExMean = mean(dataEx_per$X,
                             na.rm=TRUE)
             
             # Get the trend associated to the first period
-            trend_code_per = 
-                trend_code[trend_code$start == Start[i] 
-                              & trend_code$end == End[i],]
+            trendEX_per = 
+                trendEX[trendEX$start == Start[i] 
+                              & trendEX$end == End[i],]
             
             # Number of trend selected
-            Ntrend = nrow(trend_code_per)
+            Ntrend = nrow(trendEX_per)
             # If the number of trend is greater than a unique one
             if (Ntrend > 1) {
                 # Extract only the first hence it is the same period
-                trend_code_per = trend_code_per[1,]
+                trendEX_per = trendEX_per[1,]
             }            
 
-            dataEx_codeNoNA = dataEx_code[!is.na(dataEx_code$X),]
+            dataExNoNA = dataEx[!is.na(dataEx$X),]
             
             # Search for the index of the closest existing date 
             # to the start of the trend period of analysis
-            iStart = which.min(abs(dataEx_codeNoNA$Date - Start[i]))
+            iStart = which.min(abs(dataExNoNA$Date - Start[i]))
             # Same for the end
-            iEnd = which.min(abs(dataEx_codeNoNA$Date - End[i]))
+            iEnd = which.min(abs(dataExNoNA$Date - End[i]))
             # Get the start and end date associated
-            xmin = dataEx_codeNoNA$Date[iStart]
-            xmax = dataEx_codeNoNA$Date[iEnd]
+            xmin = dataExNoNA$Date[iStart]
+            xmax = dataExNoNA$Date[iEnd]
 
             # If there is a x axis limit
             if (!is.null(axis_xlim)) {
@@ -424,8 +493,8 @@ panel_trend = function (dataEx_code, trend_code, var, unit,
             # Convert the number of day to the unit of the period
             abs_num = as.numeric(abs, origin="1970-01-01") / unit2day
             # Compute the y of the trend
-            ord = abs_num * trend_code_per$a +
-                trend_code_per$b
+            ord = abs_num * trendEX_per$a +
+                trendEX_per$b
 
             # Create temporary tibble with variable to plot trend
             # for each period
@@ -439,7 +508,7 @@ panel_trend = function (dataEx_code, trend_code, var, unit,
                 codeDate = axis_xlim
             } else {
                 # The entire date data is selected
-                codeDate = dataEx_code$Date
+                codeDate = dataEx$Date
             }
             # The y limit is stored in a vector
             codeX = c(minX, maxX)
@@ -471,9 +540,9 @@ panel_trend = function (dataEx_code, trend_code, var, unit,
             ymaxR = y + gpct(5, codeX, min_lim=ymin_lim)
 
             # Gets the trend
-            trend = trend_code_per$a
+            trend = trendEX_per$a
             # Gets the p value
-            pVal = trend_code_per$p
+            pVal = trendEX_per$p
 
             if (pVal <= level) {
                 colorLine = color[i]
@@ -710,7 +779,7 @@ panel_trend = function (dataEx_code, trend_code, var, unit,
             codeDate = axis_xlim
         } else {
             # The entire date data is selected
-            codeDate = dataEx_code$Date
+            codeDate = dataEx$Date
         }
         # The y limit is stored in a vector
         codeX = c(minX_win, maxX_win)
@@ -769,7 +838,7 @@ panel_trend = function (dataEx_code, trend_code, var, unit,
     }
 
     if (is.null(axis_xlim)) {
-        limits = c(min(dataEx_code$Date), max(dataEx_code$Date))
+        limits = c(min(dataEx$Date), max(dataEx$Date))
     } else {
         limits = axis_xlim
     }
@@ -863,7 +932,7 @@ panel_trend = function (dataEx_code, trend_code, var, unit,
     }
 
     # Margins
-    if (!is.null(trend_code)) {
+    if (!is.null(trendEX)) {
         if (nPeriod_trend > 1) {
             tt = 2.5
             t = 2

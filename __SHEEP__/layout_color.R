@@ -152,68 +152,36 @@ theme_WIP = function () {
           axis.line.x=element_line(color=IPCCgrey75, size=0.3),
           axis.line.y=element_line(color=IPCCgrey75, size=0.3))
 }
-    
-### 1.2. Color palette _______________________________________________
-#' @title Palette ground
-#' @export
-Palette_ground = function () {
-    palette = c("#543005",
-                "#8c510a",
-                "#bf812d",
-                "#dfc27d",
-                "#f6e8c3",
-                "#c7eae5",
-                "#80cdc1",
-                "#35978f",
-                "#01665e",
-                "#003c30")
-    return (palette)
-}
-
-#' @title Palette rainbow
-#' @export
-Palette_rainbow = function () {
-    palette = c('#d73027',
-                '#fc8d59',
-                '#fee090',
-                '#e0f3f8',
-                '#91bfdb',
-                '#4575b4')
-    return (palette)
-}
 
 
 ## 2. COLOR MANAGEMENT _______________________________________________
 ### 2.1. Compute colors ______________________________________________
 #' @title Compute color bin
 #' @export
-compute_colorBin = function (min, max, Palette, colorStep=256,
-                             include=FALSE, reverse=FALSE) {
+compute_colorBin = function (min, max, colorStep, center=TRUE,
+                             include=FALSE) {
 
-    # Gets the number of discrete colors in the palette
-    nSample = length(Palette)
-
-    if (reverse) {
-        Palette = rev(Palette)
+    if (center) {
+        # Computes the absolute max
+        maxAbs = max(abs(max), abs(min))
+        minValue = -maxAbs
+        maxValue = maxAbs
+    } else {
+        minValue = min
+        maxValue = max
     }
-    # Recreates a continuous color palette
-    PaletteColors = colorRampPalette(Palette)(colorStep)
-
-    # Computes the absolute max
-    maxAbs = max(abs(max), abs(min))
-
+    
     if (include) {
         nBin = colorStep + 1
     } else {
         nBin = colorStep - 1
     } 
     
-    bin = seq(-maxAbs, maxAbs, length.out=nBin)
+    bin = seq(minValue, maxValue, length.out=nBin)
     if (!include) {
         upBin = c(bin, Inf)
         lowBin = c(-Inf, bin)
         bin = c(-Inf, bin, Inf)
-        
     } else {
         upBin = bin[2:length(bin)]
         lowBin = bin[1:(length(bin)-1)]
@@ -221,53 +189,109 @@ compute_colorBin = function (min, max, Palette, colorStep=256,
 
     midBin = zoo::rollmean(bin, 2)
 
-    res = list(Palette=PaletteColors, bin=bin,
-               upBin=upBin, midBin=midBin,
-               lowBin=lowBin)
+    res = list(bin=bin, upBin=upBin,
+               midBin=midBin, lowBin=lowBin)
     return (res)
 }
 
-#' @title Compute color
-#' @export
-compute_color = function (value, min, max, Palette,
-                          colorStep=256, include=FALSE,
-                          reverse=FALSE) {
-
-    if (is.na(value)) {
-        return (NA)
-    }
-    
-    res = compute_colorBin(min=min, max=max, Palette=Palette,
-                           colorStep=colorStep, include=include,
-                           reverse=reverse)
-    upBin = res$upBin
-    lowBin = res$lowBin
-    PaletteColors = res$Palette
-
+get_color = function (value, upBin, lowBin, Palette) {
     id = which(value <= upBin & value > lowBin)
-    color = PaletteColors[id]
-    return(color)
+    color = Palette[id]
+    return (color)
 }
+
+get_colors = function (Value, upBin, lowBin, Palette) {
+    colors = unlist(sapply(Value, get_color,
+                           upBin=upBin,
+                           lowBin=lowBin,
+                           Palette=Palette))
+    return (colors)
+} 
+
+
+#RdBu
+
+#' @title Get palette
+#' @export
+get_palette = function (palette_name="BrBG", colorStep=10,
+                        reverse=FALSE) {
+
+    if (length(palette_name) > 1) {
+        Palette = palette_name
+    } else {
+        Palette = RColorBrewer::brewer.pal(n=colorStep,
+                                           name=palette_name)
+    }
+    Palette = colorRampPalette(Palette)(colorStep)
+    if (reverse) {
+        Palette = rev(Palette)
+    }
+    return (Palette)
+}
+
+
+
+# colorStep = palette_n_shade*2+1
+# Palette = get_palette(palette_name, colorStep, palette_reverse)
+# res = compute_colorBin(minValue, maxValue,
+#                        colorStep,
+#                        center=palette_is_center,
+#                        include=include)
+# stripe_color = unlist(sapply(Value, get_color,
+#                              upBin=res$upBin,
+#                              lowBin=res$lowBin,
+#                              Palette=Palette))
+
+
+
+
+
+##########
+
+# #' @title Compute color
+# #' @export
+# compute_color = function (value, min, max, Palette,
+#                           colorStep=256, include=FALSE,
+#                           reverse=FALSE) {
+
+#     if (is.na(value)) {
+#         return (NA)
+#     }
+    
+#     res = compute_colorBin(min=min, max=max, Palette=Palette,
+#                            colorStep=colorStep, include=include,
+#                            reverse=reverse)
+#     upBin = res$upBin
+#     lowBin = res$lowBin
+#     PaletteColors = res$Palette
+
+#     id = which(value <= upBin & value > lowBin)
+#     color = PaletteColors[id]
+#     return(color)
+# }
 # compute_color(-51, -50, 40, Palette, colorStep=10)
 
 ### 2.2. Get colors __________________________________________________
-#' @title Get color
-#' @export
-get_color = function (value, min, max, Palette, colorStep=256,
-                      reverse=FALSE, include=FALSE,
-                      noneColor='black') {
+# #' @title Get color
+# #' @export
+# get_color = function (value, min, max, Palette, colorStep=256,
+#                       reverse=FALSE, include=FALSE,
+#                       noneColor='black') {
     
-    color = sapply(value, compute_color,
-                   min=min,
-                   max=max,
-                   Palette=Palette,
-                   colorStep=colorStep,
-                   include=include,
-                   reverse=reverse)
+#     color = sapply(value, compute_color,
+#                    min=min,
+#                    max=max,
+#                    Palette=Palette,
+#                    colorStep=colorStep,
+#                    include=include,
+#                    reverse=reverse)
     
-    color[is.na(color)] = noneColor    
-    return(color)
-}
+#     color[is.na(color)] = noneColor    
+#     return(color)
+# }
+
+
+
 
 #' @title Color event
 #' @export
@@ -304,77 +328,79 @@ switch_colorLabel = function (color) {
 #' @title Get reverse
 #' @export
 get_reverse = function (var) {
-    # gets the color corresponding to the mean trend
     reverse = FALSE
-    if (grepl('^tFIN', var) | grepl('^dt[_]', var) | grepl('^t[_]', var) | grepl('^v', var)) {
+    if (grepl('(^fin)|([{]fin)', var) |
+        grepl('(^dt)|([{]dt)', var) |
+        grepl('(^t)|([{]t)', var) |
+        grepl('(^v)|([{]v)', var)) {
         reverse = TRUE
     }
     return (reverse)
 }
 
-### 2.3. Palette tester ______________________________________________
-# Allows to display the current personal palette
-#' @title Palette tester
-#' @export
-palette_tester = function (Palette, colorStep=256) {
+# ### 2.3. Palette tester ______________________________________________
+# # Allows to display the current personal palette
+# #' @title Palette tester
+# #' @export
+# palette_tester = function (Palette, colorStep=256) {
 
-    outdir = 'palette'
-    if (!(file.exists(outdir))) {
-        dir.create(outdir)
-    }
+#     outdir = 'palette'
+#     if (!(file.exists(outdir))) {
+#         dir.create(outdir)
+#     }
 
-    # An arbitrary x vector
-    X = 1:colorStep
-    # All the same arbitrary y position to create a colorbar
-    Y = rep(0, times=colorStep)
+#     # An arbitrary x vector
+#     X = 1:colorStep
+#     # All the same arbitrary y position to create a colorbar
+#     Y = rep(0, times=colorStep)
 
-    # Recreates a continuous color palette
-    Palette = colorRampPalette(Palette)(colorStep)
+#     # Recreates a continuous color palette
+#     Palette = colorRampPalette(Palette)(colorStep)
 
-    # Open a void plot
-    p = ggplot() + theme_void()
+#     # Open a void plot
+#     p = ggplot() + theme_void()
 
-    for (x in X) {
-        # Plot the palette
-        p = p +
-            annotate("segment",
-                     x=x, xend=x,
-                     y=0, yend=1,
-                     color=Palette[x], size=1)
-    }
+#     for (x in X) {
+#         # Plot the palette
+#         p = p +
+#             annotate("segment",
+#                      x=x, xend=x,
+#                      y=0, yend=1,
+#                      color=Palette[x], size=1)
+#     }
 
-    p = p +
-        scale_x_continuous(limits=c(0, colorStep),
-                           expand=c(0, 0)) +
+#     p = p +
+#         scale_x_continuous(limits=c(0, colorStep),
+#                            expand=c(0, 0)) +
         
-        scale_y_continuous(limits=c(0, 1),
-                           expand=c(0, 0))
+#         scale_y_continuous(limits=c(0, 1),
+#                            expand=c(0, 0))
 
-    # Saves the plot
-    outname = deparse(substitute(Palette))
+#     # Saves the plot
+#     outname = deparse(substitute(Palette))
     
-    ggsave(plot=p,
-           path=outdir,
-           filename=paste(outname, '.pdf', sep=''),
-           width=10, height=10, units='cm', dpi=100)
+#     ggsave(plot=p,
+#            path=outdir,
+#            filename=paste(outname, '.pdf', sep=''),
+#            width=10, height=10, units='cm', dpi=100)
 
-    ggsave(plot=p,
-           path=outdir,
-           filename=paste(outname, '.png', sep=''),
-           width=10, height=10, units='cm', dpi=300)
-}
+#     ggsave(plot=p,
+#            path=outdir,
+#            filename=paste(outname, '.png', sep=''),
+#            width=10, height=10, units='cm', dpi=300)
+# }
 
 
-#' @title Get palette
-#' @export
-get_palette = function (Palette, colorStep=256) {
+# #' @title Get palette
+# #' @export
+# get_palette = function (Palette, colorStep=256) {
     
-    # Gets the number of discrete colors in the palette
-    nSample = length(Palette)
-    # Recreates a continuous color palette
-    Palette = colorRampPalette(Palette)(colorStep)
+#     # Gets the number of discrete colors in the palette
+#     nSample = length(Palette)
+#     # Recreates a continuous color palette
+#     Palette = colorRampPalette(Palette)(colorStep)
 
-    return (Palette)
-}
+#     return (Palette)
+# }
 
 
