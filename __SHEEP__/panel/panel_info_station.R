@@ -62,21 +62,20 @@ panel_info_station = function(data_code,
     meta_code = meta[meta$Code == codeLight,]
 
     if ('title' %in% to_do | 'all' %in% to_do) {
-        # Extracts the name
-        Nom = meta_code$Nom
-        # Corrects some errors about the formatting of title with dash
-        Nom = gsub("-", "-&nbsp;", Nom)
-        # Name of the datasheet
-        text1 = paste(
-            "<b>", codeLight, '</b>  -  ', Nom,
-            sep='')
         # Converts all texts to graphical object in the right position
-        gtext1 = richtext_grob(text1,
-                               x=0, y=1,
-                               margin=unit(c(t=0, r=5, b=0, l=0),
-                                           "mm"),
-                               hjust=0, vjust=1,
-                               gp=gpar(col=INRAEcyan, fontsize=14))
+        gtext1 = richtext_grob(
+            paste0("<b style='font-size:14pt; color:", INRAEcyan, "'>",
+                   codeLight, "</b>",
+                   nbsp(1),
+                   "<span style='font-size:14pt; color:", INRAEcyan, "'>", "-", "</span>",
+                   nbsp(1),
+                   "<span style='font-size:14pt; color:", INRAEcyan, "'>",
+                   meta_code$Nom, "</span>"),
+            x=0, y=1,
+            margin=unit(c(t=0, r=5, b=0, l=0),
+                        "mm"),
+            hjust=0, vjust=1)
+                               # gp=gpar(col=INRAEcyan, fontsize=14))
     } else if ('short_title' %in% to_do) {
         # Name of the datasheet
         text1 = paste(
@@ -97,7 +96,7 @@ panel_info_station = function(data_code,
     if ('subtitle' %in% to_do | 'all' %in% to_do) {
         text2 = paste(
             "<b>",
-            "Gestionnaire : ", meta_code$Gestionnaire, "<br>",
+            # "Gestionnaire : ", meta_code$Gestionnaire, "<br>",
             "Région hydrographique : ", meta_code$Region_Hydro,
             "</b>",
             sep='')
@@ -131,10 +130,10 @@ panel_info_station = function(data_code,
             "X = ", round(meta_code$XL93_m), " m (Lambert93)<br>",
             "Y = ", round(meta_code$YL93_m), " m (Lambert93)")
         gtext3 = richtext_grob(text3,
-                               x=0, y=0.98,
+                               x=0, y=1,
                                margin=unit(c(t=0, r=0, b=0, l=0),
                                            "mm"),
-                               hjust=0, vjust=1,
+                               hjust=0, vjust=0.98,
                                gp=gpar(col=IPCCgrey13, fontsize=9))
     } else {
         gtext3 = void()
@@ -155,7 +154,7 @@ panel_info_station = function(data_code,
             "Taux de lacunes : ", signif(meta_code$tLac_pct, 2),
             " %")
         gtext4 = richtext_grob(text4,
-                               x=0, y=0.96,
+                               x=0, y=1,
                                margin=unit(c(t=0, r=0, b=0, l=0),
                                            "mm"),
                                hjust=0, vjust=1,
@@ -177,11 +176,11 @@ panel_info_station = function(data_code,
     flock = add_sheep(flock,
                       sheep=gtext1,
                       id="text1",
-                      height=0.4)
+                      height=0.35)
     flock = add_sheep(flock,
                       sheep=gtext2,
                       id="text2",
-                      height=0.5)
+                      height=0.35)
     flock = add_sheep(flock,
                       sheep=gtext3,
                       id="text3",

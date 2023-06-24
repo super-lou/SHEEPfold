@@ -28,11 +28,8 @@ panel_shape_info = function (Shape="rect",
                            Cross=FALSE,
                            dy_label=1,
                            dx_label=1,
-                           height=10,
-                           width=10,
-                           shift=c(x=0, y=0),
                            fontface="plain",
-                           margin_add=margin(0, 0, 0, 0),
+                           margin=margin(0, 0, 0, 0),
                            WIP=FALSE) {
 
     N = max(c(length(Shape), length(Size),
@@ -64,13 +61,11 @@ panel_shape_info = function (Shape="rect",
     Label = rev(Label)
     Cross = rev(Cross)
 
-    limit = min(c(height, width))
-    options(repr.plot.width=width, repr.plot.height=height)
     
     plot = ggplot() + theme_void() +
         coord_fixed(clip="off") + 
         theme(text=element_text(family="Helvetica"),
-              plot.margin=margin_add)
+              plot.margin=margin)
 
     if (WIP) {
         plot = plot + theme_WIP()
@@ -87,10 +82,10 @@ panel_shape_info = function (Shape="rect",
         if (shape == "rect") {
             plot = plot +
                 annotate("rect",
-                         xmin=shift[1]+0,
-                         xmax=(shift[1]+size),
-                         ymin=(shift[2]+dy_label*(i-1)),
-                         ymax=(shift[2]+dy_label*(i-1)+size),
+                         xmin=0,
+                         xmax=(size),
+                         ymin=(dy_label*(i-1)),
+                         ymax=(dy_label*(i-1)+size),
                          fill=color)
         }
         
@@ -98,25 +93,25 @@ panel_shape_info = function (Shape="rect",
             plot = plot +
                 annotation_custom(
                     svgparser::read_svg(shape),
-                    xmin=shift[1]+0,
-                    xmax=(shift[1]+size),
-                    ymin=(shift[2]+dy_label*(i-1)),
-                    ymax=(shift[2]+dy_label*(i-1)+size))
+                    xmin=0,
+                    xmax=(size),
+                    ymin=(dy_label*(i-1)),
+                    ymax=(dy_label*(i-1)+size))
         }
 
         if (cross) {
             plot = plot +
                 annotate("point",
-                         x=shift[1]+size/2,
-                         y=(shift[2]+dy_label*(i-1)+size/2),
+                         x=size/2,
+                         y=(dy_label*(i-1)+size/2),
                          shape=4, size=size*2, color="white")
         }
 
         if (!is.null(label)) {
             plot = plot +
                 annotate('text',
-                         x=(shift[1]+size+dx_label),
-                         y=(shift[2]+dy_label*(i-1)+size/2),
+                         x=(size+dx_label),
+                         y=(dy_label*(i-1)+size/2),
                          label=label,
                          angle=0,
                          hjust=0, vjust=0.5,
@@ -126,10 +121,8 @@ panel_shape_info = function (Shape="rect",
     }
 
     plot = plot +
-        scale_x_continuous(limits=c(0, width),
-                           expand=c(0, 0)) + 
-        scale_y_continuous(limits=c(0, height),
-                           expand=c(0, 0))
+        scale_x_continuous(expand=c(0, 0)) + 
+        scale_y_continuous(expand=c(0, 0))
     
 
     return (plot)

@@ -77,6 +77,10 @@ gg_circle = function(r, xc, yc, color="black", fill=NA, ...) {
              fill=fill, ...)
 }
 
+nbsp = function (n) {
+    paste0(rep("<span> </span>", times = n), collapse = "")
+}
+
 
 ## 3. NUMBER MANAGEMENT ______________________________________________
 ### 3.1. Number formatting ___________________________________________

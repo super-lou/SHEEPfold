@@ -43,16 +43,21 @@ panel_info_region = function(meta,
     meta_region = meta[substr(meta$Code, 1, 1) == regionLight,]
 
     if ('title' %in% to_do | 'all' %in% to_do) {
-        # Extracts the name
-        text1 = paste0("<b>", meta_region$Region_Hydro[1], "</b>",
-                       " - ", regionLight)
         # Converts all texts to graphical object in the right position
-        gtext1 = richtext_grob(text1,
-                               x=0, y=1,
-                               margin=unit(c(t=0, r=5, b=0, l=0),
-                                           "mm"),
-                               hjust=0, vjust=1,
-                               gp=gpar(col=INRAEcyan, fontsize=14))
+        gtext1 = richtext_grob(
+            paste0("<b style='font-size:14pt; color:", INRAEcyan, "'>",
+                   meta_region$Region_Hydro[1], "</b>",
+                   nbsp(1),
+                   "<span style='font-size:14pt; color:", INRAEcyan, "'>", "-", "</span>",
+                   nbsp(1),
+                   "<span style='font-size:14pt; color:", INRAEcyan, "'>",
+                   regionLight, "</span>"),
+            x=0, y=1,
+            margin=unit(c(t=0, r=5, b=0, l=0),
+                        "mm"),
+            hjust=0, vjust=1)
+
+        
     } else {
         gtext1 = void()
     }
@@ -62,7 +67,7 @@ panel_info_region = function(meta,
         text2 = paste0("<b>", length(meta_region$Code),
                        " stations de référence", "</b>")
         gtext2 = richtext_grob(text2,
-                               x=0, y=0.7,
+                               x=0, y=1,
                                margin=unit(c(t=0, r=0, b=0, l=0),
                                            "mm"),
                                hjust=0, vjust=1,
@@ -100,10 +105,10 @@ panel_info_region = function(meta,
             "Altitude minimale (station) : ", altitude_min, "<br>",
             "Altitude maximale (station) : ", altitude_max)
         gtext3 = richtext_grob(text3,
-                               x=0, y=0.75,
+                               x=0, y=1,
                                margin=unit(c(t=0, r=0, b=0, l=0),
                                            "mm"),
-                               hjust=0, vjust=1,
+                               hjust=0, vjust=0.98,
                                gp=gpar(col=IPCCgrey13, fontsize=9))
     } else {
         gtext3 = void()
@@ -122,11 +127,11 @@ panel_info_region = function(meta,
     flock = add_sheep(flock,
                       sheep=gtext1,
                       id="text1",
-                      height=0.4)
+                      height=0.625)
     flock = add_sheep(flock,
                       sheep=gtext2,
                       id="text2",
-                      height=0.5)
+                      height=0.78)
     flock = add_sheep(flock,
                       sheep=gtext3,
                       id="text3",

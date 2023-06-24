@@ -345,14 +345,18 @@ panel_spaghetti = function (data_code, Colors=NULL,
                 Xmin = lubridate::year(X)[1]
                 Xmax = lubridate::year(X)[1] + 1
             }
-            res = seq.Date(from=as.Date(paste0(Xmin, "-01-01")),
-                           to=as.Date(paste0(Xmax, "-01-01")),
+            res = seq.Date(from=as.Date(
+                               as.Date(paste0(Xmin, "-01-01")) -
+                               lubridate::duration(breaks)),
+                           to=as.Date(
+                               as.Date(paste0(Xmax, "-01-01")) +
+                               lubridate::duration(breaks)),
                            by=minor_breaks)
         } else {
             Xmin = round(min(X), break_round)
             Xmax = round(max(X), break_round)
-            res = seq(from=Xmin + d_breaks,
-                      to=Xmax + d_breaks,
+            res = seq(from=Xmin + d_breaks - breaks,
+                      to=Xmax + d_breaks + breaks,
                       by=minor_breaks)
         }
         return (res)

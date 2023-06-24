@@ -35,30 +35,31 @@ sheet_correlation_matrix = function (dataEX, metaEX,
     nModelGroup = length(ModelGroup)
 
     page_margin = c(t=0.5, r=0.5, b=0.5, l=0.5)
-
-    leg_width = 11
-    void_width = 21 - leg_width - page_margin["l"] - page_margin["r"]
     
     info_height = 1
-    cm_height = 22
+    cm_height = 24
     cm_width = 21 - page_margin["l"] - page_margin["r"]
     
     cb_height = 1.25
     ssg_height = 1.25
     si_height = 1
-    tl_height = cb_height + si_height + ssg_height
     
     foot_height = 1.25
 
-    cm_margin = margin(t=1.2, r=0, b=2, l=0.5, "cm")
-    tl_shift = c(x=3, y=0)
+    cm_margin = margin(t=1.2, r=0, b=2, l=1.5, "cm")
+    cb_margin = margin(t=0, r=2, b=0, l=2, "cm")
+    ssg_margin = margin(t=0.3, r=1, b=0.1, l=2, "cm")
+    si_margin = margin(t=0.3, r=3.5, b=0.4, l=0, "cm")
+    
     cb_shift = c(x=2.5, y=0)
     ssg_shift = c(x=2.5, y=0)
     si_shift = c(x=2.5, y=0.2)
 
-    plan = matrix(c("info", "cm", "cb", "ssg", "si", "foot",
-                    "info", "cm", "void", "void", "void", "foot"),
-                  ncol=2)
+    plan = matrix(c("info", "cm", "cb", "ssg", "foot",
+                    "info", "cm", "cb", "si", "foot",
+                    "info", "cm", "void", "void", "foot",
+                    "info", "cm", "void", "void", "foot"),
+                  ncol=4)
     WIP = FALSE
 
     for (i in 1:nModelGroup) {
@@ -107,69 +108,47 @@ sheet_correlation_matrix = function (dataEX, metaEX,
                                        metaEX,
                                        icon_path=icon_path,
                                        margin=cm_margin)
-        # cm = res$cm
-        # subTopic_path = res$info
         flock = add_sheep(flock,
                           sheep=cm,
                           id="cm",
                           height=cm_height)
 
-        # tl = leg_shape_info(Shape=subTopic_path,
-        #                     Size=0.5,
-        #                     Label=names(subTopic_path),
-        #                     dy_icon=0.55,
-        #                     dx_label=0.25,
-        #                     height=tl_height,
-        #                     width=tl_width,
-        #                     shift=tl_shift,
-        #                     WIP=WIP)
-        # STOCK = add_plot(STOCK,
-        #                  plot=tl,
-        #                  name="tl",
-        #                  width=tl_width)
         flock = add_sheep(flock,
                           sheep=void(),
-                          id="void",
-                          width=void_width)
+                          id="void")
         
         cb = panel_colorbar(-1, 1, Palette=Palette_rainbow(),
-                          colorStep=6, include=TRUE,
-                          asFrac=TRUE,
-                          reverse=TRUE,
-                          size_color=0.3,
-                          dx_color=0.4,
-                          dy_color=0.45,
-                          height=cb_height,
-                          width=leg_width,
-                          shift=cb_shift,
-                          WIP=WIP)
+                            colorStep=6, include=TRUE,
+                            asFrac=TRUE,
+                            reverse=TRUE,
+                            size_color=0.3,
+                            dx_color=0.4,
+                            dy_color=0.45,
+                            margin=cb_margin,
+                            WIP=WIP)
         flock = add_sheep(flock,
                           sheep=cb,
                           id="cb",
-                          height=cb_height,
-                          width=leg_width)
+                          height=cb_height)
 
         ssg = panel_shape_size_gradient(shape="rect",
-                                      Size=c(0.1, 0.15, 0.2, 0.25),
-                                      color=IPCCgrey50,
-                                      labelArrow="Plus corrélé",
-                                      dx_shape=0.2,
-                                      dy_shape=0.1,
-                                      dy_arrow=0.3,
-                                      size_arrow=0.25,
-                                      dz_arrow=1,
-                                      dl_arrow=0,
-                                      dr_arrow=0,
-                                      dx_text=0.3, 
-                                      height=ssg_height,
-                                      width=leg_width,
-                                      shift=ssg_shift,
-                                      WIP=WIP)
+                                        Size=c(0.1, 0.15, 0.2, 0.25),
+                                        color=IPCCgrey50,
+                                        labelArrow="Plus corrélé",
+                                        dx_shape=0.2,
+                                        dy_shape=0.1,
+                                        dy_arrow=0.3,
+                                        size_arrow=0.25,
+                                        dz_arrow=1,
+                                        dl_arrow=0,
+                                        dr_arrow=0,
+                                        dx_text=0, 
+                                        margin=ssg_margin,
+                                        WIP=WIP)
         flock = add_sheep(flock,
                           sheep=ssg,
                           id="ssg",
-                          height=ssg_height,
-                          width=leg_width)
+                          height=ssg_height)
 
         if (nModel == 1) {
             si = panel_shape_info(Shape="rect",
@@ -181,9 +160,7 @@ sheet_correlation_matrix = function (dataEX, metaEX,
                                 Cross=c(FALSE, TRUE),
                                 dy_label=0.35,
                                 dx_label=0.2,
-                                height=si_height,
-                                width=leg_width,
-                                shift=si_shift,
+                                margin=si_margin,
                                 WIP=WIP)
         } else {
             si = void()
@@ -191,8 +168,7 @@ sheet_correlation_matrix = function (dataEX, metaEX,
         flock = add_sheep(flock,
                           sheep=si,
                           id="si",
-                          height=si_height,
-                          width=leg_width)
+                          height=si_height)
 
         footName = paste0('Matrice de corrélation : ', Model2Disp)
         if (is.null(df_page)) {

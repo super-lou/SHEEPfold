@@ -40,7 +40,7 @@ panel_correlation_matrix = function (dataEX,
     
     dy_T1 = 0.6
     size_T1 = 3.2
-    ech_T1 = 0.5
+    ech_T1 = 1
 
     dy_L2_min = 1
     lw_L2 = 0.25
@@ -54,7 +54,7 @@ panel_correlation_matrix = function (dataEX,
     dy_T2 = 0.3
     dy_T2line = 0.8
     size_T2 = 2.7
-    ech_T2 = 2.1
+    ech_T2 = 2.5
     
     dy_I2 = 2
     size_I2 = 1
@@ -105,7 +105,6 @@ panel_correlation_matrix = function (dataEX,
                            dplyr::across(where(is.logical),
                                          as.numeric),
                            .keep="all")
-    
     dataEX = dplyr::select(dataEX, vars2keep)
 
     Model = levels(factor(dataEX$Model))
@@ -121,6 +120,7 @@ panel_correlation_matrix = function (dataEX,
 
         matchVar = match(names(dataEX_model), metaEX$var)
         matchVar = matchVar[!is.na(matchVar)]
+        
         dataEX_model = dataEX_model[matchVar]
 
         nameCol = names(dataEX_model)
@@ -154,7 +154,7 @@ panel_correlation_matrix = function (dataEX,
                                  method="spearman",
                                  use="pairwise.complete.obs")$p))
     }
-
+    
     CORRmat = array(CORRmat, c(nVar, nVar, nModel))
     Pmat = array(Pmat, c(nVar, nVar, nModel))
 
@@ -232,15 +232,17 @@ panel_correlation_matrix = function (dataEX,
     YP = unlist(as.list(YPmat))
     YP = YP[!is.na(YP)]
 
-    VarTEX = gsub("etiage", "étiage", Var)  
+    VarTEX = gsub("etiage", "étiage", Var)
     for (i in 1:nVar) {
         var = VarTEX[i]
-        
+
         if (grepl("[_]", var) & !grepl("[_][{]", var)) {
-            var = gsub("[_]", "$_{$", var)
-            var = paste0(var, "}")
+            var = gsub("[_]", ", ", var)
+            var = sub("[,] ", "$_{$", var)
+            var = paste0(var, "}")           
         } else if (grepl("[_]", var) & grepl("[_][{]", var)) {
-            var = gsub("[_][{]", "$_{$", var)
+            var = gsub("[_]", ", ", var)
+            var = sub("[,] [{]", "$_{$", var)
         }
 
         if (grepl("alpha", var)) {
@@ -269,26 +271,26 @@ panel_correlation_matrix = function (dataEX,
             var = gsub("log[{]", "\\\\textit{log}", var)
         } 
 
-        if (grepl("mean", var) & !grepl("mean[{]", var)) {
-            var = gsub("mean", "\\\\textit{moy}", var)
-        } else if (grepl("mean", var) & grepl("mean[{]", var)) {
+        if (grepl("moy", var) & !grepl("moy[{]", var)) {
+            var = gsub("moy", "\\\\textit{moy}", var)
+        } else if (grepl("moy", var) & grepl("moy[{]", var)) {
             var = gsub("[}]", "", var)
-            var = gsub("mean[{]", "\\\\textit{moy}", var)
-        } 
+            var = gsub("moy[{]", "\\\\textit{moy}", var)
+        }
 
-        if (grepl("median", var) & !grepl("median[{]", var)) {
-            var = gsub("median", "\\\\textit{med}", var)
-        } else if (grepl("median", var) & grepl("median[{]", var)) {
+        if (grepl("med", var) & !grepl("med[{]", var)) {
+            var = gsub("med", "\\\\textit{med}", var)
+        } else if (grepl("med", var) & grepl("med[{]", var)) {
             var = gsub("[}]", "", var)
-            var = gsub("median[{]", "\\\\textit{med}", var)
-        } 
+            var = gsub("med[{]", "\\\\textit{med}", var)
+        }
         
-        if (grepl("sqrt", var) & !grepl("sqrt[{]", var)) {
-            var = gsub("sqrt", "\\\\textit{sqrt}", var)
-        } else if (grepl("sqrt", var) & grepl("sqrt[{]", var)) {
+        if (grepl("racine", var) & !grepl("racine[{]", var)) {
+            var = gsub("racine", "\u221A", var)
+        } else if (grepl("racine", var) & grepl("racine[{]", var)) {
             var = gsub("[}]", "", var)
-            var = gsub("sqrt[{]", "\\\\textit{sqrt}", var)
-        } 
+            var = gsub("racine[{]", "\u221A", var)
+        }
         
         VarTEX[i] = var
     }
@@ -334,38 +336,37 @@ panel_correlation_matrix = function (dataEX,
                  label=TeX(VarTEX), size=size_T1,
                  color=IPCCgrey40)
 
-    VarRAW = metaEX$var
-    VarRAW = gsub("median", "med", VarRAW)
-    VarRAW = gsub("mean", "moy", VarRAW)
-    VarRAW = gsub("HYP", "H", VarRAW)
-    VarRAW = gsub("alpha", "A", VarRAW)
-    VarRAW = gsub("epsilon", "E", VarRAW)
-    OK_ = grepl("[_]", VarRAW)
-    tmp = gsub("^.*[_]", "", VarRAW)
-    tmp = gsub("([{])|([}])", "", tmp)
-    tmp[!OK_] = ""
-    tmp = gsub("[[:alnum:]]", "*", tmp)
-    VarRAW[OK_] = gsub("[{].*[}]", "", VarRAW[OK_])
-    VarRAW[!OK_] = gsub("([{])|([}])", "", VarRAW[!OK_])
-    VarRAW = gsub("[_].*$", "", VarRAW)
-    VarRAW = paste0(VarRAW, tmp)
-    VarRAW = strsplit(VarRAW, "*")
+    PX = get_alphabet_in_px(style="bold")
+    
+    VarRAW = VarTEX
+    VarRAW = gsub("textit", "", VarRAW)
+    VarRAW = gsub("textbf", "", VarRAW)
+    VarRAW = gsub("bf", "", VarRAW)
+    VarRAW = gsub("\\", "", VarRAW, fixed=TRUE)
+    VarRAW = gsub("$", "", VarRAW, fixed=TRUE)
+    VarRAW = gsub("{", "", VarRAW, fixed=TRUE)
+    VarRAW = gsub("}", "", VarRAW, fixed=TRUE)
 
-    convert2space = function (X) {
-        X = gsub("[[:digit:]]", "1.1", X)
-        X = gsub("[[:upper:]]", "1.6", X)
-        X = gsub("[[:lower:]]", "1.1", X)
-        X = gsub("([-])|([,])", "0.5", X)
-        X = gsub("([*])", "0.9", X)
-        return (X)    
+    change_ = function (x) {
+        if (any(grepl("[_]", x))) {
+            paste0(gsub("[_].*$", "", x),
+                   strrep("a",
+                          nchar(
+                              gsub("( )|([,])", "",
+                                   gsub("^.*[_]", "", x)))))
+        } else {
+            x
+        }
     }
 
-    Space = lapply(VarRAW, convert2space)
-    Space = lapply(Space, as.numeric)
-    Space = lapply(Space, sum)
-    Space = unlist(Space)
+    VarRAW = sapply(VarRAW, change_)
+    VarRAW = paste0(" ", VarRAW)
+    # VarRAW = gsub("BFI$", "BFI ", VarRAW)
+    
+    Space = sapply(VarRAW, text2px, PX=PX)
     maxSpace = max(Space)
-
+    
+    
     dy = nVar + d_W_mat
     
     for (i in 1:nVar) {
@@ -429,7 +430,6 @@ panel_correlation_matrix = function (dataEX,
     }
 
     dy = dy + dy_L1 + dy_I1 + dy_T1 + maxSpace*ech_T1 + dy_L2_min
-
 
     nLine = c()
     for (i in 1:nMainTopic) {

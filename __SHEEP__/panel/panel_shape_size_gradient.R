@@ -32,9 +32,7 @@ panel_shape_size_gradient = function (shape="rect",
                                     dl_arrow=0,
                                     dr_arrow=0,
                                     dx_text=0.2,
-                                    height=10,
-                                    width=10,
-                                    shift=c(x=0, y=0),
+                                    margin=margin(0, 0, 0, 0),
                                     WIP=FALSE) {        
 
     nSize = length(Size)
@@ -42,13 +40,10 @@ panel_shape_size_gradient = function (shape="rect",
     dS = cumsum(Size) - Size/2
     X = dX + dS
 
-    limit = min(c(height, width))
-    options(repr.plot.width=width, repr.plot.height=height)
-    
     plot = ggplot() + theme_void() +
         coord_fixed(clip="off") + 
         theme(text=element_text(family="Helvetica"),
-              plot.margin=margin(0, 0, 0, 0))
+              plot.margin=margin)
 
     if (WIP) {
         plot = plot + theme_WIP()
@@ -59,16 +54,16 @@ panel_shape_size_gradient = function (shape="rect",
             
             annotate(
                 "segment",
-                x=(shift[1]+min(X, na.rm=TRUE)-dl_arrow),
-                xend=(shift[1]+max(X, na.rm=TRUE)+dr_arrow),
-                y=(shift[2]+dy_arrow),
-                yend=(shift[2]+dy_arrow),
+                x=(min(X, na.rm=TRUE)-dl_arrow),
+                xend=(max(X, na.rm=TRUE)+dr_arrow),
+                y=(dy_arrow),
+                yend=(dy_arrow),
                 color=IPCCgrey50, size=size_arrow,
                 arrow=arrow(length=unit(dz_arrow, "mm"))) +
             
             annotate('text',
-                     x=(shift[1]+mean(X, na.rm=TRUE)+dx_text),
-                     y=shift[2]+0,
+                     x=(mean(X, na.rm=TRUE)+dx_text),
+                     y=0,
                      label=labelArrow,
                      angle=0,
                      hjust=0.5, vjust=0,
@@ -79,18 +74,16 @@ panel_shape_size_gradient = function (shape="rect",
         plot = plot +
             annotate(
                 "rect",
-                xmin=(shift[1]+X),
-                xmax=(shift[1]+X+Size),
-                ymin=(shift[2]+rep(dy_arrow+dy_shape, nSize)),
-                ymax=(shift[2]+dy_arrow+dy_shape+Size),
+                xmin=(X),
+                xmax=(X+Size),
+                ymin=(rep(dy_arrow+dy_shape, nSize)),
+                ymax=(dy_arrow+dy_shape+Size),
                 fill=color)
     }
 
     plot = plot +
-        scale_x_continuous(limits=c(0, width),
-                           expand=c(0, 0)) + 
-        scale_y_continuous(limits=c(0, height),
-                           expand=c(0, 0))
+        scale_x_continuous(expand=c(0, 0)) + 
+        scale_y_continuous(expand=c(0, 0))
     
 
     return (plot)

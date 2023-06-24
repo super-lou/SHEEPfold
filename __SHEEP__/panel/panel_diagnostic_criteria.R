@@ -274,13 +274,12 @@ panel_diagnostic_criteria = function (dataEXind,
         var = VarTEX[i]
         
         if (grepl("[_]", var) & !grepl("[_][{]", var)) {
-            var = sub("[_]", "$_{$", var)
-            var = paste0(var, "}")
-
-            print(var)
-            
+            var = gsub("[_]", ", ", var)
+            var = sub("[,] ", "$_{$", var)
+            var = paste0(var, "}")           
         } else if (grepl("[_]", var) & grepl("[_][{]", var)) {
-            var = sub("[_][{]", "$_{$", var)
+            var = gsub("[_]", ", ", var)
+            var = sub("[,] [{]", "$_{$", var)
         }
 
         if (grepl("alpha", var)) {
@@ -309,18 +308,18 @@ panel_diagnostic_criteria = function (dataEXind,
             var = gsub("log[{]", "\\\\textit{log}", var)
         } 
 
-        if (grepl("mean", var) & !grepl("mean[{]", var)) {
-            var = gsub("mean", "", var)
-        } else if (grepl("mean", var) & grepl("mean[{]", var)) {
+        if (grepl("moy", var) & !grepl("moy[{]", var)) {
+            var = gsub("moy", "", var)
+        } else if (grepl("moy", var) & grepl("moy[{]", var)) {
             var = gsub("[}]", "", var)
-            var = gsub("mean[{]", "", var)
+            var = gsub("moy[{]", "", var)
         } 
 
-        if (grepl("median", var) & !grepl("median[{]", var)) {
-            var = gsub("median", "", var)
-        } else if (grepl("median", var) & grepl("median[{]", var)) {
+        if (grepl("med", var) & !grepl("med[{]", var)) {
+            var = gsub("med", "", var)
+        } else if (grepl("med", var) & grepl("med[{]", var)) {
             var = gsub("[}]", "", var)
-            var = gsub("median[{]", "", var)
+            var = gsub("med[{]", "", var)
         } 
         
         if (grepl("racine", var) & !grepl("racine[{]", var)) {

@@ -88,6 +88,13 @@ sheet_diagnostic_station = function (data,
         }
         
         data_code = data[data$Code == code,]
+
+        data_code =
+            dplyr::filter(data_code,
+                          Model %in%
+                          dataEXind$Model[dataEXind$Code == code])
+        
+        
         data_obs_code = data_obs[data_obs$Code == code,]
         dataEXserieQM_obs_code =
             dataEXserieQM_obs[dataEXserieQM_obs$Code == code,]
@@ -319,7 +326,7 @@ sheet_diagnostic_station = function (data,
         # print("criteria")
         # print(flock)
 
-        footName = 'Fiche station de diagnostic'
+        footName = 'Fiche station de référence'
         if (is.null(df_page)) {
             n_page = i
         } else {
