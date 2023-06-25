@@ -58,13 +58,20 @@ INRAElightblue = "#9ed6e3"
 ### 1.1. Personal theme ______________________________________________
 #' @title Ggplot2 theme ash
 #' @export
-theme_IPCC = function (isBack=TRUE, isTitle=FALSE, dTitle=0,
-                       isLabelX=FALSE, isLabelY=FALSE) {
+theme_IPCC = function (isBack=TRUE, isGrid=TRUE, isTitle=FALSE,
+                       dTitle=0, isLabelX=FALSE, isLabelY=FALSE) {
 
     if (isBack) {
         panel.background=element_rect(fill=IPCCgrey97)
     } else {
         panel.background=element_blank()
+    }
+
+    if (isGrid) {
+        panel.grid.major.y=element_line(color=IPCCgrey85,
+                                        size=0.25)
+    } else {
+        panel.grid.major.y=element_blank()
     }
     
     if (isTitle) {
@@ -105,9 +112,7 @@ theme_IPCC = function (isBack=TRUE, isTitle=FALSE, dTitle=0,
                                       size=0.7),
             # Grid
             panel.grid.major.x=element_blank(),
-            # panel.grid.major.y=element_blank(),
-            panel.grid.major.y=element_line(color=IPCCgrey85,
-                                            size=0.25),
+            panel.grid.major.y=panel.grid.major.y,
             panel.grid.minor.x=element_blank(),
             panel.grid.minor.y=element_blank(),
             # Ticks marker

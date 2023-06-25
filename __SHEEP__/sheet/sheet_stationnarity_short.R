@@ -24,36 +24,31 @@
 #' @export
 sheet_stationnarity_short = function (meta, data,
                                       dataEX, metaEX, trendEX,
-                                      mean_period=NULL,
+                                      # period_change=NULL,
                                       exProb=0.01,
                                       linetype_per=NULL,
                                       logo_path=NULL,
                                       Shapefiles=NULL,
                                       figdir="",
+                                      paper_size=c(21, 18),
                                       df_page=NULL,
-                                      verbose=FALSE)
-    
+                                      verbose=FALSE) {
 
-    Code = levels(facotr(dataEX$Code))
+    page_margin = c(t=0.5, r=0.5, b=0.5, l=0.5)
+
+    Code = levels(factor(dataEX$Code))
     nCode = length(Code)
     Period = unique(trendEX$period)
     nPeriod = length(Period)
     Var =  levels(factor(trendEX$var))
     nVar = length(Var)
 
-    if (!is.null(trend_period)) {
-        # Convert 'trend_period' to list
-        trend_period = as.list(trend_period)
-        # Number of trend period
-        nPeriod_trend = length(trend_period)
-
-        res = get_valueExtremes(dataEX, trendEX,
-                                mean_period=NULL,
-                                colorForce=colorForce,
-                                minProb=exProb, maxProb=1-exProb)
-        minTrend = res$min
-        maxTrend = res$max
-    }
+    title_height = 3
+    var_height = (paper_size[1] - 0.5*2 - title_height) / nVar
+    
+    plan = matrix(c("title", Var),
+                  ncol=1)
+        
 
     # For all the station
     for (k in 1:nCode) {
@@ -63,56 +58,83 @@ sheet_stationnarity_short = function (meta, data,
         print(paste("Datasheet for station : ", code,
                     "   (", round(k/nCode*100, 1), " %)", 
                     sep=''))
-        
-        
-        Hinfo = panel_info_station(list_df2plot, 
-                                   meta,
-                                   trend_period=trend_period,
-                                   mean_period=mean_period,
-                                   period=period,
-                                   shapefile_list=shapefile_list,
-                                   codeLight=code,
-                                   data_code=info_header_code,
-                                   to_do=to_do,
-                                   zone_to_show=zone_to_show)
 
-        var_plotted = c()
+        flock = bring_grass()
+        flock = plan_of_flock(flock, plan)
+        
+        title = panel_title(code)
+            
+        flock = add_sheep(flock,
+                          sheep=title,
+                          id="title",
+                          height=title_height)
 
         for (i in 1:nVar) {
-
-
-
-
-            
             var = Var[i]
-            var_plotted = c(var_plotted, var)
+            print(paste0("Time panel for ", var))
+
+            if (i == 1) {
+                first = TRUE
+                last = FALSE
+            } else if (i == nVar) {
+                first = FALSE
+                last = FALSE
+            } else {
+                first = FALSE
+                last = TRUE
+            }
+
+            dataEX_code_var = dplyr::select(dataEX[dataEX$Code == code,],
+                                            c("Code", "Date",
+                                              var))
             
+            trend = panel_trend(dataEX_code_var,
+                                metaEX,
+                                trendEX,
+                                # period_change=period_change,
+                                linetype_per=linetype_per,
+                                missRect=FALSE,
+                                axis_xlim=NULL, grid=FALSE,
+                                ymin_lim=NULL,
+                                breaks="10 years",
+                                minor_breaks="2 years",
+                                date_labels="%Y",
+                                first=first, last=last)
             
-                
-                print(paste0("Time panel for ", var))
+            flock = add_sheep(flock,
+                              sheep=trend,
+                              id=var,
+                              label="align",
+                              height=var_height)
 
-                
-
-                
-                res = panel_trend(data_code, trend_code,
-                                  var=var, unit=unit,
-                                  samplePeriod_code=samplePeriod_code,
-                                  linetype_per=linetype_per,
-                                  level=level, colorForce=colorForce,
-                                  missRect=FALSE,
-                                  trend_period=trend_period,
-                                  mean_period=mean_period,
-                                  axis_xlim=axis_xlim_code, 
-                                  unit2day=unit2day, grid=grid,
-                                  ymin_lim=ymin_lim, color=color,
-                                  first=first,
-                                  last="all",
-                                  lim_pct=lim_pct)
-                
+            print("aaaaa")
+            
+        }
 
 
-                
+        res = return_to_sheepfold(flock,
+                                  page_margin=page_margin,
+                                  paper_size=paper_size,
+                                  hjust=0, vjust=1,
+                                  verbose=TRUE)
         
+        plot = res$plot
+        # paper_size = res$paper_size
+
+        filename = paste0(code, "_stationnarity_short.pdf")
+
+        if (!(file.exists(figdir))) {
+            dir.create(figdir, recursive=TRUE)
+        }
+        ggplot2::ggsave(plot=plot,
+                        path=figdir,
+                        filename=filename,
+                        width=paper_size[1],
+                        height=paper_size[2], units='cm',
+                        dpi=300,
+                        device=cairo_pdf)
+    }
+    
     return (df_page)
 }
 
