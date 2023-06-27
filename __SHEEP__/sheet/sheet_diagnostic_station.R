@@ -107,8 +107,9 @@ sheet_diagnostic_station = function (data,
         }
         names(dataEXserie_code) = names(dataEXserie)
         
-        flock = bring_grass()
-        flock = plan_of_flock(flock, plan)
+        herd = bring_grass(verbose=verbose)
+        herd = plan_of_herd(herd, plan,
+                            verbose=verbose)
         
         info = panel_info_station(
             data_obs_code,
@@ -120,13 +121,14 @@ sheet_diagnostic_station = function (data,
             to_do='all',
             zone_to_show='France')
         # info = contour()
-        flock = add_sheep(flock,
-                          sheep=info,
-                          id="info",
-                          height=info_height)
+        herd = add_sheep(herd,
+                         sheep=info,
+                         id="info",
+                         height=info_height,
+                         verbose=verbose)
 
         # print("info")
-        # print(flock)
+        # print(herd)
         
         chronicle = panel_spaghetti(data_code,
                                     title="(a) Débit journalier",
@@ -156,14 +158,15 @@ sheet_diagnostic_station = function (data,
                                     first=FALSE,
                                     last=FALSE)
         # chronicle = contour()
-        flock = add_sheep(flock,
-                          sheep=chronicle,
-                          id="chronicle",
-                          label="align",
-                          height=chronicle_height)
+        herd = add_sheep(herd,
+                         sheep=chronicle,
+                         id="chronicle",
+                         label="align",
+                         height=chronicle_height,
+                         verbose=verbose)
 
         # print("chronicle")
-        # print(flock)
+        # print(herd)
 
         # print(dataEXserie_code)
         
@@ -201,14 +204,15 @@ sheet_diagnostic_station = function (data,
             first=FALSE,
             last=TRUE)
         # QA = contour()
-        flock = add_sheep(flock,
-                          sheep=QA,
-                          id="QA",
-                          label="align",
-                          height=QA_height)
+        herd = add_sheep(herd,
+                         sheep=QA,
+                         id="QA",
+                         label="align",
+                         height=QA_height,
+                         verbose=verbose)
 
-        flock$sheep$label[flock$sheep$id == "chronicle.spag"] = "align"
-        flock$sheep$label[flock$sheep$id == "QA.spag"] = "align"
+        herd$sheep$label[herd$sheep$id == "chronicle.spag"] = "align"
+        herd$sheep$label[herd$sheep$id == "QA.spag"] = "align"
 
         dataMOD = dataEXserie_code[["medQJC5"]]
         dataMOD = dplyr::rename(dataMOD,
@@ -244,14 +248,15 @@ sheet_diagnostic_station = function (data,
                                 first=FALSE,
                                 last=TRUE)
         # medQJ = contour()
-        flock = add_sheep(flock,
-                          sheep=medQJ,
-                          id="medQJ",
-                          height=medQJ_height,
-                          width=medQJ_width)
+        herd = add_sheep(herd,
+                         sheep=medQJ,
+                         id="medQJ",
+                         height=medQJ_height,
+                         width=medQJ_width,
+                         verbose=verbose)
 
         # print("medQJ")
-        # print(flock)
+        # print(herd)
 
         dataMOD = dataEXserie_code[["CDC"]]
         dataMOD = dplyr::rename(dataMOD,
@@ -287,14 +292,15 @@ sheet_diagnostic_station = function (data,
                               first=FALSE,
                               last=TRUE)
         # CDC = contour()
-        flock = add_sheep(flock,
-                          sheep=CDC,
-                          id="CDC",
-                          height=CDC_height,
-                          width=CDC_width)
+        herd = add_sheep(herd,
+                         sheep=CDC,
+                         id="CDC",
+                         height=CDC_height,
+                         width=CDC_width,
+                         verbose=verbose)
 
         # print("CDC")
-        # print(flock)
+        # print(herd)
 
         Code_region = CodeALL[substr(CodeALL, 1, 1) == substr(code, 1, 1)]
 
@@ -318,13 +324,14 @@ sheet_diagnostic_station = function (data,
             margin_add=
                 margin(t=-3, r=0, b=0, l=0, "cm"))
         # criteria = contour()
-        flock = add_sheep(flock,
-                          sheep=criteria,
-                          id="criteria",
-                          height=criteria_height)
+        herd = add_sheep(herd,
+                         sheep=criteria,
+                         id="criteria",
+                         height=criteria_height,
+                         verbose=verbose)
 
         # print("criteria")
-        # print(flock)
+        # print(herd)
 
         footName = 'Fiche station de référence'
         if (is.null(df_page)) {
@@ -344,19 +351,20 @@ sheet_diagnostic_station = function (data,
         
         foot = panel_foot(footName, n_page,
                           foot_height, logo_path)
-        flock = add_sheep(flock,
-                          sheep=foot,
-                          id="foot",
-                          height=foot_height)
+        herd = add_sheep(herd,
+                         sheep=foot,
+                         id="foot",
+                         height=foot_height,
+                         verbose=verbose)
 
         # print("foot")
-        # print(flock)
+        # print(herd)
 
-        res = return_to_sheepfold(flock,
+        res = return_to_sheepfold(herd,
                                   page_margin=page_margin,
                                   paper_size="A4",
                                   hjust=0, vjust=1,
-                                  verbose=TRUE)
+                                  verbose=verbose)
         
         plot = res$plot
         paper_size = res$paper_size

@@ -84,8 +84,8 @@ sheet_correlation_matrix = function (dataEX, metaEX,
                          "   ", round(i/nModelGroup*100, 1), "% done"))
         }
 
-        flock = bring_grass()
-        flock = plan_of_flock(flock, plan)
+        herd = bring_grass(verbose=verbose)
+        herd = plan_of_herd(herd, plan, verbose=verbose)
         
         var_plotted = c()
         
@@ -99,23 +99,26 @@ sheet_correlation_matrix = function (dataEX, metaEX,
                              margin=unit(c(t=0, r=0, b=0, l=0), "mm"),
                              hjust=0, vjust=1,
                              gp=gpar(col="#00A3A8", fontsize=16))
-        flock = add_sheep(flock,
-                          sheep=info,
-                          id="info",
-                          height=info_height)
+        herd = add_sheep(herd,
+                         sheep=info,
+                         id="info",
+                         height=info_height,
+                         verbose=verbose)
         
         cm = panel_correlation_matrix(dataEX_model,
                                        metaEX,
                                        icon_path=icon_path,
                                        margin=cm_margin)
-        flock = add_sheep(flock,
-                          sheep=cm,
-                          id="cm",
-                          height=cm_height)
+        herd = add_sheep(herd,
+                         sheep=cm,
+                         id="cm",
+                         height=cm_height,
+                         verbose=verbose)
 
-        flock = add_sheep(flock,
-                          sheep=void(),
-                          id="void")
+        herd = add_sheep(herd,
+                         sheep=void(),
+                         id="void",
+                         verbose=verbose)
         
         cb = panel_colorbar(-1, 1, Palette=Palette_rainbow(),
                             colorStep=6, include=TRUE,
@@ -126,10 +129,11 @@ sheet_correlation_matrix = function (dataEX, metaEX,
                             dy_color=0.45,
                             margin=cb_margin,
                             WIP=WIP)
-        flock = add_sheep(flock,
-                          sheep=cb,
-                          id="cb",
-                          height=cb_height)
+        herd = add_sheep(herd,
+                         sheep=cb,
+                         id="cb",
+                         height=cb_height,
+                         verbose=verbose)
 
         ssg = panel_shape_size_gradient(shape="rect",
                                         Size=c(0.1, 0.15, 0.2, 0.25),
@@ -145,10 +149,11 @@ sheet_correlation_matrix = function (dataEX, metaEX,
                                         dx_text=0, 
                                         margin=ssg_margin,
                                         WIP=WIP)
-        flock = add_sheep(flock,
-                          sheep=ssg,
-                          id="ssg",
-                          height=ssg_height)
+        herd = add_sheep(herd,
+                         sheep=ssg,
+                         id="ssg",
+                         height=ssg_height,
+                         verbose=verbose)
 
         if (nModel == 1) {
             si = panel_shape_info(Shape="rect",
@@ -165,10 +170,11 @@ sheet_correlation_matrix = function (dataEX, metaEX,
         } else {
             si = void()
         }
-        flock = add_sheep(flock,
-                          sheep=si,
-                          id="si",
-                          height=si_height)
+        herd = add_sheep(herd,
+                         sheep=si,
+                         id="si",
+                         height=si_height,
+                         verbose=verbose)
 
         footName = paste0('Matrice de corrélation : ', Model2Disp)
         if (is.null(df_page)) {
@@ -187,16 +193,17 @@ sheet_correlation_matrix = function (dataEX, metaEX,
         }
         foot = panel_foot(footName, n_page,
                           foot_height, logo_path)
-        flock = add_sheep(flock,
-                          sheep=foot,
-                          id="foot",
-                          height=foot_height)
+        herd = add_sheep(herd,
+                         sheep=foot,
+                         id="foot",
+                         height=foot_height,
+                         verbose=verbose)
 
-        res = return_to_sheepfold(flock,
+        res = return_to_sheepfold(herd,
                                   page_margin=page_margin,
                                   paper_size="A4",
                                   hjust=0, vjust=1,
-                                  verbose=TRUE)
+                                  verbose=verbose)
         
         plot = res$plot
         paper_size = res$paper_size

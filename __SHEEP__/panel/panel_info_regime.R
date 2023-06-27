@@ -28,7 +28,7 @@ panel_info_regime = function(QM_code,
                              Code_regime=NULL,
                              Shapefiles=NULL,
                              to_do='all') {
-
+    
     # If there is a data serie for the given code
     if (!is.null(QM_code)) {
         if (length(QM_code) == 2) {
@@ -37,9 +37,9 @@ panel_info_regime = function(QM_code,
                 QM_code[[1]],
                 names(QM_code)[1],
                 ratio_title=1/7,
-                margin_title=margin(t=0, r=0, b=0, l=14,
+                margin_title=margin(t=0, r=0, b=0, l=10,
                                     unit="mm"),
-                margin_hyd=margin(t=1, r=0, b=0, l=5,
+                margin_hyd=margin(t=1, r=0, b=0, l=1,
                                   unit="mm"))
             hyd2 = panel_hydrograph(
                 QM_code[[2]],
@@ -155,35 +155,53 @@ panel_info_regime = function(QM_code,
         gtext3 = void()
     }
 
-    plan = matrix(c("text1", "text1", "text1", "map",
-                    "text2", "text2", "text2", "map",
-                    "text3", "text3", "text3", "map",
-                    "text3", "text3", "text3", "map"),
+        plan = matrix(c("text1", "text1", "text1", "map",
+                    "text2", "hyd1", "hyd2", "map",
+                    "text3", "hyd1", "hyd2", "map",
+                    "text3", "hyd1", "hyd2", "map"),
                   nrow=4, 
                   byrow=TRUE)
-    
-    flock = bring_grass()
-    flock = plan_of_flock(flock, plan)
 
-    flock = add_sheep(flock,
-                      sheep=gtext1,
-                      id="text1",
-                      height=0.35)
-    flock = add_sheep(flock,
-                      sheep=gtext2,
-                      id="text2",
-                      height=0.35)
-    flock = add_sheep(flock,
-                      sheep=gtext3,
-                      id="text3",
-                      height=1)
-    flock = add_sheep(flock,
-                      sheep=map,
-                      id="map",
-                      height=1)
-    
-    flock = shear_sheeps(flock)
+    herd = bring_grass(verbose=verbose)
+    herd = plan_of_herd(herd, plan,
+                        verbose=verbose)
 
-    # Return the plot object
-    return(flock)
+    herd = add_sheep(herd,
+                     sheep=gtext1,
+                     id="text1",
+                     height=0.35,
+                     width=1,
+                     verbose=verbose)
+    herd = add_sheep(herd,
+                     sheep=gtext2,
+                     id="text2",
+                     height=0.35,
+                     width=1,
+                     verbose=verbose)
+    herd = add_sheep(herd,
+                     sheep=gtext3,
+                     id="text3",
+                     height=1,
+                     width=1.1,
+                     verbose=verbose)
+    herd = add_sheep(herd,
+                     sheep=hyd1,
+                     id="hyd1",
+                     height=1,
+                     width=1,
+                     verbose=verbose)
+    herd = add_sheep(herd,
+                     sheep=hyd2,
+                     id="hyd2",
+                     height=1,
+                     width=1,
+                     verbose=verbose)
+    herd = add_sheep(herd,
+                     sheep=map,
+                     id="map",
+                     height=1,
+                     width=1,
+                     verbose=verbose)
+
+    return (herd)
 }  

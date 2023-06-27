@@ -23,9 +23,9 @@
 #' @title Time panel
 #' @export
 panel_trend = function (dataEX_code_var,
+                        trendEX_code_var,
                         metaEX,
-                        trendEX,
-                        # period_change=NULL,
+                        period_trend_show=NULL,
                         linetype_per='solid',
                         missRect=FALSE,
                         axis_xlim=NULL, grid=TRUE,
@@ -44,10 +44,7 @@ panel_trend = function (dataEX_code_var,
     normalize = metaEX$normalize[metaEX$var == var]
     reverse_palette = metaEX$reverse_palette[metaEX$var == var]
     samplePeriod = metaEX$samplePeriod[metaEX$var == var]
-    Period = unique(trendEX$period)
-
-    print(Period)
-    
+    Period = unique(trendEX_code_var$period)
     nPeriod = length(Period)
     
     codeX = c(min(dataEX_code_var[[var]], na.rm=TRUE),
@@ -57,28 +54,37 @@ panel_trend = function (dataEX_code_var,
         min(dataEX_code_var$Date[!is.na(dataEX_code_var[[var]])],
             na.rm=TRUE),
         max(dataEX_code_var$Date[!is.na(dataEX_code_var[[var]])],
-            na.rm=TRUE) + lubridate::years(1))
+            na.rm=TRUE))
 
+    codeDate[1] = lubridate::add_with_rollback(codeDate[1],
+                                               -lubridate::years(1))
+    codeDate[2] = lubridate::add_with_rollback(codeDate[2],
+                                               lubridate::years(1))
+    
     if (!is.null(axis_xlim)) {
         codeDate = axis_xlim
     }
     
     p = ggplot() + theme_IPCC(isBack=FALSE,
-                              isGrid=FALSE)
+                              isGrid=FALSE,
+                              isLabelY=TRUE)
 
     ## Background ##
-    Period = as.list(Period)
+    if (is.null(period_trend_show)) {
+        period_trend_show = Period
+    }
+    period_trend_show = as.list(period_trend_show)
     Imin = 10^99
-    for (per in Period) {
+    for (per in period_trend_show) {
         I = lubridate::interval(per[1], per[2])
         if (I < Imin) {
             Imin = I
-            Period_min = as.Date(per)
+            period_min = as.Date(per)
         }
     }
 
-    minPer = Period_min[1]
-    maxPer = Period_min[2]
+    minPer = period_min[1]
+    maxPer = period_min[2]
     if (minPer < codeDate[1]) {
         minPer = codeDate[1]
     }
@@ -86,7 +92,7 @@ panel_trend = function (dataEX_code_var,
         maxPer = codeDate[2]
     }
     
-    if (nPeriod > 1) {
+    if (length(period_trend_show) > 1) {
         p = p + 
             geom_rect(aes(xmin=minPer,
                           ymin=-Inf, 
@@ -99,9 +105,8 @@ panel_trend = function (dataEX_code_var,
 
     
     ## Mean step ##
-    if ("period_change" %in% names(trendEX)) {
-        
-        period_change = trendEX$period_change[[1]]
+    if ("period_change" %in% names(trendEX_code_var)) {
+        period_change = trendEX_code_var$period_change[[1]]
         nPeriod_change = length(period_change)
 
         plot_mean = dplyr::tibble()
@@ -114,33 +119,6 @@ panel_trend = function (dataEX_code_var,
             dataEX_code_var_period =
                 dataEX_code_var[dataEX_code_var$Date >= xmin
                                 & dataEX_code_var$Date <= xmax,]
-            
-            # if (xmin > codeDate[1] & j != 1) {
-            #     xmin = lubridate::add_with_rollback(xmin,
-            #                                         -months(6)) 
-            # }
-            # if (j == 1) {
-            #     if (!is.null(axis_xlim)) {
-            #         if (xmin < axis_xlim[1]) {
-            #             xmin = axis_xlim[1]
-            #         }
-            #     }
-            # }
-            
-            # if (xmax < codeDate[2] &
-            #     j != nPeriod_change) {
-            #     xmax = lubridate::add_with_rollback(xmax,
-            #                                         months(6)) 
-            # }
-            # if (j == nPeriod_change) {
-            #     if (!is.null(axis_xlim)) {
-            #         if (xmax + lubridate::years(1) < axis_xlim[2]) {
-            #             xmax = xmax + lubridate::years(1)
-            #         } else {
-            #             xmax = axis_xlim[2]
-            #         }
-            #     }
-            # }
 
             if (xmin < codeDate[1]) {
                 xmin = codeDate[1]
@@ -277,16 +255,16 @@ panel_trend = function (dataEX_code_var,
     
     for (j in 1:nPeriod) {
         period = Period[[j]]
-        Start = period[1]
-        End = period[2]
+        start = period[1]
+        end = period[2]
         
         dataEX_code_var_period =
-            dataEX_code_var[dataEX_code_var$Date >= Start &
-                            dataEX_code_var$Date <= End,]
+            dataEX_code_var[dataEX_code_var$Date >= start &
+                            dataEX_code_var$Date <= end,]
 
         trendEX_code_var_period =
-            trendEX[sapply(lapply(trendEX$period,
-                                  '==', period), all),]
+            trendEX_code_var[sapply(lapply(trendEX_code_var$period,
+                                           '==', period), all),]
 
         Ntrend = nrow(trendEX_code_var_period)
         if (Ntrend > 1) {
@@ -296,8 +274,8 @@ panel_trend = function (dataEX_code_var,
 
         dataEX_code_var_period_NoNA =
             dataEX_code_var_period[!is.na(dataEX_code_var_period[[var]]),]
-        iStart = which.min(abs(dataEX_code_var_period_NoNA$Date - Start[i]))
-        iEnd = which.min(abs(dataEX_code_var_period_NoNA$Date - End[i]))
+        iStart = which.min(abs(dataEX_code_var_period_NoNA$Date - start))
+        iEnd = which.min(abs(dataEX_code_var_period_NoNA$Date - end))
         xmin = dataEX_code_var_period_NoNA$Date[iStart]
         xmax = dataEX_code_var_period_NoNA$Date[iEnd]
         if (!is.null(axis_xlim)) {
@@ -314,7 +292,7 @@ panel_trend = function (dataEX_code_var,
         ord = abs_num * trendEX_code_var_period$a +
             trendEX_code_var_period$b
         
-        plot_trendtmp = tibble(abs=abs, ord=ord, period=i)
+        plot_trendtmp = tibble(abs=abs, ord=ord, period=j)
         plot_trend = bind_rows(plot_trend, plot_trendtmp)
 
         x = gpct(1.5, codeDate, shift=TRUE)
@@ -322,7 +300,7 @@ panel_trend = function (dataEX_code_var,
 
         dy = gpct(9, codeX, min_lim=ymin_lim)
         y = gpct(100, codeX,
-                 min_lim=ymin_lim, shift=TRUE) - (i-1)*dy
+                 min_lim=ymin_lim, shift=TRUE) - (j-1)*dy
         yend = y
 
         xt = xend + gpct(1, codeDate)
@@ -394,7 +372,7 @@ panel_trend = function (dataEX_code_var,
                               aMeanC=aMeanC,
                               xminR=xminR, yminR=yminR,
                               xmaxR=xmaxR, ymaxR=ymaxR,
-                              period=i)
+                              period=j)
         leg_trend = bind_rows(leg_trend, leg_trendtmp)  
     }
 
@@ -407,13 +385,15 @@ panel_trend = function (dataEX_code_var,
     linetypeLeg_per[linetype_per == 'dashed'] = '22'
     linetypeLeg_per[linetype_per == 'dotted'] = '11'
 
-    for (i in 1:nPeriod) {
-        leg_trend_per = leg_trend[leg_trend$period == i,]
+    for (j in 1:nPeriod) {
+        leg_trend_per = leg_trend[leg_trend$period == j,]
 
         if (nPeriod > 1) {
             if (is_date) {
-                leg_trend_per$yminR = leg_trend_per$yminR + as.Date("1970-01-01")
-                leg_trend_per$ymaxR = leg_trend_per$ymaxR + as.Date("1970-01-01")
+                leg_trend_per$yminR = leg_trend_per$yminR +
+                    as.Date("1970-01-01")
+                leg_trend_per$ymaxR = leg_trend_per$ymaxR +
+                    as.Date("1970-01-01")
             }
             p = p +
                 geom_rect(aes(xmin=leg_trend_per$xminR,
@@ -431,54 +411,35 @@ panel_trend = function (dataEX_code_var,
         aMeanC = leg_trend_per$aMeanC
 
         unitF = gsub(" ", "\\\\,", unit)
-
-        # if (unit == 'hm^{3}' | unit == 'm^{3}.s^{-1}') {
-        #     label = paste0("\\textbf{", aC,
-        #                    " x 10$^{$", powerC,"}}",
-        #                    spaceC,
-        #                    " ", "\\[$", unitF, ".an^{-1}$", "\\]",
-        #                    "\\;", "\\textbf{", aMeanC, "}",
-        #                    " ", "\\[%$.an^{-1}$\\]")
-            
-        # } else if (unit == "jour de l'année" | unit == "jour") {
-        #     label = paste0("\\textbf{", aC,
-        #                    " x 10$^{$", powerC,"}}",
-        #                    spaceC,
-        #                    " ", "\\[", "jour$.an^{-1}$", "\\]")
-            
-        # } else if (unit == 'jour.an^{-1}') {
-        #     label = paste0("\\textbf{", aC,
-        #                    " x 10$^{$", powerC,"}}",
-        #                    spaceC,
-        #                    " ", "\\[", "jour$.an^{-2}$", "\\]")
-        # }
-
+        unitF = gsub("°", "\\textbf{^\\degree}", unitF, fixed=TRUE)
+        
         if (grepl(".an^{-1}", unitF, fixed=TRUE)) {
             unitF = gsub(".an^{-1}", "", unitF, fixed=TRUE)
-            unitT = ".an^{-2}$"
+            unitT = ".an^{-2}"
         } else {
-            unitT = ".an^{-1}$"
+            unitT = ".an^{-1}"
         }
         
         if (normalize) {
             label = paste0("\\textbf{", aC,
                            " x 10$^{$", powerC,"}}",
                            spaceC,
-                           " ", "\\[$", unitF, unitT, "\\]",
+                           " ", "\\[$", unitF, unitT, "$\\]",
                            "\\;", "\\textbf{", aMeanC, "}",
                            " ", "\\[%$.an^{-1}$\\]")
         } else {
             label = paste0("\\textbf{", aC,
                            " x 10$^{$", powerC,"}}",
                            spaceC,
-                           " ", "\\[$", unitF, unitT, "\\]")
+                           " ", "\\[$", unitF, unitT, "$\\]")
         }
 
-        
         if (nPeriod > 1) {
             if (is_date) {
-                leg_trend_per$y = leg_trend_per$y + as.Date("1970-01-01")
-                leg_trend_per$yend = leg_trend_per$yend + as.Date("1970-01-01")
+                leg_trend_per$y = leg_trend_per$y +
+                    as.Date("1970-01-01")
+                leg_trend_per$yend = leg_trend_per$yend +
+                    as.Date("1970-01-01")
             }
             p = p +
                 annotate("segment",
@@ -487,7 +448,7 @@ panel_trend = function (dataEX_code_var,
                          y=leg_trend_per$y,
                          yend=leg_trend_per$yend,
                          color=colorLine,
-                         linetype=linetypeLeg_per[i],
+                         linetype=linetypeLeg_per[j],
                          lwd=0.8,
                          lineend="round") +
                 annotate("text",
@@ -506,30 +467,32 @@ panel_trend = function (dataEX_code_var,
         }
     }
 
-    for (i in 1:nPeriod) {
-        plot_trend_per = plot_trend[plot_trend$period == i,]
+    for (j in 1:nPeriod) {
+        plot_trend_per = plot_trend[plot_trend$period == j,]
         if (is_date) {
             plot_trend_per$ord = plot_trend_per$ord +
                 as.Date("1970-01-01")
         }
         p = p + 
-            geom_line(aes(x=plot_trend_per$abs,
-                          y=plot_trend_per$ord),
-                      color='white',
-                      linetype='solid',
-                      size=1.5,
-                      lineend="round")
+            annotate("line",
+                     x=plot_trend_per$abs,
+                     y=plot_trend_per$ord,
+                     color='white',
+                     linetype='solid',
+                     size=1.2,
+                     lineend="round")
     }
 
-    for (i in 1:nPeriod) {
-        plot_trend_per = plot_trend[plot_trend$period == i,]
+    for (j in 1:nPeriod) {
+        plot_trend_per = plot_trend[plot_trend$period == j,]        
         p = p + 
-            geom_line(aes(x=plot_trend_per$abs,
-                          y=plot_trend_per$ord),
-                      color=color_trend[i],
-                      linetype=linetype_per[i],
-                      size=0.75,
-                      lineend="round")
+            annotate("line",
+                     x=plot_trend_per$abs,
+                     y=plot_trend_per$ord,
+                     color=color_trend[j],
+                     linetype=linetype_per[j],
+                     size=0.75,
+                     lineend="round")
     }
 
     if (!is.null(samplePeriod)) {
@@ -565,6 +528,7 @@ panel_trend = function (dataEX_code_var,
         varF = paste0(varF, "}")
     }
     unitF = gsub(" ", "\\\\,", unit)
+    unitF = gsub("°", "\\textbf{^\\degree}", unitF, fixed=TRUE)
     ylabel = paste0("\\textbf{", varF, "}", "\\;", "\\[$", unitF, "$\\]")
 
     if (!is.null(samplePeriod)) {

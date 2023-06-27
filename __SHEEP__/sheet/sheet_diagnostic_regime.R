@@ -33,24 +33,23 @@ sheet_diagnostic_regime = function (meta,
                                     figdir="",
                                     verbose=FALSE) {
 
-    page_margin = c(t=0.5, r=0.5, b=0.5, l=0.5)
+    page_margin = c(t=0.5, r=1, b=0.5, l=1)
     
     info_height = 3
+    info_width = 19
     void_height = 0.2
     medQJ_height = 7
     criteria_height = 15
 
     foot_height = 1.25
     
-    medQJ_width = 10
+    medQJ_width = 1
 
-    
-    NAME = matrix(c(
-        "info", "void", "medQJ_1", "medQJ_0.25", "criteria", "foot",
-        "info", "void", "medQJ_0.75", "medQJ_0", "criteria", "foot"),
-    ncol=2)
+    plan = matrix(c(
+        "info", "void", "medQJ_1", "medQJ_025", "criteria", "foot",
+        "info", "void", "medQJ_075", "medQJ_0", "criteria", "foot"),
+        ncol=2)
     WIP = FALSE
-
 
     Model = levels(factor(dataEXind$Model))
     nModel = length(Model)
@@ -59,7 +58,7 @@ sheet_diagnostic_regime = function (meta,
     nCode = length(Code)
 
     dataEXserieQM_obs =
-        dplyr::summarise(dplyr::group_by(dataEXserie$QM, Code, Month),
+        dplyr::summarise(dplyr::group_by(dataEXserie$QM, Code, Date),
                          QM=select_good(QM_obs),
                          .groups="drop")
 
@@ -104,6 +103,10 @@ sheet_diagnostic_regime = function (meta,
         }
         names(dataEXserie_regime) = names(dataEXserie)
 
+        herd = bring_grass(verbose=verbose)
+        herd = plan_of_herd(herd, plan,
+                         verbose=verbose)
+
         medKGEracine =
             dplyr::summarise(dplyr::group_by(dataEXind_regime,
                                              Code),
@@ -136,7 +139,7 @@ sheet_diagnostic_regime = function (meta,
             dataEXserieQM_obs_detail_med =
                 dplyr::summarise(dplyr::group_by(
                                             dataEXserieQM_obs_detail,
-                                            Month),
+                                            Date),
                                  QM=median(QM, na.rm=TRUE),
                                  .groups="drop")
             QM_code = append(QM_code,
@@ -155,11 +158,12 @@ sheet_diagnostic_regime = function (meta,
                                  Code_regime=Code_regime,
                                  Shapefiles=Shapefiles,
                                  to_do='all')
-        STOCK = tibble()
-        STOCK = add_plot(STOCK,
-                         plot=info,
-                         name="info",
-                         height=info_height)
+        herd = add_sheep(herd,
+                         sheep=info,
+                         id="info",
+                         height=info_height,
+                         width=info_width,
+                         verbose=verbose)
 
 
         for (j in 1:length(KGEprobs)) {
@@ -194,6 +198,7 @@ sheet_diagnostic_regime = function (meta,
                                         Date="Yearday",
                                         Q_obs="medQJC5_obs",
                                         Q_sim="medQJC5_sim")
+                
                 medQJ = panel_spaghetti(
                     dataMOD,
                     Colors,
@@ -207,6 +212,8 @@ sheet_diagnostic_regime = function (meta,
                     date_labels="%d %b",
                     breaks="3 months",
                     minor_breaks="1 months",
+                    add_x_breaks=
+                        as.Date("1970-12-31"),
                     Xlabel="",
                     limits_ymin=0,
                     isBackObsAbove=TRUE,
@@ -222,15 +229,20 @@ sheet_diagnostic_regime = function (meta,
                         margin(t=0, r=6, b=0, l=0, "mm"),
                     first=FALSE,
                     last=TRUE)
+                
             }
-            STOCK = add_plot(STOCK,
-                             plot=medQJ,
-                             name=paste0("medQJ", "_", prob),
+            herd = add_sheep(herd,
+                             sheep=medQJ,
+                             id=paste0("medQJ", "_",
+                                       gsub("[.]", "", prob)),
                              height=medQJ_height,
-                             width=medQJ_width)
+                             width=medQJ_width,
+                             verbose=verbose)
         }
         
-
+        herd$sheep$label[herd$sheep$id %in% c("medQJ_1.spag", "medQJ_025.spag")] = "align1"
+        herd$sheep$label[herd$sheep$id %in% c("medQJ_075.spag", "medQJ_0.spag")] = "align2"
+        
         criteria = panel_diagnostic_criteria(
             dataEXind,
             metaEXind,
@@ -247,16 +259,19 @@ sheet_diagnostic_regime = function (meta,
             add_name=TRUE,
             text2px_lim=51,
             margin_add=
-                margin(t=-3.8, r=0, b=0, l=0, "cm"))
-        STOCK = add_plot(STOCK,
-                         plot=criteria,
-                         name="criteria",
-                         height=criteria_height)
+                margin(t=-4, r=0, b=0, l=0, "cm"))
+        
+        herd = add_sheep(herd,
+                         sheep=criteria,
+                         id="criteria",
+                         height=criteria_height,
+                         verbose=verbose)
 
-        STOCK = add_plot(STOCK,
-                         plot=void(),
-                         name="void",
-                         height=void_height)
+        herd = add_sheep(herd,
+                         sheep=void(),
+                         id="void",
+                         height=void_height,
+                         verbose=verbose)
 
 
         footName = 'Fiche de diagnostic par régime'
@@ -276,27 +291,27 @@ sheet_diagnostic_regime = function (meta,
         }
         foot = panel_foot(footName, n_page,
                           foot_height, logo_path)
-        STOCK = add_plot(STOCK,
-                         plot=foot,
-                         name="foot",
-                         height=foot_height)
+        herd = add_sheep(herd,
+                         sheep=foot,
+                         id="foot",
+                         height=foot_height,
+                         verbose=verbose)
 
-        res = merge_panel(STOCK, NAME=NAME,
-                          page_margin=page_margin,
-                          paper_size="A4",
-                          hjust=0, vjust=1)
-
+        res = return_to_sheepfold(herd,
+                                  page_margin=page_margin,
+                                  paper_size="A4",
+                                  hjust=0, vjust=1,
+                                  verbose=verbose)
+        
         plot = res$plot
         paper_size = res$paper_size
-
-
+        
         regime = gsub("[ ][-][ ]", "_", regime)
         filename = paste0(regime, "_diagnostic_datasheet.pdf")
 
         if (!(file.exists(figdir))) {
             dir.create(figdir, recursive=TRUE)
         }
-        
         ggplot2::ggsave(plot=plot,
                         path=figdir,
                         filename=filename,
@@ -305,5 +320,6 @@ sheet_diagnostic_regime = function (meta,
                         dpi=300,
                         device=cairo_pdf)
     }
+    
     return (df_page)
 }

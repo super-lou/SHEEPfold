@@ -124,19 +124,22 @@ panel_hydrograph = function (QM_code, regimeLight, period=NULL,
                   nrow=2, 
                   byrow=TRUE)
     
-    flock = bring_grass()
-    flock = plan_of_flock(flock, plan)
+    herd = bring_grass(verbose=verbose)
+    herd = plan_of_herd(herd, plan,
+                        verbose=verbose)
     
-    flock = add_sheep(flock,
-                      sheep=title,
-                      id="title",
-                      height=ratio_title)
-    flock = add_sheep(flock,
-                      sheep=hyd,
-                      id="hyd",
-                      height=1)
+    herd = add_sheep(herd,
+                     sheep=title,
+                     id="title",
+                     height=ratio_title,
+                     verbose=verbose)
+    herd = add_sheep(herd,
+                     sheep=hyd,
+                     id="hyd",
+                     height=1,
+                     verbose=verbose)
 
-    flock = shear_sheeps(flock)
+    # herd = shear_sheeps(herd)
     
-    return (flock)
+    return (herd)
 } 

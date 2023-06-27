@@ -338,13 +338,6 @@ panel_diagnostic_criteria = function (dataEXind,
     space = 0
     Spaces = c()
 
-    print(VarTEX)
-    print(Var)
-
-
-
-
-
     
 ## 3. GRAPHICAL INITIALISATION _______________________________________
     Ind = ggplot() + theme_void() + coord_fixed(clip="off") +

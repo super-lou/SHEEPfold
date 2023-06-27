@@ -24,7 +24,7 @@
 #' @export
 sheet_stationnarity_short = function (meta, data,
                                       dataEX, metaEX, trendEX,
-                                      # period_change=NULL,
+                                      period_trend_show=NULL,
                                       exProb=0.01,
                                       linetype_per=NULL,
                                       logo_path=NULL,
@@ -40,34 +40,38 @@ sheet_stationnarity_short = function (meta, data,
     nCode = length(Code)
     Period = unique(trendEX$period)
     nPeriod = length(Period)
-    Var =  levels(factor(trendEX$var))
+
+    Var = names(dataEX)[!(names(dataEX) %in% c("Code", "Date"))]
+    # Var =  levels(factor(trendEX$var))
     nVar = length(Var)
 
-    title_height = 3
+    title_height = 0.7
     var_height = (paper_size[1] - 0.5*2 - title_height) / nVar
     
     plan = matrix(c("title", Var),
                   ncol=1)
-        
+    
 
     # For all the station
     for (k in 1:nCode) {
         # Gets the code
         code = Code[k]
         # Print code of the station for the current plotting
-        print(paste("Datasheet for station : ", code,
-                    "   (", round(k/nCode*100, 1), " %)", 
-                    sep=''))
+        print(paste0("Datasheet for station : ", code,
+                    "   (", round(k/nCode*100, 1), " %)"))
 
-        flock = bring_grass()
-        flock = plan_of_flock(flock, plan)
+        herd = bring_grass(verbose=verbose)
+        herd = plan_of_herd(herd, plan,
+                            verbose=verbose)
         
-        title = panel_title(code)
-            
-        flock = add_sheep(flock,
-                          sheep=title,
-                          id="title",
-                          height=title_height)
+        title = panel_title(code,
+                            margin=margin(t=0, r=0, b=0, l=5, "mm"))
+        
+        herd = add_sheep(herd,
+                         sheep=title,
+                         id="title",
+                         height=title_height,
+                         verbose=verbose)
 
         for (i in 1:nVar) {
             var = Var[i]
@@ -78,20 +82,23 @@ sheet_stationnarity_short = function (meta, data,
                 last = FALSE
             } else if (i == nVar) {
                 first = FALSE
-                last = FALSE
+                last = TRUE
             } else {
                 first = FALSE
-                last = TRUE
+                last = FALSE
             }
 
-            dataEX_code_var = dplyr::select(dataEX[dataEX$Code == code,],
-                                            c("Code", "Date",
-                                              var))
+            dataEX_code_var =
+                dplyr::select(dataEX[dataEX$Code == code,],
+                              c("Code", "Date", var))
+
+            trendEX_code_var = trendEX[trendEX$Code == code &
+                                      trendEX$var == var,]
             
             trend = panel_trend(dataEX_code_var,
+                                trendEX_code_var,
                                 metaEX,
-                                trendEX,
-                                # period_change=period_change,
+                                period_trend_show=period_trend_show,
                                 linetype_per=linetype_per,
                                 missRect=FALSE,
                                 axis_xlim=NULL, grid=FALSE,
@@ -101,22 +108,20 @@ sheet_stationnarity_short = function (meta, data,
                                 date_labels="%Y",
                                 first=first, last=last)
             
-            flock = add_sheep(flock,
-                              sheep=trend,
-                              id=var,
-                              label="align",
-                              height=var_height)
-
-            print("aaaaa")
-            
+            herd = add_sheep(herd,
+                             sheep=trend,
+                             id=var,
+                             label="align",
+                             height=var_height,
+                             verbose=verbose)
         }
 
-
-        res = return_to_sheepfold(flock,
+        res = return_to_sheepfold(herd,
                                   page_margin=page_margin,
                                   paper_size=paper_size,
                                   hjust=0, vjust=1,
-                                  verbose=TRUE)
+                                  verbose=verbose,
+                                  verbose=verbose)
         
         plot = res$plot
         # paper_size = res$paper_size

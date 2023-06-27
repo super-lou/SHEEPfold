@@ -508,19 +508,23 @@ panel_spaghetti = function (data_code, Colors=NULL,
                   nrow=2, 
                   byrow=TRUE)
     
-    flock = bring_grass()
-    flock = plan_of_flock(flock, plan)
+    herd = bring_grass(verbose=verbose)
+    herd = plan_of_herd(herd, plan,
+                        verbose=verbose)
     
-    flock = add_sheep(flock,
-                      sheep=title,
-                      id="title",
-                      height=height_title)
-    flock = add_sheep(flock,
-                      sheep=spag,
-                      id="spag",
-                      height=1)
+    herd = add_sheep(herd,
+                     sheep=title,
+                     id="title",
+                     height=height_title,
+                     verbose=verbose)
+    herd = add_sheep(herd,
+                     sheep=spag,
+                     id="spag",
+                     height=1,
+                     verbose=verbose)
     
-    flock = shear_sheeps(flock)
+    # herd = shear_sheeps(herd,
+    #                     verbose=verbose)
     
-    return (flock)
+    return (herd)
 } 

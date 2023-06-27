@@ -121,28 +121,33 @@ panel_info_region = function(meta,
                   nrow=4, 
                   byrow=TRUE)
     
-    flock = bring_grass()
-    flock = plan_of_flock(flock, plan)
+    herd = bring_grass(verbose=verbose)
+    herd = plan_of_herd(herd, plan,
+                        verbose=verbose)
 
-    flock = add_sheep(flock,
-                      sheep=gtext1,
-                      id="text1",
-                      height=0.625)
-    flock = add_sheep(flock,
-                      sheep=gtext2,
-                      id="text2",
-                      height=0.78)
-    flock = add_sheep(flock,
-                      sheep=gtext3,
-                      id="text3",
-                      height=1)
-    flock = add_sheep(flock,
-                      sheep=map,
-                      id="map",
-                      height=1)
+    herd = add_sheep(herd,
+                     sheep=gtext1,
+                     id="text1",
+                     height=0.625,
+                     verbose=verbose)
+    herd = add_sheep(herd,
+                     sheep=gtext2,
+                     id="text2",
+                     height=0.78,
+                     verbose=verbose)
+    herd = add_sheep(herd,
+                     sheep=gtext3,
+                     id="text3",
+                     height=1,
+                     verbose=verbose)
+    herd = add_sheep(herd,
+                     sheep=map,
+                     id="map",
+                     height=1,
+                     verbose=verbose)
     
-    flock = shear_sheeps(flock)
+    # herd = shear_sheeps(herd,
+    #                     verbose=verbose)
     
-    # Return the plot object
-    return (flock)
+    return (herd)
 }  

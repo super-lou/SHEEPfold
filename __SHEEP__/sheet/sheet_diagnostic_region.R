@@ -103,17 +103,19 @@ sheet_diagnostic_region = function (meta,
         Code_KGEprobs[duplicated(Code_KGEprobs)] = NA
         names(Code_KGEprobs) = KGEprobs
 
-        flock = bring_grass()
-        flock = plan_of_flock(flock, plan)
+        herd = bring_grass(verbose=verbose)
+        herd = plan_of_herd(herd, plan,
+                            verbose=verbose)
 
         info = panel_info_region(meta,
                                  Shapefiles=Shapefiles,
                                  regionLight=region,
                                  to_do='all')
-        flock = add_sheep(flock,
-                          sheep=info,
-                          id="info",
-                          height=info_height)
+        herd = add_sheep(herd,
+                         sheep=info,
+                         id="info",
+                         height=info_height,
+                         verbose=verbose)
         
 
         for (j in 1:length(KGEprobs)) {
@@ -178,16 +180,17 @@ sheet_diagnostic_region = function (meta,
                                         first=FALSE,
                                         last=TRUE)
             }
-            flock = add_sheep(flock,
-                              sheep=medQJ,
-                              id=paste0("medQJ", "_",
-                                        gsub("[.]", "", prob)),
-                              height=medQJ_height,
-                              width=medQJ_width)
+            herd = add_sheep(herd,
+                             sheep=medQJ,
+                             id=paste0("medQJ", "_",
+                                       gsub("[.]", "", prob)),
+                             height=medQJ_height,
+                             width=medQJ_width,
+                             verbose=verbose)
         }
 
-        flock$sheep$label[flock$sheep$id %in% c("medQJ_1.spag", "medQJ_025.spag")] = "align1"
-        flock$sheep$label[flock$sheep$id %in% c("medQJ_075.spag", "medQJ_0.spag")] = "align2"
+        herd$sheep$label[herd$sheep$id %in% c("medQJ_1.spag", "medQJ_025.spag")] = "align1"
+        herd$sheep$label[herd$sheep$id %in% c("medQJ_075.spag", "medQJ_0.spag")] = "align2"
         
         criteria = panel_diagnostic_criteria(
             dataEXind,
@@ -207,15 +210,17 @@ sheet_diagnostic_region = function (meta,
             margin_add=
                 margin(t=-4, r=0, b=0, l=0, "cm"))
 
-        flock = add_sheep(flock,
-                          sheep=criteria,
-                          id="criteria",
-                          height=criteria_height)
+        herd = add_sheep(herd,
+                         sheep=criteria,
+                         id="criteria",
+                         height=criteria_height,
+                         verbose=verbose)
 
-        flock = add_sheep(flock,
-                          sheep=void(),
-                          id="void",
-                          height=void_height)
+        herd = add_sheep(herd,
+                         sheep=void(),
+                         id="void",
+                         height=void_height,
+                         verbose=verbose)
 
 
         footName = 'Fiche région de diagnostic'
@@ -235,16 +240,17 @@ sheet_diagnostic_region = function (meta,
         }
         foot = panel_foot(footName, n_page,
                           foot_height, logo_path)
-        flock = add_sheep(flock,
-                          sheep=foot,
-                          id="foot",
-                          height=foot_height)
+        herd = add_sheep(herd,
+                         sheep=foot,
+                         id="foot",
+                         height=foot_height,
+                         verbose=verbose)
 
-        res = return_to_sheepfold(flock,
+        res = return_to_sheepfold(herd,
                                   page_margin=page_margin,
                                   paper_size="A4",
                                   hjust=0, vjust=1,
-                                  verbose=TRUE)
+                                  verbose=verbose)
 
         plot = res$plot
         paper_size = res$paper_size
