@@ -23,11 +23,11 @@
 #' @title Time panel
 #' @export
 panel_simple_trend = function (dataEX_code, trendEX_code, var, unit,
-                        samplePeriod_code=NULL,
-                        linetype_per='solid', level=0.1,
-                        axis_xlim=NULL, grid=TRUE,
-                        ymin_lim=NULL, color=NULL,
-                        first=FALSE, last=FALSE) {
+                               samplePeriod_code=NULL,
+                               linetype_per='solid', level=0.1,
+                               axis_xlim=NULL, grid=TRUE,
+                               ymin_lim=NULL, color=NULL,
+                               first=FALSE, last=FALSE) {
 
     isDate = as.Date("1970-01-01")
     

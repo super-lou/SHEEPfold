@@ -47,10 +47,79 @@ IPCCgold = "#e6d495"
 IPCCblue = "#1e2f59"
 
 INRAEcyan = "#00a3a6"
+INRAElightercyan = "#b2e0df"
 INRAElightcyan = "#66c1bf"
 INRAEmediumcyan = "#008c8e"
 INRAEdarkcyan = "#275662"
 INRAElightblue = "#9ed6e3"
+
+
+get_IPCC_Palette = function (palette_name) {
+    if (palette_name == "SSP") {
+        Palette =
+            c("#971A1F",
+              "#E11D25",
+              "#F68815",
+              "#203563",
+              "#45AED4")
+    }
+
+    if (palette_name == "ground") {
+        Palette =
+            c("#452C1A",
+              "#7F4A23",
+              "#B3762A",
+              "#D4B86A",
+              "#EFE0B0",
+              "#BCE6DB",
+              "#7ACEB9",
+              "#449C93",
+              "#2A6863",
+              "#193830")
+    }
+
+    if (palette_name == "ground_long") {
+        Palette =
+            c("#452C1A",
+              "#704220",
+              "#9A6327",
+              "#BC8A3C",
+              "#D5BA6D",
+              "#EADBA4",
+              "#F0ECD6",
+              "#DCF1E9",
+              "#B1E2D5",
+              "#7CCFBB",
+              "#51AFA0",       
+              "#36847F",
+              "#255A54",
+              "#193830")
+    }
+
+    if (palette_name == "OrangePurple") {
+        Palette =
+            c("#CD5629",
+              "#E8B962",
+              "#F8E6DF",
+              "#EDE1ED",
+              "#E58DBE",
+              "#893687")
+    }
+        
+    if (palette_name == "rainbow") {
+        Palette =  
+            c("#96221b",
+              "#D73027",
+              "#FC8D59",
+              "#FEE090",
+              "#E0F3F8",
+              "#91BFDB",
+              "#4575B4",
+              "#30527e")
+    }
+    
+    return (Palette)
+}
 
 
 
@@ -201,7 +270,11 @@ compute_colorBin = function (min, max, colorStep, center=TRUE,
 
 get_color = function (value, upBin, lowBin, Palette) {
     id = which(value <= upBin & value > lowBin)
-    color = Palette[id]
+    if (length(id) == 0) {
+        color = NA
+    } else {
+        color = Palette[id]
+    }
     return (color)
 }
 

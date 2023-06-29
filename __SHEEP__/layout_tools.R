@@ -523,3 +523,75 @@ guess_newline = function (text, px=40, nChar=100,
     
     return (text)
 }
+
+
+
+convert2TeX = function (Var) {
+    nVar = length(Var)
+    
+    VarTEX = gsub("etiage", "étiage", Var)
+    for (i in 1:nVar) {
+        var = VarTEX[i]
+        
+        if (grepl("[_]", var) & !grepl("[_][{]", var)) {
+            var = gsub("[_]", ", ", var)
+            var = sub("[,] ", "$_{$", var)
+            var = paste0(var, "}")           
+        } else if (grepl("[_]", var) & grepl("[_][{]", var)) {
+            var = gsub("[_]", ", ", var)
+            var = sub("[,] [{]", "$_{$", var)
+        }
+
+        if (grepl("alpha", var)) {
+            var = gsub("alpha", "\\\\bf{\u03b1}", var)
+        }
+
+        if (grepl("epsilon", var)) {
+            var = gsub("epsilon", "\\\\bf{\u03b5}", var)
+        }
+
+        if (grepl("HYP", var)) {
+            var = gsub("HYP", "\\\\textit{H}", var)
+        }
+
+        if (grepl("inv", var) & !grepl("inv[{]", var)) {
+            var = gsub("inv", "\\\\textit{inv}", var)
+        } else if (grepl("inv", var) & grepl("inv[{]", var)) {
+            var = gsub("[}]", "", var)
+            var = gsub("inv[{]", "\\\\textit{inv}", var)
+        } 
+
+        if (grepl("log", var) & !grepl("log[{]", var)) {
+            var = gsub("log", "\\\\textit{log}", var)
+        } else if (grepl("log", var) & grepl("log[{]", var)) {
+            var = gsub("[}]", "", var)
+            var = gsub("log[{]", "\\\\textit{log}", var)
+        } 
+
+        if (grepl("moy", var) & !grepl("moy[{]", var)) {
+            var = gsub("moy", "", var)
+        } else if (grepl("moy", var) & grepl("moy[{]", var)) {
+            var = gsub("[}]", "", var)
+            var = gsub("moy[{]", "", var)
+        } 
+
+        if (grepl("med", var) & !grepl("med[{]", var)) {
+            var = gsub("med", "", var)
+        } else if (grepl("med", var) & grepl("med[{]", var)) {
+            var = gsub("[}]", "", var)
+            var = gsub("med[{]", "", var)
+        } 
+        
+        if (grepl("racine", var) & !grepl("racine[{]", var)) {
+            var = gsub("racine", "\u221A", var)
+        } else if (grepl("racine", var) & grepl("racine[{]", var)) {
+            var = gsub("[}]", "", var)
+            var = gsub("racine[{]", "\u221A", var)
+        }
+        
+        VarTEX[i] = var
+    }
+    VarTEX = paste0("\\textbf{", VarTEX, "}")
+
+    return (VarTEX)
+}
