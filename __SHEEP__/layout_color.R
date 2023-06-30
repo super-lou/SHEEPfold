@@ -54,7 +54,7 @@ INRAEdarkcyan = "#275662"
 INRAElightblue = "#9ed6e3"
 
 
-get_IPCC_Palette = function (palette_name) {
+get_IPCC_Palette = function (palette_name, reverse=FALSE) {
     if (palette_name == "SSP") {
         Palette =
             c("#971A1F",
@@ -116,6 +116,10 @@ get_IPCC_Palette = function (palette_name) {
               "#91BFDB",
               "#4575B4",
               "#30527e")
+    }
+
+    if (reverse) {
+        Palette = rev(Palette)
     }
     
     return (Palette)
@@ -232,14 +236,13 @@ theme_WIP = function () {
 ### 2.1. Compute colors ______________________________________________
 #' @title Compute color bin
 #' @export
-compute_colorBin = function (min, max, colorStep, center=TRUE,
+compute_colorBin = function (min, max, colorStep, center=NULL,
                              include=FALSE) {
 
-    if (center) {
-        # Computes the absolute max
+    if (!is.null(center)) {
         maxAbs = max(abs(max), abs(min))
-        minValue = -maxAbs
-        maxValue = maxAbs
+        minValue = -maxAbs + center
+        maxValue = maxAbs + center
     } else {
         minValue = min
         maxValue = max

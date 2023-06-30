@@ -28,6 +28,7 @@ panel_criteria_map = function (dataEXind_model_var,
                                metaEXind,
                                meta,
                                Shapefiles=Shapefiles,
+                               margin=margin(t=0, r=0, b=0, l=0, "cm"),
                                verbose=verbose) {
 
     is_numeric_logical = function (x) {
@@ -60,7 +61,7 @@ panel_criteria_map = function (dataEXind_model_var,
     # Open a new plot with the personalise theme
     map = ggplot() + theme_void() + cf +
         
-        theme(plot.margin=margin(t=0, r=0, b=0, l=0,unit="mm")) +
+        theme(plot.margin=margin) +
         
         # Plot the background of France
         geom_sf(data=france,
@@ -104,7 +105,7 @@ panel_criteria_map = function (dataEXind_model_var,
     
     xmin = gpct(2, xlim, shift=TRUE)
     xint = c(0, 50*1E3, 100*1E3, 250*1E3)
-    ymin = gpct(1, ylim, shift=TRUE)
+    ymin = gpct(5, ylim, shift=TRUE)
     ymax = ymin + gpct(1, ylim)
     size = 2
     sizekm = 1.5
@@ -155,38 +156,57 @@ panel_criteria_map = function (dataEXind_model_var,
                                          "XL93_m",
                                          "YL93_m")),
                          by="Code")
-    
-    
+
+    if (is.null(reverse_palette)) {
+        reverse_palette = FALSE
+    }
     
     if (grepl("KGE", var)) {
+        Palette_level = c(5, 4, 3, 2, 1) 
         upBin = c(0, 0.25, 0.5, 0.75, 1)
         lowBin = c(-Inf, 0, 0.25, 0.5, 0.75)
         Palette = get_IPCC_Palette("rainbow")[4:8]
-        nColor = 5
-    }
-    if (grepl("Biais", var)) {
-        upBin = c(-0.3, -0.2, -0.1, 0, 0.1, 0.2, 0.3, Inf)
-        lowBin = c(-Inf, -0.3, -0.2, -0.1, 0, 0.1, 0.2, 0.3)
-        Palette = rev(get_IPCC_Palette("rainbow"))
-    }
-    if (grepl("(^Q)|(^med[{]t)", var)) {
-        upBin = c(-0.8, -0.4, -0.2, 0, 0.2, 0.4, 0.8, Inf)
-        lowBin = c(-Inf, -0.8, -0.4, -0.2, 0, 0.2, 0.4, 0.8)
-        Palette = rev(get_IPCC_Palette("rainbow"))
-    }
-    if (grepl("(^epsilon)|(^alpha)", var)) {
-        upBin = c(0.5, 0.66, 0.83, 1, 1.2, 1.5, 2, Inf)
-        lowBin = c(-Inf, 0.5, 0.66, 0.83, 1, 1.2, 1.5, 2, Inf)
-        Palette = rev(get_IPCC_Palette("rainbow"))
+
+    } else if (!grepl("RAT", var)) {
+        if (grepl("(Biais)|(^Q)|(^med[{]t)", var)) {
+            center = 0
+        }
+        if (grepl("(^epsilon)|(^alpha)", var)) {
+            center = 1
+        }
+        Palette_level = c(4, 3, 2, 1, 1, 2, 3, 4)
+        Palette = get_IPCC_Palette("rainbow", reverse_palette)
+        res = compute_colorBin(quantile(dataEXind_model_var[[var]],
+                                        0.1, na.rm=TRUE),
+                               quantile(dataEXind_model_var[[var]],
+                                        0.9, na.rm=TRUE),
+                               colorStep=8,
+                               center=center,
+                               include=FALSE)
+        upBin = res$upBin
+        lowBin = res$lowBin
     }
 
+    if (grepl("KGE", var)) {
+        lim = c(0.5, 1)
+    }
+    if (grepl("Biais", var)) {
+        lim = c(-0.2, 0.2)
+    }
+    if (grepl("(^Q)|(^med[{]t)", var)) {
+        lim = c(-1, 1)
+    }
+    if (grepl("(^epsilon)|(^alpha)", var)) {
+        lim = c(0.5, 2)
+    }
     
     if (grepl("RAT", var)) {
-        Palette = get_IPCC_Palette("OrangePurple")
+        Palette_level = c(1, 2)
+        Palette = get_IPCC_Palette("OrangePurple")[c(2, 5)]
         RAT = dataEXind_var[[var]]
         RAT[is.na(RAT)] = FALSE
-        fills = rep(Palette[(length(Palette)-1)], length(RAT))
-        fills[RAT] = Palette[2]
+        fills = rep(Palette[2], length(RAT))
+        fills[RAT] = Palette[1]
         dataEXind_var$fill = fills
     } else {
         dataEXind_var$fill = get_colors(dataEXind_var[[var]],
@@ -194,15 +214,30 @@ panel_criteria_map = function (dataEXind_model_var,
                                         lowBin=lowBin,
                                         Palette=Palette)
     }
-    
-    dataEXind_var$color = "grey75"
 
-    map = map +
-        geom_point(data=dataEXind_var,
-                   aes(x=XL93_m, y=YL93_m),
-                   color=dataEXind_var$color,
-                   fill=dataEXind_var$fill,
-                   shape=21, size=3, stroke=0.4)
+    palette_match = match(dataEXind_var$fill, Palette)
+    palette_matchNoNA = palette_match[!is.na(palette_match)]
+    dataEXind_var$level = Palette_level[palette_match]
+    
+    dataEXind_var$color = "grey50"
+    if (!grepl("RAT", var)) {
+        dataEXind_var$color[lim[1] <= dataEXind_var[[var]] &
+                            dataEXind_var[[var]] <= lim[2]] = "grey70"
+    }
+    dataEXind_var$color[is.na(dataEXind_var$fill)] = NA
+
+    level = as.numeric(levels(factor(Palette_level)))
+
+    for (l in level) {
+        dataEXind_var_tmp = dplyr::filter(dataEXind_var,
+                                          level==l)
+        map = map +
+            geom_point(data=dataEXind_var_tmp,
+                       aes(x=XL93_m, y=YL93_m),
+                       color=dataEXind_var_tmp$color,
+                       fill=dataEXind_var_tmp$fill,
+                       shape=21, size=3, stroke=0.4)
+    }
 
 
     map = map +

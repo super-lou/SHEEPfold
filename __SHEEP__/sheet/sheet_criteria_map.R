@@ -24,31 +24,42 @@ sheet_criteria_map = function (dataEXind,
                                metaEXind,
                                meta,
                                ModelGroup=NULL,
+                               Colors=INRAEcyan,
                                icon_path="",
                                logo_path="",
                                figdir="",
                                df_page=NULL,
                                Shapefiles=NULL,
                                verbose=FALSE) {
-    
+
+    paper_size = c(15, 15)
     page_margin = c(t=0.5, r=0.5, b=0.5, l=0.5)
 
-    title_height = 1
-    title_width = 14
-    map_height = 12
+    # title_height = 1.25
+    # title_width = 7
     foot_height = 1.25
+    foot_width = 14
+    map_height = 15 - 1 - foot_height
+    map_width = 14
     
-    plan = matrix(c("title", "map", "foot"),
-        ncol=1)
-    WIP = FALSE
+    plan = matrix(c("title", "map", "foot",
+                    "map", "map", "foot"),
+                  ncol=2)
+
+        # plan = matrix(c("title", "map", "foot"),
+        # ncol=1)
 
 
     if (is.null(ModelGroup)) {
         Model = levels(factor(dataEX$Model))
-        ModelGroup = append(as.list(Model), list(Model))
-        names(ModelGroup) = c(Model, "Multi-model")
+        ModelGroup = as.list(Model)
+        names(ModelGroup) = Model
     }
     nModelGroup = length(ModelGroup)
+
+    if (length(Colors) == 1) {
+        Colors = rep(Colors, nModelGroup)
+    }
     
     Model = levels(factor(dataEXind$Model))
     nModel = length(Model)
@@ -65,9 +76,9 @@ sheet_criteria_map = function (dataEXind,
         Model = ModelGroup[[i]]
         Model_names = names(ModelGroup)[i]
         nModel = length(Model)
-        
+
         if (is.null(Model_names)) {
-            Model_names = ""
+            Model_names = paste0(Model, collapse=" ")
         }
         if (nchar(Model_names) == 0) {
             Model2Disp = paste0(Model, collapse=" ")
@@ -96,27 +107,30 @@ sheet_criteria_map = function (dataEXind,
             title = title +
                 annotate("text",
                          x=0,
-                         y=1,
-                         label=Model2Disp,
-                         size=4, hjust=0, vjust=1,
-                         color=INRAEcyan) +
+                         y=0.98,
+                         label=TeX(paste0("\\textbf{",
+                                          Model2Disp, "}")),
+                         size=7, hjust=0, vjust=1,
+                         color=Colors[Model_names]) +
                 annotate("text",
                          x=0,
-                         y=0,
+                         y=0.82,
                          label=TeX(VarTeX[j]),
-                         size=3, hjust=0, vjust=0,
-                         color=INRAEcyan)
+                         size=4, hjust=0, vjust=0,
+                         color=IPCCgrey40)
             title = title +
                 scale_x_continuous(limits=c(0, 1),
                                    expand=c(0, 0)) +
                 scale_y_continuous(limits=c(0, 1),
                                    expand=c(0, 0))
 
+            # title = contour()
+            
             herd = add_sheep(herd,
                              sheep=title,
                              id="title",
-                             height=title_height,
-                             width=title_width,
+                             # height=title_height,
+                             # width=title_width,
                              verbose=verbose)
 
 
@@ -128,12 +142,16 @@ sheet_criteria_map = function (dataEXind,
                                      metaEXind,
                                      meta,
                                      Shapefiles=Shapefiles,
+                                     margin(t=0, r=0, b=0, l=0, "cm"),
                                      verbose=verbose)
+
+            # map = contour()
             
             herd = add_sheep(herd,
                              sheep=map,
                              id="map",
                              height=map_height,
+                             width=map_width,
                              verbose=verbose)
             
 
@@ -155,29 +173,34 @@ sheet_criteria_map = function (dataEXind,
             
             foot = panel_foot(footName, n_page,
                               foot_height, logo_path)
+
+            # foot = contour()
+            
             herd = add_sheep(herd,
                              sheep=foot,
                              id="foot",
                              height=foot_height,
+                             width=foot_width,
                              verbose=verbose)
             
 
             res = return_to_sheepfold(herd,
                                       page_margin=page_margin,
-                                      paper_size=c(15, 15),
+                                      paper_size=paper_size,
                                       hjust=0, vjust=1,
                                       verbose=verbose)
             
             plot = res$plot
             paper_size = res$paper_size
 
-            filename = paste0(Model4Save, "_", var, ".pdf")
+            figdir_model = file.path(figdir, Model4Save)
+            filename = paste0(var, ".pdf")
 
-            if (!(file.exists(figdir))) {
-                dir.create(figdir, recursive=TRUE)
+            if (!(file.exists(figdir_model))) {
+                dir.create(figdir_model, recursive=TRUE)
             }
             ggplot2::ggsave(plot=plot,
-                            path=figdir,
+                            path=figdir_model,
                             filename=filename,
                             width=paper_size[1],
                             height=paper_size[2], units='cm',
