@@ -33,7 +33,7 @@ sheet_criteria_map = function (dataEXind,
                                verbose=FALSE) {
 
     paper_size = c(15, 15)
-    page_margin = c(t=0.5, r=0.5, b=0.5, l=0.5)
+    page_margin = c(t=0.5, r=0.5, b=0.25, l=0.5)
 
     # title_height = 1.25
     # title_width = 7
@@ -41,6 +41,7 @@ sheet_criteria_map = function (dataEXind,
     foot_width = 14
     map_height = 15 - 1 - foot_height
     map_width = 14
+    
     
     plan = matrix(c("title", "map", "foot",
                     "map", "map", "foot"),
@@ -71,7 +72,14 @@ sheet_criteria_map = function (dataEXind,
     Var = metaEXind$var
     VarTeX = convert2TeX(Var)
     nVar = length(Var)
+
+    Unit = metaEXind$unit
+    Unit[!grepl("jour de l", Unit) &
+         !grepl("bool", Unit)] = "sans unité"
+    Unit[grepl("jour de l", Unit)] = "en mois"
     
+    UnitTeX =  convert2TeX(Unit, bold=FALSE, font="small")
+
     for (i in 1:nModelGroup) {
         Model = ModelGroup[[i]]
         Model_names = names(ModelGroup)[i]
@@ -114,23 +122,20 @@ sheet_criteria_map = function (dataEXind,
                          color=Colors[Model_names]) +
                 annotate("text",
                          x=0,
-                         y=0.82,
-                         label=TeX(VarTeX[j]),
-                         size=4, hjust=0, vjust=0,
+                         y=0.87,
+                         label=TeX(paste0(VarTeX[j],
+                                          " ", UnitTeX[j])),
+                         size=4, hjust=0, vjust=1,
                          color=IPCCgrey40)
             title = title +
                 scale_x_continuous(limits=c(0, 1),
                                    expand=c(0, 0)) +
                 scale_y_continuous(limits=c(0, 1),
                                    expand=c(0, 0))
-
-            # title = contour()
             
             herd = add_sheep(herd,
                              sheep=title,
                              id="title",
-                             # height=title_height,
-                             # width=title_width,
                              verbose=verbose)
 
 
@@ -144,8 +149,6 @@ sheet_criteria_map = function (dataEXind,
                                      Shapefiles=Shapefiles,
                                      margin(t=0, r=0, b=0, l=0, "cm"),
                                      verbose=verbose)
-
-            # map = contour()
             
             herd = add_sheep(herd,
                              sheep=map,
@@ -153,7 +156,7 @@ sheet_criteria_map = function (dataEXind,
                              height=map_height,
                              width=map_width,
                              verbose=verbose)
-            
+
 
             footName = 'Carte de diagnostic'
             if (is.null(df_page)) {
@@ -174,7 +177,6 @@ sheet_criteria_map = function (dataEXind,
             foot = panel_foot(footName, n_page,
                               foot_height, logo_path)
 
-            # foot = contour()
             
             herd = add_sheep(herd,
                              sheep=foot,

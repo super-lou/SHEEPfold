@@ -1,0 +1,111 @@
+# Copyright 2022 Louis Héraut (louis.heraut@inrae.fr)*1,
+#                Éric Sauquet (eric.sauquet@inrae.fr)*1
+#
+# *1   INRAE, France
+#
+# This file is part of dataSheep R package.
+#
+# dataSheep R package is free software: you can redistribute it and/or
+# modify it under the terms of the GNU General Public License as
+# published by the Free Software Foundation, either version 3 of the
+# License, or (at your option) any later version.
+#
+# dataSheep R package is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+# General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with dataSheep R package.
+# If not, see <https://www.gnu.org/licenses/>.
+
+
+panel_colorbar_circle = function (bin,
+                                  Palette,
+                                  size_circle=1,
+                                  d_line=0.5,
+                                  linewidth=0.2,
+                                  d_space=0.5,
+                                  d_text=0.5,
+                                  text_size=2,
+                                  label=NULL,
+                                  stroke=NULL,
+                                  color=NULL,
+                                  on_circle=FALSE,
+                                  margin=margin(t=0, r=0, b=0, l=0,
+                                                "cm")) {
+    
+
+    nColor = length(Palette)
+    nBin = length(bin)
+    
+    plot = ggplot() + theme_void() +
+        theme(plot.margin=margin)
+
+
+    if (is.null(label)) {
+        Label = round_label(bin, direction="V", ncharLim=4)
+    } else {
+        Label = label
+    }
+
+    if (is.null(stroke)) {
+        stroke = NA
+    }
+
+    if (is.null(color)) {
+        color = "transparent"
+    }
+    
+    plot = plot +
+        geom_point(aes(x=rep(d_line/2, nColor),
+                       y=seq(0, nColor-1, by=1)),
+                   fill=Palette, color=color, shape=21,
+                   stroke=stroke,
+                   size=size_circle)
+    
+    for (i in 1:(nBin+1)) {
+        b = bin[i]
+        if (!is.finite(b)) {
+            next
+        }
+
+        if (!on_circle) {
+            plot = plot +
+                annotate("line",
+                         x=c(0, d_line),
+                         y=c((i-1)-1/2,
+                         (i-1)-1/2),
+                         linewidth=linewidth, color=IPCCgrey50)
+            plot = plot +
+                annotate("text",
+                         x=d_line+d_space,
+                         y=(i-1)-1/2,
+                         label=Label[i],
+                         size=text_size,
+                         hjust=0, vjust=0.5,
+                         fontface="bold", color=IPCCgrey50)
+
+        } else {
+            plot = plot +
+                annotate("text",
+                         x=d_line+d_space,
+                         y=(i-1),
+                         label=Label[i],
+                         size=text_size,
+                         hjust=0, vjust=0.5,
+                         fontface="bold", color=IPCCgrey50)
+        }
+    }
+
+    plot = plot +
+        scale_x_continuous(expand=c(0, 0),
+                           limits=c(0,
+                                    d_line+d_space+d_text)) + 
+        scale_y_continuous(expand=c(0, 0),
+                           limits=c(-1/2,
+                                    nBin+1/2))
+    
+
+    return (plot)
+}

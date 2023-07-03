@@ -526,7 +526,7 @@ guess_newline = function (text, px=40, nChar=100,
 
 
 
-convert2TeX = function (Var) {
+convert2TeX = function (Var, bold=TRUE, font="normalsize") {
     nVar = length(Var)
     
     VarTEX = gsub("etiage", "étiage", Var)
@@ -540,6 +540,16 @@ convert2TeX = function (Var) {
         } else if (grepl("[_]", var) & grepl("[_][{]", var)) {
             var = gsub("[_]", ", ", var)
             var = sub("[,] [{]", "$_{$", var)
+        }
+
+        if (grepl("\\^[{]", var)) {
+            var = gsub("\\^[{]", "$^{$", var)
+        }
+        if (grepl("\\^[{][$][-]", var)) {
+            var = gsub("\\^[{][$][-]", "$^{-$", var)
+        }
+        if (grepl("\\^[[:alnum:]]", var)) {
+            var = gsub("\\^", "$^$", var)
         }
 
         if (grepl("alpha", var)) {
@@ -591,7 +601,11 @@ convert2TeX = function (Var) {
         
         VarTEX[i] = var
     }
-    VarTEX = paste0("\\textbf{", VarTEX, "}")
 
+    VarTEX = paste0("\\", font, "{", VarTEX, "}")
+    
+    if (bold) {
+        VarTEX = paste0("\\textbf{", VarTEX, "}")
+    }
     return (VarTEX)
 }
