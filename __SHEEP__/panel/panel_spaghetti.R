@@ -50,7 +50,8 @@ panel_spaghetti = function (data_code, Colors=NULL,
                             ratio_title=1/5,
                             margin_title=margin(t=0, r=0, b=0, l=0, "mm"),
                             margin_spag=margin(t=0, r=0, b=0, l=0, "mm"),
-                            first=FALSE, last=FALSE) {
+                            first=FALSE, last=FALSE,
+                            verbose=FALSE) {
 
 
     if (grepl("racine", title) & !grepl("racine[{]", title)) {
@@ -166,8 +167,11 @@ panel_spaghetti = function (data_code, Colors=NULL,
         minQ = min(data_code_obs$Q, na.rm=TRUE)
     }
 
-    maxQ_win = maxQ * 1.05
-    minQ_win = minQ * 0.95#expansion
+
+    print(minQ_obs)
+    print(minQ_sim)
+    print(minQ)
+    
 
     if (is.null(axis_xlim)) {
         limits = c(min(data_code_obs$Date), max(data_code_obs$Date))
@@ -225,13 +229,21 @@ panel_spaghetti = function (data_code, Colors=NULL,
 
     # zeroline
     if (isZeroLine) {
-        spag = spag +
-            ggplot2::annotate("line",
-                              x=limits,
-                              y=c(0, 0),
-                              color=IPCCgrey60,
-                              size=0.5,
-                              lineend="round")
+        # if (!is.na(limits_ymin)) {
+        # spag = spag +
+        #     ggplot2::annotate("line",
+        #                       x=limits,
+        #                       y=c(limits_ymin,
+        #                           limits_ymin),
+        #                       color=IPCCgrey60,
+        #                       size=0.5,
+        #                       lineend="round")
+        # } else {
+        spag = spag + 
+            theme(axis.line.x=element_line(color=IPCCgrey60,
+                                           size=0.5,
+                                           lineend="round"))
+        # }
     }
     
     ### Data ###
@@ -439,7 +451,6 @@ panel_spaghetti = function (data_code, Colors=NULL,
         }
     }
     
-
     # Parameters of the y axis
     if (get_power(minQ) >= 4) {
         labels = function(X) {
@@ -453,18 +464,26 @@ panel_spaghetti = function (data_code, Colors=NULL,
         labels = waiver()
     }
 
+    if (is.na(limits_ymin)) {
+        limits = NULL
+        expand = expansion(mult=c(0.2, 0.1))
+    } else {
+        limits = c(limits_ymin, NA)
+        expand = expansion(mult=c(0, 0.1))
+    }
+
     if (isSqrt) {
-        spag = spag + scale_y_sqrt(limits=c(limits_ymin, NA),
+        spag = spag + scale_y_sqrt(limits=limits,
                                    n.breaks=5,
                                    labels=labels,
-                                   expand=expansion(mult=c(0, 0.1)))
+                                   expand=expand)
         
-    } else {
+    } else {        
         spag = spag +
-            scale_y_continuous(limits=c(limits_ymin, NA),
+            scale_y_continuous(limits=limits,
                                n.breaks=5,
                                labels=labels,
-                               expand=expansion(mult=c(0, 0.1)))
+                               expand=expand)
     }    
 
     # Margins

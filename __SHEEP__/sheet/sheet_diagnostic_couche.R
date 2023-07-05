@@ -20,35 +20,37 @@
 # If not, see <https://www.gnu.org/licenses/>.
 
 
-sheet_diagnostic_regime = function (meta,
+
+sheet_diagnostic_couche = function (meta,
                                     dataEXind,
                                     metaEXind,
                                     dataEXserie,
                                     Colors,
                                     icon_path="",
-                                    Warnings=NULL,
                                     logo_path="",
                                     df_page=NULL,
                                     Shapefiles=NULL,
                                     figdir="",
                                     verbose=FALSE) {
 
-    page_margin = c(t=0.5, r=1, b=0.5, l=1)
+    page_margin = c(t=0.5, r=0.5, b=0.5, l=0.5)
     
     info_height = 3
     void_height = 0.2
     medQJ_height = 7
     foot_height = 1.25
-    criteria_height = 29.7 - 0.5*2 - info_height - void_height - medQJ_height*2 - foot_height
+    criteria_height = 11.45
+    # criteria_height = 29.7 - 0.5*2 - void_height - info_height - medQJ_height*2 - foot_height
     
     medQJ_width = 10
-    
 
+    
     plan = matrix(c(
         "info", "void", "medQJ_1", "medQJ_025", "criteria", "foot",
         "info", "void", "medQJ_075", "medQJ_0", "criteria", "foot"),
         ncol=2)
     WIP = FALSE
+
 
     Model = levels(factor(dataEXind$Model))
     nModel = length(Model)
@@ -56,118 +58,96 @@ sheet_diagnostic_regime = function (meta,
     Code = levels(factor(dataEXind$Code))
     nCode = length(Code)
 
-    dataEXserieQM_obs =
-        dplyr::summarise(dplyr::group_by(dataEXserie$QM, Code, Date),
-                         QM=select_good(QM_obs),
-                         .groups="drop")
+    Couche = levels(factor(unlist(meta$Couche)))
+    Couche = Couche[nchar(Couche) > 0]
+    nCouche = length(Couche)
 
-    dataEXseriePA_med = dplyr::summarise(dplyr::group_by(dataEXserie$PA,
-                                                         Code, Date),
-                                         PAs=median(PAs_obs, na.rm=TRUE),
-                                         PAl=median(PAl_obs, na.rm=TRUE),
-                                         PA=median(PA_obs, na.rm=TRUE),
-                                         .groups="drop")
+    for (i in 1:nCouche) {
+        couche = Couche[i]
+        Code_couche = Code[is_in_couche(meta$Couche, couche)]
+        meta_couche = meta[is_in_couche(meta$Couche, couche),]
+        couche_disp = paste0(couche)
 
-    regimeHydro = find_regimeHydro(dataEXserieQM_obs, lim_number=2,
-                                   dataEXseriePA_med)
 
-    Regime = split(regimeHydro$detail, factor(regimeHydro$typology_2))
-    rm_duplicated = function (X) {
-        return (X[!duplicated(X)])
-    }
-    Regime = lapply(Regime, rm_duplicated)
-    orderRegime = lapply(Regime, stringr::str_extract,
-                         pattern="[[:digit:]]+")
-    orderRegime = lapply(orderRegime, '[', 1)
-    orderRegime = order(as.numeric(unlist(orderRegime)))
-    Regime = Regime[orderRegime]
-    nRegime = length(Regime)
-
-    for (i in 1:nRegime) {
-        regime = names(Regime)[i]
+        print(Code_couche)
+        
+        
 
         if (verbose) {
-            print(paste0("diagnostic regime datasheet for ", regime,
-                         "   ", round(i/nRegime*100, 1), "% done"))
+            print(paste0("diagnostic couche datasheet for ",
+                         couche_disp, "   ",
+                         round(i/nCouche*100, 1), "% done"))
         }
-
-        Code_regime = regimeHydro$Code[regimeHydro$typology_2 == regime]
-        dataEXind_regime = dataEXind[dataEXind$Code %in% Code_regime,]
         
-        dataEXserie_regime = list()
+        dataEXind_couche = dataEXind[dataEXind$Code %in% Code_couche,]
+        
+        dataEXserie_couche = list()
         for (j in 1:length(dataEXserie)) {
-            dataEXserie_regime = append(
-                dataEXserie_regime,
-                list(dataEXserie[[j]][dataEXserie[[j]]$Code %in% Code_regime,]))
+            dataEXserie_couche = append(
+                dataEXserie_couche,
+                list(dataEXserie[[j]][dataEXserie[[j]]$Code %in%
+                                      Code_couche,]))
         }
-        names(dataEXserie_regime) = names(dataEXserie)
+        names(dataEXserie_couche) = names(dataEXserie)
+        
+        medREF =
+            dplyr::summarise(dplyr::group_by(dataEXind_couche,
+                                             Code),
+                             value=median(get("NSE_débiaisé"),
+                                          na.rm=TRUE),
+                             .groups="drop")
+        REFprobs = c(1, 0.75, 0.25, 0)
+        REFq = quantile(medREF$value,
+                        probs=REFprobs, na.rm=TRUE)
+
+        if (length(Code_couche) > 3)  {
+            id_nearest = function (target, In) {
+                id = which.min(abs(In - target))
+                return (id)
+            }
+
+            print(medREF$value)
+            
+            print(sapply(REFq,
+                         id_nearest,
+                         In=medREF$value))
+            
+            Code_REFprobs =
+                medREF$Code[sapply(REFq,
+                                       id_nearest,
+                                       In=medREF$value)]
+            Code_REFprobs[duplicated(Code_REFprobs)] = NA
+            names(Code_REFprobs) = REFprobs
+
+        } else {
+            Code_REFprobs =
+                medREF$Code[order(medREF$value,
+                                      decreasing=TRUE)]
+            Code_REFprobs[duplicated(Code_REFprobs)] = NA
+            Code_REFprobs = c(Code_REFprobs,
+                              rep(NA, 4-length(Code_couche)))
+            names(Code_REFprobs) = REFprobs
+        }
 
         herd = bring_grass(verbose=verbose)
         herd = plan_of_herd(herd, plan,
-                         verbose=verbose)
+                            verbose=verbose)
 
-        medKGEracine =
-            dplyr::summarise(dplyr::group_by(dataEXind_regime,
-                                             Code),
-                             value=median(KGEracine,
-                                          na.rm=TRUE),
-                             .groups="drop")
-        KGEprobs = c(1, 0.75, 0.25, 0)
-        KGEq = quantile(medKGEracine$value,
-                        probs=KGEprobs, na.rm=TRUE)
-        id_nearest = function (target, In) {
-            id = which.min(abs(In - target))
-            return (id)
-        }
-        Code_KGEprobs =
-            medKGEracine$Code[sapply(KGEq,
-                                     id_nearest,
-                                     In=medKGEracine$value)]
-        Code_KGEprobs[duplicated(Code_KGEprobs)] = NA
-        names(Code_KGEprobs) = KGEprobs
-
-        Detail = Regime[[i]]
-        QM_code = list()
-        for (detail in Detail) {
-            Code_detail =
-                regimeHydro$Code[regimeHydro$typology_2 == regime &
-                                 regimeHydro$detail == detail]
-            dataEXserieQM_obs_detail =
-                dataEXserieQM_obs[dataEXserieQM_obs$Code %in%
-                                  Code_detail,]
-            dataEXserieQM_obs_detail_med =
-                dplyr::summarise(dplyr::group_by(
-                                            dataEXserieQM_obs_detail,
-                                            Date),
-                                 QM=median(QM, na.rm=TRUE),
-                                 .groups="drop")
-            QM_code = append(QM_code,
-                             list(dataEXserieQM_obs_detail_med$QM))
-            names(QM_code)[length(QM_code)] = detail
-        }
-
-        orderQM = lapply(names(QM_code), stringr::str_extract,
-                             pattern="[[:digit:]]+")
-        orderQM = order(as.numeric(unlist(orderQM)))
-        QM_code = QM_code[orderQM]
-        
-        info = panel_info_regime(QM_code,
-                                 regimeLight=regime,
-                                 meta=meta,
-                                 Code_regime=Code_regime,
-                                 Shapefiles=Shapefiles,
-                                 to_do='all')
+        # info = panel_info_couche(meta,
+                                 # Shapefiles=Shapefiles,
+                                 # coucheLight=couche,
+                                 # to_do='all')
+        info = void()
         herd = add_sheep(herd,
                          sheep=info,
                          id="info",
                          height=info_height,
-                         width=info_width,
                          verbose=verbose)
+        
 
-
-        for (j in 1:length(KGEprobs)) {
-            code = Code_KGEprobs[j]
-            prob = names(Code_KGEprobs)[j]
+        for (j in 1:length(REFprobs)) {
+            code = Code_REFprobs[j]
+            prob = names(Code_REFprobs)[j]
 
             if (is.na(code)) {
                 medQJ = void()
@@ -177,13 +157,12 @@ sheet_diagnostic_regime = function (meta,
                 for (k in 1:length(dataEXserie)) {
                     dataEXserie_code = append(
                         dataEXserie_code,
-                        list(dataEXserie[[k]][dataEXserie[[k]]$Code ==
-                                              code,]))
+                        list(dataEXserie[[k]][dataEXserie[[k]]$Code == code,]))
                 }
                 names(dataEXserie_code) = names(dataEXserie)
 
                 title = paste0("(", letters[j],
-                               ") Débit journalier médian inter-annuel ",
+                               ") Hauteur journalière médiane inter-annuel ",
                                "\\unit : ",
                                "\\textbf{", code, "}")
                 if (j %% 2 == 0) {
@@ -194,42 +173,41 @@ sheet_diagnostic_regime = function (meta,
                 
                 dataMOD = dataEXserie_code[["medQJC5"]]
                 dataMOD = dplyr::rename(dataMOD,
-                                        Date="Yearday",
+                                        Date="Date",
                                         Q_obs="medQJC5_obs",
                                         Q_sim="medQJC5_sim")
                 
-                medQJ = panel_spaghetti(
-                    dataMOD,
-                    Colors,
-                    title=title,
-                    unit="m^{3}.s^{-1}",
-                    alpha=0.85,
-                    isSqrt=TRUE,
-                    missRect=FALSE,
-                    isBack=FALSE,
-                    isTitle=TRUE,
-                    date_labels="%d %b",
-                    breaks="3 months",
-                    minor_breaks="1 months",
-                    add_x_breaks=
-                        as.Date("1970-12-31"),
-                    Xlabel="",
-                    limits_ymin=0,
-                    isBackObsAbove=TRUE,
-                    lwObs=0.6,
-                    lwObs_back=1,
-                    lwSim=0.4,
-                    lwSim_back=0.7,
-                    grid=TRUE,
-                    ratio_title=1/15,
-                    margin_title=
-                        margin(t=0, r=7, b=0, l=0, "mm"),
-                    margin_spag=
-                        margin(t=0, r=6, b=0, l=0, "mm"),
-                    first=FALSE,
-                    last=TRUE)
-                
+                medQJ = panel_spaghetti(dataMOD,
+                                        Colors,
+                                        title=title,
+                                        unit="m",
+                                        alpha=0.85,
+                                        isSqrt=FALSE,
+                                        missRect=FALSE,
+                                        isBack=FALSE,
+                                        isTitle=TRUE,
+                                        date_labels="%d %b",
+                                        breaks="3 months",
+                                        minor_breaks="1 months",
+                                        add_x_breaks=
+                                            as.Date("1970-12-31"),
+                                        Xlabel="",
+                                        limits_ymin=NA,
+                                        isBackObsAbove=TRUE,
+                                        lwObs=0.6,
+                                        lwObs_back=1,
+                                        lwSim=0.4,
+                                        lwSim_back=0.7,
+                                        grid=TRUE,
+                                        ratio_title=1/15,
+                                        margin_title=
+                                            margin(t=0, r=7, b=0, l=0, "mm"),
+                                        margin_spag=
+                                            margin(t=0, r=6, b=0, l=0, "mm"),
+                                        first=FALSE,
+                                        last=TRUE)
             }
+            
             herd = add_sheep(herd,
                              sheep=medQJ,
                              id=paste0("medQJ", "_",
@@ -238,7 +216,7 @@ sheet_diagnostic_regime = function (meta,
                              width=medQJ_width,
                              verbose=verbose)
         }
-        
+
         herd$sheep$label[herd$sheep$id %in% c("medQJ_1.spag", "medQJ_025.spag")] = "align1"
         herd$sheep$label[herd$sheep$id %in% c("medQJ_075.spag", "medQJ_0.spag")] = "align2"
         
@@ -247,7 +225,7 @@ sheet_diagnostic_regime = function (meta,
             metaEXind,
             meta,
             Colors,
-            groupCode=Code_regime,
+            groupCode=Code_couche,
             icon_path=icon_path,
             Warnings=Warnings,
             title="(e) Critères de diagnostic",
@@ -255,11 +233,12 @@ sheet_diagnostic_regime = function (meta,
             Alpha=0.5,
             Probs=0.1,
             dTitle=0,
+            width=11.9,
             add_name=TRUE,
             text2px_lim=51,
             margin_add=
                 margin(t=0, r=0, b=0, l=0, "cm"))
-        
+
         herd = add_sheep(herd,
                          sheep=criteria,
                          id="criteria",
@@ -273,7 +252,7 @@ sheet_diagnostic_regime = function (meta,
                          verbose=verbose)
 
 
-        footName = 'Fiche de diagnostic par régime'
+        footName = "Fiche entité piezométrique de diagnostic"
         if (is.null(df_page)) {
             n_page = i
         } else {
@@ -285,7 +264,7 @@ sheet_diagnostic_regime = function (meta,
             df_page = bind_rows(
                 df_page,
                 tibble(section=footName,
-                       subsection=regime,
+                       subsection=couche_disp,
                        n=n_page))
         }
         foot = panel_foot(footName, n_page,
@@ -301,16 +280,16 @@ sheet_diagnostic_regime = function (meta,
                                   paper_size="A4",
                                   hjust=0, vjust=1,
                                   verbose=verbose)
-        
+
         plot = res$plot
         paper_size = res$paper_size
-        
-        regime = gsub("[ ][-][ ]", "_", regime)
-        filename = paste0(regime, "_diagnostic_datasheet.pdf")
+
+        filename = paste0(couche_disp, "_diagnostic_datasheet.pdf")
 
         if (!(file.exists(figdir))) {
             dir.create(figdir, recursive=TRUE)
         }
+        
         ggplot2::ggsave(plot=plot,
                         path=figdir,
                         filename=filename,
@@ -319,6 +298,5 @@ sheet_diagnostic_regime = function (meta,
                         dpi=300,
                         device=cairo_pdf)
     }
-    
     return (df_page)
 }

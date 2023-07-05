@@ -41,9 +41,8 @@ sheet_diagnostic_station = function (data,
     QA_height = 3
     medQJ_height = 7
     CDC_height = 7
-    criteria_height = 15
-
     foot_height = 1.25
+    criteria_height = 29.7 - 0.5*2 - info_height - chronicle_height - QA_height - medQJ_height - foot_height
     
     medQJ_width = 10
     CDC_width = 10
@@ -248,6 +247,9 @@ sheet_diagnostic_station = function (data,
                                 first=FALSE,
                                 last=TRUE)
         # medQJ = contour()
+
+        print(herd)
+        print(medQJ)
         herd = add_sheep(herd,
                          sheep=medQJ,
                          id="medQJ",
@@ -322,7 +324,7 @@ sheet_diagnostic_station = function (data,
             group_name="dans la région",
             text2px_lim=70,
             margin_add=
-                margin(t=-3, r=0, b=0, l=0, "cm"))
+                margin(t=0, r=0, b=0, l=0, "cm"))
         # criteria = contour()
         herd = add_sheep(herd,
                          sheep=criteria,

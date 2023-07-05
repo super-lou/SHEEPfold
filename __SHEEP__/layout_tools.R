@@ -223,13 +223,13 @@ float2frac = function (X, den) {
 #' @return A list of shapefiles converted as tibbles that can be plot
 #' with 'geom_polygon' or 'geom_path'.
 #' @export
-load_shapefile = function (resources_path, Code,
-                           france_dir, france_file,
-                           basinHydro_dir, basinHydro_file,
-                           regionHydro_dir, regionHydro_file,
-                           entiteHydro_dir, entiteHydro_file,
-                           entiteHydro_coord,
-                           river_dir, river_file,
+load_shapefile = function (computer_shp_path, Code,
+                           france_shp_path,
+                           basinHydro_shp_path,
+                           regionHydro_shp_path,
+                           entiteHydro_shp_path, entiteHydro_coord,
+                           entitePiezo_shp_path,
+                           river_shp_path,
                            return_river=TRUE,
                            river_class=NULL,
                            river_length=NULL,
@@ -237,21 +237,18 @@ load_shapefile = function (resources_path, Code,
                            toleranceRel=10000) {
     
     # Path for shapefile
-    france_path = file.path(resources_path,
-                            france_dir,
-                            france_file)
-    basinHydro_path = file.path(resources_path,
-                                basinHydro_dir,
-                                basinHydro_file)
-    regionHydro_path = file.path(resources_path,
-                                 regionHydro_dir,
-                                 regionHydro_file)
-    entiteHydro_path = file.path(resources_path,
-                                 entiteHydro_dir,
-                                 entiteHydro_file)
-    river_path = file.path(resources_path,
-                           river_dir,
-                           river_file)
+    france_path = file.path(computer_shp_path,
+                            france_shp_path)
+    basinHydro_path = file.path(computer_shp_path,
+                                basinHydro_shp_path)
+    regionHydro_path = file.path(computer_shp_path,
+                                 regionHydro_shp_path)
+    entiteHydro_path = file.path(computer_shp_path,
+                                 entiteHydro_shp_path)
+    entitePiezo_path = file.path(computer_shp_path,
+                                 entitePiezo_shp_path)
+    river_path = file.path(computer_shp_path,
+                           river_shp_path)
     
     # France
     france = st_read(france_path)
@@ -283,6 +280,14 @@ load_shapefile = function (resources_path, Code,
     entiteHydro = st_simplify(entiteHydro,
                               preserveTopology=TRUE,
                               dTolerance=toleranceRel*0.4)
+
+    # Piezo entity
+    entitePiezo = st_read(entitePiezo_path)
+    entitePiezo = st_transform(entitePiezo, 2154)
+    entitePiezo = st_simplify(entitePiezo,
+                              preserveTopology=TRUE,
+                              dTolerance=toleranceRel*0.6)
+    
     
     # If the river shapefile needs to be load
     if (return_river) {
@@ -314,6 +319,7 @@ load_shapefile = function (resources_path, Code,
                  basinHydro=basinHydro,
                  regionHydro=regionHydro,
                  entiteHydro=entiteHydro,
+                 entitePiezo=entitePiezo,
                  river=river))
 }
 

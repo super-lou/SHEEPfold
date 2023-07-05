@@ -32,6 +32,7 @@ panel_diagnostic_criteria = function (dataEXind,
                                       Alpha=0.7,
                                       title="",
                                       dTitle=0,
+                                      width=NA,
                                       add_name=FALSE,
                                       group_name="dans la région",
                                       dx_interp=7.6,
@@ -113,21 +114,25 @@ panel_diagnostic_criteria = function (dataEXind,
     dx_arrow = 0.8
     ech_bar = 5.5
 
-    perfect_tick_val = list("KGE"=c(1),
+    perfect_tick_val = list("(KGE)|(NSE)|(r)"=c(1),
                             "^Biais$"=c(0),
                             "(^epsilon)|(^alpha)"=c(1),
                             "default"=c(0))
     
-    major_tick_val = list("KGE"=c(0.5),
+    major_tick_val = list("(KGE)|(NSE)|(r)"=c(0.5),
                           "^Biais$"=c(-0.2, 0.2),
                           "(^epsilon)|(^alpha)"=c(0.5, 2),
                           "default"=c(-1, 1))
     
     minor_tick_val =
-        list("KGE"=c(0, 0.1, 0.2, 0.3, 0.4, 0.6, 0.7, 0.8, 0.9),
-             "^Biais$"=c(-0.5, -0.4, -0.3, -0.1, 0.1, 0.3, 0.4, 0.5),
-             "(^epsilon)|(^alpha)"=c(0, 0.2, 0.4, 0.6, 0.8, 1.2, 1.4, 1.6, 1.8),
-             "default"=c(-0.8, -0.6, -0.4, -0.2, 0.2, 0.4, 0.6, 0.8))
+        list("(KGE)|(NSE)|(r)"=
+                 c(0, 0.1, 0.2, 0.3, 0.4, 0.6, 0.7, 0.8, 0.9),
+             "^Biais$"=
+                 c(-0.5, -0.4, -0.3, -0.1, 0.1, 0.3, 0.4, 0.5),
+             "(^epsilon)|(^alpha)"=
+                 c(0, 0.2, 0.4, 0.6, 0.8, 1.2, 1.4, 1.6, 1.8),
+             "default"=
+                 c(-0.8, -0.6, -0.4, -0.2, 0.2, 0.4, 0.6, 0.8))
 
 
     norm_tick_info = c()
@@ -250,6 +255,8 @@ panel_diagnostic_criteria = function (dataEXind,
 
     nModel = length(Model)
 
+    print(dataEXind)
+    
     dataEXind_tmp = dataEXind
     dataEXind_tmp = dplyr::select(dataEXind_tmp, -c(Code, Model))
 
@@ -284,10 +291,14 @@ panel_diagnostic_criteria = function (dataEXind,
                                       vjust=0, hjust=dTitle,
                                       color=IPCCgrey25)) +
         ggtitle(title)
+
+    if (is.na(width)) {
+        width = nVar
+    }
     
     x_limits =
         c((-dx_label-dspace_label)*ech_x,
-        (nVar)*ech_x)
+        width*ech_x)
     dy = dy_Ind
     Ind = Ind 
 
@@ -777,7 +788,7 @@ panel_diagnostic_criteria = function (dataEXind,
                      x=((i-1) + 0.5 + space)*ech_x,
                      y=(dy +
                         dy_T1),
-                     label=TeX(VarTEX[i]),
+                     label=TeX(VarTeX[i]),
                      hjust=0.5, vjust=0,
                      angle=0,
                      size=size_T1,
@@ -1269,7 +1280,7 @@ panel_diagnostic_criteria = function (dataEXind,
                      hjust=0, vjust=0, size=2.5)
 
         Warnings_code = Warnings[Warnings$Code == codeLight,]
-        nWar_lim = 7
+        nWar_lim = 8
         nWar = nrow(Warnings_code)
         nLine = 0
         

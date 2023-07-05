@@ -38,12 +38,10 @@ sheet_diagnostic_region = function (meta,
     info_height = 3
     void_height = 0.2
     medQJ_height = 7
-    criteria_height = 15
-
     foot_height = 1.25
+    criteria_height = 29.7 - 0.5*2 - info_height - void_height - medQJ_height*2 - foot_height
     
     medQJ_width = 10
-
     
     plan = matrix(c(
         "info", "void", "medQJ_1", "medQJ_025", "criteria", "foot",
@@ -208,7 +206,7 @@ sheet_diagnostic_region = function (meta,
             add_name=TRUE,
             text2px_lim=51,
             margin_add=
-                margin(t=-4, r=0, b=0, l=0, "cm"))
+                margin(t=0, r=0, b=0, l=0, "cm"))
 
         herd = add_sheep(herd,
                          sheep=criteria,

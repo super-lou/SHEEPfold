@@ -205,7 +205,8 @@ panel_info_station = function(data_code,
                      height=1,
                      verbose=verbose)    
 
-    # herd = shear_sheeps(herd)
+
+    print(herd)
     
     return (herd)
 }  
