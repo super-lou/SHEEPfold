@@ -155,7 +155,7 @@ panel_info_regime = function(QM_code,
         gtext3 = void()
     }
 
-        plan = matrix(c("text1", "text1", "text1", "map",
+    plan = matrix(c("text1", "text1", "text1", "map",
                     "text2", "hyd1", "hyd2", "map",
                     "text3", "hyd1", "hyd2", "map",
                     "text3", "hyd1", "hyd2", "map"),

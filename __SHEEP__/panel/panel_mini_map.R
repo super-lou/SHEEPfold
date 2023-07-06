@@ -28,6 +28,7 @@ panel_mini_map = function (meta, Shapefiles,
                            codeLight=NULL,
                            regionLight=NULL,
                            regimeCodeLight=NULL,
+                           coucheLight=NULL,
                            verbose=FALSE) {
     
     # Extract shapefiles
@@ -35,6 +36,7 @@ panel_mini_map = function (meta, Shapefiles,
     basinHydro = Shapefiles$basinHydro
     regionHydro = Shapefiles$regionHydro
     entiteHydro = Shapefiles$entiteHydro
+    entitePiezo = Shapefiles$entitePiezo
     river = Shapefiles$river
 
     # Stores the coordonate system 
@@ -168,6 +170,18 @@ panel_mini_map = function (meta, Shapefiles,
                     fill=NA,
                     linewidth=1.1) +
             geom_sf(data=regionHydro[regionHydro$CdRegionHy == regionLight,],
+                    color=INRAEdarkcyan,
+                    fill=NA,
+                    linewidth=0.5)
+    }
+
+    if (!is.null(coucheLight)) {
+        map = map +
+            geom_sf(data=entitePiezo[entitePiezo$codeeh == coucheLight,],
+                    color="white",
+                    fill=NA,
+                    linewidth=1.1) +
+            geom_sf(data=entitePiezo[entitePiezo$codeeh == coucheLight,],
                     color=INRAEdarkcyan,
                     fill=NA,
                     linewidth=0.5)

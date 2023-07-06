@@ -189,6 +189,9 @@ sheet_diagnostic_region = function (meta,
 
         herd$sheep$label[herd$sheep$id %in% c("medQJ_1.spag", "medQJ_025.spag")] = "align1"
         herd$sheep$label[herd$sheep$id %in% c("medQJ_075.spag", "medQJ_0.spag")] = "align2"
+
+
+        Warnings = "Les stations choisies pour illustrer les résultats à l'échelle régionale illustrent la variabilité des performances obtenues sur les hydrogrammes des débits journaliers médians (stations associées aux maximum, quantile 75 % et 25 %, et minimum du KGE\u221A)."
         
         criteria = panel_diagnostic_criteria(
             dataEXind,
@@ -204,6 +207,7 @@ sheet_diagnostic_region = function (meta,
             Probs=0.1,
             dTitle=0,
             add_name=TRUE,
+            group_name="dans la région",
             text2px_lim=51,
             margin_add=
                 margin(t=0, r=0, b=0, l=0, "cm"))

@@ -77,8 +77,14 @@ gg_circle = function(r, xc, yc, color="black", fill=NA, ...) {
              fill=fill, ...)
 }
 
-nbsp = function (n) {
-    paste0(rep("<span> </span>", times = n), collapse = "")
+nbsp = function (n, size=NA) {
+    if (is.na(size)) {
+        paste0(rep("<span> </span>", times=n), collapse="")
+    } else {
+        paste0(rep(paste0("<span style='font-size:", size,
+                          "pt'> </span>"), times=n),
+               collapse="")
+    }
 }
 
 
@@ -89,6 +95,10 @@ nbsp = function (n) {
 #' @export
 get_power = function (value) {
 
+    if (is.na(value) | !is.finite(value)) {
+        return (0)
+    }
+    
     if (length(value) > 1) {
         power = unlist(as.list(sapply(value, get_power),
                                recursive=TRUE,
@@ -571,38 +581,52 @@ convert2TeX = function (Var, bold=TRUE, font="normalsize") {
         }
 
         if (grepl("inv", var) & !grepl("inv[{]", var)) {
-            var = gsub("inv", "\\\\textit{inv}", var)
+            var = gsub("inv", "\\\\small{\\\\textit{inv}}", var)
         } else if (grepl("inv", var) & grepl("inv[{]", var)) {
             var = gsub("[}]", "", var)
-            var = gsub("inv[{]", "\\\\textit{inv}", var)
+            var = gsub("inv[{]", "\\\\small{\\\\textit{inv}}", var)
         } 
 
         if (grepl("log", var) & !grepl("log[{]", var)) {
-            var = gsub("log", "\\\\textit{log}", var)
+            var = gsub("log", "\\\\small{\\\\textit{log}}", var)
         } else if (grepl("log", var) & grepl("log[{]", var)) {
             var = gsub("[}]", "", var)
-            var = gsub("log[{]", "\\\\textit{log}", var)
+            var = gsub("log[{]", "\\\\small{\\\\textit{log}}", var)
         } 
 
         if (grepl("moy", var) & !grepl("moy[{]", var)) {
-            var = gsub("moy", "", var)
+            var = gsub("moy", "\\\\small{\\\\textit{moy}}", var)
         } else if (grepl("moy", var) & grepl("moy[{]", var)) {
             var = gsub("[}]", "", var)
-            var = gsub("moy[{]", "", var)
+            var = gsub("moy[{]", "\\\\small{\\\\textit{moy}}", var)
         } 
 
         if (grepl("med", var) & !grepl("med[{]", var)) {
-            var = gsub("med", "", var)
+            var = gsub("med", "\\\\small{\\\\textit{med}}", var)
         } else if (grepl("med", var) & grepl("med[{]", var)) {
             var = gsub("[}]", "", var)
-            var = gsub("med[{]", "", var)
+            var = gsub("med[{]", "\\\\small{\\\\textit{med}}", var)
         } 
         
         if (grepl("racine", var) & !grepl("racine[{]", var)) {
-            var = gsub("racine", "\u221A", var)
+            var = gsub("racine", "\\\\small{\u221A}", var)
         } else if (grepl("racine", var) & grepl("racine[{]", var)) {
             var = gsub("[}]", "", var)
-            var = gsub("racine[{]", "\u221A", var)
+            var = gsub("racine[{]", "\\\\small{\u221A}", var)
+        }
+
+        if (grepl("ips", var) & !grepl("ips[{]", var)) {
+            var = gsub("ips", "\\\\small{\\\\textit{ips}}", var)
+        } else if (grepl("ips", var) & grepl("ips[{]", var)) {
+            var = gsub("[}]", "", var)
+            var = gsub("ips[{]", "\\\\small{\\\\textit{ips}}", var)
+        }
+
+        if (grepl("biais", var) & !grepl("biais[{]", var)) {
+            var = gsub("biais", "\\\\small{\\\\textit{biais}}", var)
+        } else if (grepl("biais", var) & grepl("biais[{]", var)) {
+            var = gsub("[}]", "", var)
+            var = gsub("biais[{]", "\\\\small{\\\\textit{biais}}", var)
         }
         
         VarTEX[i] = var

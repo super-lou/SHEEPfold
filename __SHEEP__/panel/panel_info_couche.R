@@ -22,16 +22,16 @@
 
 #' @title Info panel
 #' @export
-panel_info_region = function(meta,
-                             regionLight=NULL,
+panel_info_couche = function(meta_couche,
+                             coucheLight=NULL,
                              Shapefiles=NULL,
                              to_do='all') {
 
     if (!is.null(Shapefiles)) {
         # Computes the map associated to the station
-        map =  panel_mini_map(meta,
+        map =  panel_mini_map(meta_couche,
                               Shapefiles=Shapefiles,
-                              regionLight=regionLight)
+                              coucheLight=coucheLight)
         # Otherwise
     } else {
         # Puts it blank
@@ -40,18 +40,34 @@ panel_info_region = function(meta,
 
     
     # Gets the metadata about the station
-    meta_region = meta[substr(meta$Code, 1, 1) == regionLight,]
-
     if ('title' %in% to_do | 'all' %in% to_do) {
+        Nom =
+            levels(Shapefiles$entitePiezo$libelleeh)[
+                Shapefiles$entitePiezo$codeeh ==
+                meta_couche$Couche[1]]
+
+        PX = get_alphabet_in_px()
+        Nom = guess_newline(Nom, px=26, PX=PX)
+        Nom = gsub(" ", nbsp(1, 10), Nom, fixed=TRUE)
+        nLine = length(unlist(strsplit(Nom, "\n")))
+        Nom = gsub("\n", "<br>", Nom, fixed=TRUE)
+
+        if (length(Nom) == 0) {
+            sep = ""
+        } else {
+            sep = paste0(nbsp(1),
+                         "<span style='font-size:14pt; color:",
+                         INRAEcyan,
+                         "'>", "-", "</span>",
+                         nbsp(1))
+        }
+        
         # Converts all texts to graphical object in the right position
         gtext1 = richtext_grob(
             paste0("<b style='font-size:14pt; color:", INRAEcyan, "'>",
-                   meta_region$Region_Hydro[1], "</b>",
-                   nbsp(1),
-                   "<span style='font-size:14pt; color:", INRAEcyan, "'>", "-", "</span>",
-                   nbsp(1),
+                   Nom, "</b>", sep,
                    "<span style='font-size:14pt; color:", INRAEcyan, "'>",
-                   regionLight, "</span>"),
+                   coucheLight, "</span>"),
             x=0, y=1,
             margin=unit(c(t=0, r=5, b=0, l=0),
                         "mm"),
@@ -64,8 +80,8 @@ panel_info_region = function(meta,
 
     # Subitle info
     if ('subtitle' %in% to_do | 'all' %in% to_do) {
-        text2 = paste0("<b>", length(meta_region$Code),
-                       " stations de référence", "</b>")
+        text2 = paste0("<b>", length(meta_couche$Code),
+                       " piézomètres de référence", "</b>")
         gtext2 = richtext_grob(text2,
                                x=0, y=1,
                                margin=unit(c(t=0, r=0, b=0, l=0),
@@ -78,37 +94,26 @@ panel_info_region = function(meta,
 
     # Spatial info about station
     if ('spatial' %in% to_do | 'all' %in% to_do) {
-        if (all(is.na(meta_region$Surface_km2))) {
-            surface_min = "inconnue"
-            surface_max = "inconnue"
-        } else {
-            surface_min = paste0(round(min(meta_region$Surface_km2,
-                                           na.rm=TRUE)),
-                                 " km<sup>2</sup>")
-            surface_max = paste0(round(max(meta_region$Surface_km2,
-                                           na.rm=TRUE)),
-                                 " km<sup>2</sup>")
-        }
-        if (all(is.na(meta_region$Altitude_m))) {
+        if (all(is.na(meta_couche$Altitude_m))) {
             altitude_min = "inconnue"
             altitude_max = "inconnue"
         } else {
-            altitude_min = paste0(round(min(meta_region$Altitude_m,
+            altitude_min = paste0(round(min(meta_couche$Altitude_m,
                                             na.rm=TRUE)), " m")
-            altitude_max = paste0(round(max(meta_region$Altitude_m,
+            altitude_max = paste0(round(max(meta_couche$Altitude_m,
                                             na.rm=TRUE)), " m")
         }
 
         text3 = paste0(
-            "Superficie minimale : ", surface_min, "<br>",
-            "Superficie maximale : ", surface_max, "<br>",
-            "Altitude minimale (station) : ", altitude_min, "<br>",
-            "Altitude maximale (station) : ", altitude_max)
+            # "Superficie minimale : ", surface_min, "<br>",
+            # "Superficie maximale : ", surface_max, "<br>",
+            "Altitude minimale (piézomètre) : ", altitude_min, "<br>",
+            "Altitude maximale (piézomètre) : ", altitude_max)
         gtext3 = richtext_grob(text3,
                                x=0, y=1,
                                margin=unit(c(t=0, r=0, b=0, l=0),
                                            "mm"),
-                               hjust=0, vjust=0.98,
+                               hjust=0, vjust=1,
                                gp=gpar(col=IPCCgrey13, fontsize=9))
     } else {
         gtext3 = void()
@@ -125,21 +130,58 @@ panel_info_region = function(meta,
     herd = plan_of_herd(herd, plan,
                         verbose=verbose)
 
-    herd = add_sheep(herd,
-                     sheep=gtext1,
-                     id="text1",
-                     height=0.625,
-                     verbose=verbose)
-    herd = add_sheep(herd,
-                     sheep=gtext2,
-                     id="text2",
-                     height=0.78,
-                     verbose=verbose)
-    herd = add_sheep(herd,
-                     sheep=gtext3,
-                     id="text3",
-                     height=1,
-                     verbose=verbose)
+    if (length(Nom) == 0 | nLine == 1) {
+        herd = add_sheep(herd,
+                         sheep=gtext1,
+                         id="text1",
+                         height=0.35,
+                         verbose=verbose)
+        herd = add_sheep(herd,
+                         sheep=gtext2,
+                         id="text2",
+                         height=0.35,
+                         verbose=verbose)
+        herd = add_sheep(herd,
+                         sheep=gtext3,
+                         id="text3",
+                         height=1,
+                         verbose=verbose)
+        
+    } else if (nLine == 2) {
+        herd = add_sheep(herd,
+                         sheep=gtext1,
+                         id="text1",
+                         height=1,
+                         verbose=verbose)
+        herd = add_sheep(herd,
+                         sheep=gtext2,
+                         id="text2",
+                         height=0.75,
+                         verbose=verbose)
+        herd = add_sheep(herd,
+                         sheep=gtext3,
+                         id="text3",
+                         height=1,
+                         verbose=verbose)
+        
+    } else if (nLine == 3) {
+        herd = add_sheep(herd,
+                         sheep=gtext1,
+                         id="text1",
+                         height=1.4,
+                         verbose=verbose)
+        herd = add_sheep(herd,
+                         sheep=gtext2,
+                         id="text2",
+                         height=0.5,
+                         verbose=verbose)
+        herd = add_sheep(herd,
+                         sheep=gtext3,
+                         id="text3",
+                         height=0.7,
+                         verbose=verbose)
+    }
+
     herd = add_sheep(herd,
                      sheep=map,
                      id="map",

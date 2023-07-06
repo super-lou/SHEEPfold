@@ -44,13 +44,11 @@ sheet_diagnostic_couche = function (meta,
     
     medQJ_width = 10
 
-    
     plan = matrix(c(
         "info", "void", "medQJ_1", "medQJ_025", "criteria", "foot",
         "info", "void", "medQJ_075", "medQJ_0", "criteria", "foot"),
         ncol=2)
     WIP = FALSE
-
 
     Model = levels(factor(dataEXind$Model))
     nModel = length(Model)
@@ -60,6 +58,7 @@ sheet_diagnostic_couche = function (meta,
 
     Couche = levels(factor(unlist(meta$Couche)))
     Couche = Couche[nchar(Couche) > 0]
+
     nCouche = length(Couche)
 
     for (i in 1:nCouche) {
@@ -67,11 +66,6 @@ sheet_diagnostic_couche = function (meta,
         Code_couche = Code[is_in_couche(meta$Couche, couche)]
         meta_couche = meta[is_in_couche(meta$Couche, couche),]
         couche_disp = paste0(couche)
-
-
-        print(Code_couche)
-        
-        
 
         if (verbose) {
             print(paste0("diagnostic couche datasheet for ",
@@ -93,7 +87,7 @@ sheet_diagnostic_couche = function (meta,
         medREF =
             dplyr::summarise(dplyr::group_by(dataEXind_couche,
                                              Code),
-                             value=median(get("NSE_débiaisé"),
+                             value=median(get("NSEbiais"),
                                           na.rm=TRUE),
                              .groups="drop")
         REFprobs = c(1, 0.75, 0.25, 0)
@@ -105,13 +99,6 @@ sheet_diagnostic_couche = function (meta,
                 id = which.min(abs(In - target))
                 return (id)
             }
-
-            print(medREF$value)
-            
-            print(sapply(REFq,
-                         id_nearest,
-                         In=medREF$value))
-            
             Code_REFprobs =
                 medREF$Code[sapply(REFq,
                                        id_nearest,
@@ -133,11 +120,11 @@ sheet_diagnostic_couche = function (meta,
         herd = plan_of_herd(herd, plan,
                             verbose=verbose)
 
-        # info = panel_info_couche(meta,
-                                 # Shapefiles=Shapefiles,
-                                 # coucheLight=couche,
-                                 # to_do='all')
-        info = void()
+        info = panel_info_couche(meta_couche,
+                                 Shapefiles=Shapefiles,
+                                 coucheLight=couche,
+                                 to_do='all')
+        # info = void()
         herd = add_sheep(herd,
                          sheep=info,
                          id="info",
@@ -219,6 +206,8 @@ sheet_diagnostic_couche = function (meta,
 
         herd$sheep$label[herd$sheep$id %in% c("medQJ_1.spag", "medQJ_025.spag")] = "align1"
         herd$sheep$label[herd$sheep$id %in% c("medQJ_075.spag", "medQJ_0.spag")] = "align2"
+
+        Warnings = "Les stations choisies pour illustrer les résultats à l'échelle régionale illustrent la variabilité des performances obtenues sur les hydrogrammes des débits journaliers médians (piézomètres associées aux maximum, quantile 75 % et    25 %, et minimum du KGE<i>biais</i>)."
         
         criteria = panel_diagnostic_criteria(
             dataEXind,
@@ -235,6 +224,7 @@ sheet_diagnostic_couche = function (meta,
             dTitle=0,
             width=11.9,
             add_name=TRUE,
+            group_name="dans l'entité",
             text2px_lim=51,
             margin_add=
                 margin(t=0, r=0, b=0, l=0, "cm"))

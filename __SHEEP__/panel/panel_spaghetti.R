@@ -167,12 +167,6 @@ panel_spaghetti = function (data_code, Colors=NULL,
         minQ = min(data_code_obs$Q, na.rm=TRUE)
     }
 
-
-    print(minQ_obs)
-    print(minQ_sim)
-    print(minQ)
-    
-
     if (is.null(axis_xlim)) {
         limits = c(min(data_code_obs$Date), max(data_code_obs$Date))
     } else {

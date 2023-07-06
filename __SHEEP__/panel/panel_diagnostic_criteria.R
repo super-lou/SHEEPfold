@@ -1247,12 +1247,10 @@ panel_diagnostic_criteria = function (dataEXind,
                      label="COMPLÉMENT",
                      color=IPCCgrey25,
                      hjust=0, vjust=0, size=2.5)
-
-        Label = "Les stations choisies pour illustrer les résultats à l'échelle régionale illustrent la variabilité des performances obtenues sur les hydrogrammes des débits journaliers médians (stations associées aux maximum, quantile 75 % et 25 %, et minimum du KGE\u221A)."
         
-        Label = guess_newline(Label, px=text2px_lim, PX=PX)
+        Label = guess_newline(Warnings, px=text2px_lim, PX=PX)
         Label = unlist(strsplit(Label, "\n"))
-            
+
         for (j in 1:length(Label)) {
             Ind = Ind +
                 annotate("richtext",
