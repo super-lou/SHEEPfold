@@ -54,7 +54,7 @@ INRAEdarkcyan = "#275662"
 INRAElightblue = "#9ed6e3"
 
 
-get_IPCC_Palette = function (palette_name, reverse=FALSE) {
+get_IPCC_Palette = function (palette_name, colorStep=NA, reverse=FALSE) {
     if (palette_name == "SSP") {
         Palette =
             c("#971A1F",
@@ -62,6 +62,18 @@ get_IPCC_Palette = function (palette_name, reverse=FALSE) {
               "#F68815",
               "#203563",
               "#45AED4")
+    }
+
+    if (palette_name == "ground_short") {
+        Palette =
+            c("#7F4A23",
+              "#B3762A",
+              "#D4B86A",
+              "#EFE0B0",
+              "#BCE6DB",
+              "#7ACEB9",
+              "#449C93",
+              "#2A6863")
     }
 
     if (palette_name == "ground") {
@@ -118,6 +130,10 @@ get_IPCC_Palette = function (palette_name, reverse=FALSE) {
               "#30527e")
     }
 
+    if (!is.na(colorStep)) {
+        Palette = colorRampPalette(Palette)(colorStep)
+    }
+    
     if (reverse) {
         Palette = rev(Palette)
     }

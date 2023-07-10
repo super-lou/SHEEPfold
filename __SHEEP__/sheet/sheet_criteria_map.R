@@ -23,8 +23,9 @@
 sheet_criteria_map = function (dataEXind,
                                metaEXind,
                                meta,
-                               ModelGroup=NULL,
+                               ModelSelection=NULL,
                                Colors=INRAEcyan,
+                               one_colorbar=FALSE,
                                icon_path="",
                                logo_path="",
                                figdir="",
@@ -33,37 +34,31 @@ sheet_criteria_map = function (dataEXind,
                                verbose=FALSE) {
 
     paper_size = c(15, 15)
-    page_margin = c(t=0.5, r=0.5, b=0.25, l=0.5)
-
-    # title_height = 1.25
-    # title_width = 7
+    page_margin = c(t=0.5, r=0.5, b=0.5, l=0.5)
     foot_height = 1.25
-    foot_width = 14
     map_height = 15 - 1 - foot_height
-    map_width = 14
     
     
     plan = matrix(c("title", "map", "foot",
                     "map", "map", "foot"),
                   ncol=2)
 
-        # plan = matrix(c("title", "map", "foot"),
-        # ncol=1)
 
-
-    if (is.null(ModelGroup)) {
-        Model = levels(factor(dataEX$Model))
-        ModelGroup = as.list(Model)
-        names(ModelGroup) = Model
+    if (is.null(ModelSelection)) {
+        Model = levels(factor(dataEXind$Model))
+        Model = as.list(Model)
+        names(Model) = Model
+    } else {
+        Model = ModelSelection
     }
-    nModelGroup = length(ModelGroup)
+    nModel = length(Model)
 
     if (length(Colors) == 1) {
-        Colors = rep(Colors, nModelGroup)
+        Colors = rep(Colors, nModel)
     }
     
-    Model = levels(factor(dataEXind$Model))
-    nModel = length(Model)
+    # Model = levels(factor(dataEXind$Model))
+    # nModel = length(Model)
     
     Code = levels(factor(data$Code))
     CodeALL = levels(factor(dataEXind$Code))
@@ -80,26 +75,25 @@ sheet_criteria_map = function (dataEXind,
     
     UnitTeX =  convert2TeX(Unit, bold=FALSE, font="small")
 
-    for (i in 1:nModelGroup) {
-        Model = ModelGroup[[i]]
-        Model_names = names(ModelGroup)[i]
-        nModel = length(Model)
+    for (i in 1:nModel) {
+        model = Model[[i]]
+        model_names = names(Model)[i]
 
-        if (is.null(Model_names)) {
-            Model_names = paste0(Model, collapse=" ")
+        if (is.null(model_names)) {
+            model_names = paste0(model, collapse=" ")
         }
-        if (nchar(Model_names) == 0) {
-            Model2Disp = paste0(Model, collapse=" ")
-            Model4Save = paste0(Model, collapse="_")
+        if (nchar(model_names) == 0) {
+            model2Disp = paste0(model, collapse=" ")
+            model4Save = paste0(model, collapse="_")
         } else {
-            Model2Disp = Model_names
-            Model4Save = gsub(" ", "_", Model_names)
+            model2Disp = model_names
+            model4Save = gsub(" ", "_", model_names)
         }
         
         if (verbose) {
             print(paste0("diagnostic map for ",
-                         Model2Disp,
-                         "   ", round(i/nModelGroup*100, 1), "% done"))
+                         model2Disp,
+                         "   ", round(i/nModel*100, 1), "% done"))
         }
 
         for (j in 1:nVar) {
@@ -117,9 +111,9 @@ sheet_criteria_map = function (dataEXind,
                          x=0,
                          y=0.98,
                          label=TeX(paste0("\\textbf{",
-                                          Model2Disp, "}")),
+                                          model2Disp, "}")),
                          size=7, hjust=0, vjust=1,
-                         color=Colors[Model_names]) +
+                         color=Colors[model_names]) +
                 annotate("text",
                          x=0,
                          y=0.87,
@@ -138,14 +132,27 @@ sheet_criteria_map = function (dataEXind,
                              id="title",
                              verbose=verbose)
 
+            dataEXind_var =
+                dplyr::select(dataEXind, c("Model", "Code", var))
 
             dataEXind_model_var =
-                dplyr::select(dataEXind[dataEXind$Model %in% Model,],
-                              c("Model", "Code", var))
+                dataEXind_var[dataEXind_var$Model %in% model,]
+
+            if (is.null(ModelSelection)) {
+                min_var = quantile(dataEXind_var[[var]],
+                                   0.1, na.rm=TRUE)
+                max_var = quantile(dataEXind_var[[var]],
+                                   0.9, na.rm=TRUE)
+            } else {
+                min_var = NULL
+                max_var = NULL
+            }
             
             map = panel_criteria_map(dataEXind_model_var,
                                      metaEXind,
                                      meta,
+                                     min_var,
+                                     max_var,
                                      Shapefiles=Shapefiles,
                                      margin(t=0, r=0, b=0, l=0, "cm"),
                                      verbose=verbose)
@@ -154,7 +161,6 @@ sheet_criteria_map = function (dataEXind,
                              sheep=map,
                              id="map",
                              height=map_height,
-                             width=map_width,
                              verbose=verbose)
 
 
@@ -167,10 +173,15 @@ sheet_criteria_map = function (dataEXind,
                 } else {
                     n_page = df_page$n[nrow(df_page)] + 1
                 }
+                if (is.null(ModelSelection)) {
+                    subsection = model
+                } else {
+                    subsection = var
+                }
                 df_page = bind_rows(
                     df_page,
                     tibble(section=footName,
-                           subsection=code,
+                           subsection=subsection,
                            n=n_page))
             }
             
@@ -182,7 +193,6 @@ sheet_criteria_map = function (dataEXind,
                              sheep=foot,
                              id="foot",
                              height=foot_height,
-                             width=foot_width,
                              verbose=verbose)
             
 
@@ -195,14 +205,13 @@ sheet_criteria_map = function (dataEXind,
             plot = res$plot
             paper_size = res$paper_size
 
-            figdir_model = file.path(figdir, Model4Save)
-            filename = paste0(var, ".pdf")
+            filename = paste0(model4Save, "_", var, ".pdf")
 
-            if (!(file.exists(figdir_model))) {
-                dir.create(figdir_model, recursive=TRUE)
+            if (!(file.exists(figdir))) {
+                dir.create(figdir, recursive=TRUE)
             }
             ggplot2::ggsave(plot=plot,
-                            path=figdir_model,
+                            path=figdir,
                             filename=filename,
                             width=paper_size[1],
                             height=paper_size[2], units='cm',

@@ -27,6 +27,8 @@
 panel_criteria_map = function (dataEXind_model_var,
                                metaEXind,
                                meta,
+                               min_var,
+                               max_var,
                                Shapefiles=Shapefiles,
                                margin=margin(t=0, r=0, b=0, l=0, "cm"),
                                verbose=verbose) {
@@ -137,7 +139,7 @@ panel_criteria_map = function (dataEXind_model_var,
 
     print(var)
 
-    if (!grepl("RAT", var)) {
+    if (!grepl("(RAT)|(HYP)", var)) {
         dataEXind_var =
             dplyr::summarise(dplyr::group_by(dataEXind_model_var, Code),
                              !!var:=median(get(var), na.rm=TRUE))
@@ -161,26 +163,43 @@ panel_criteria_map = function (dataEXind_model_var,
         reverse_palette = FALSE
     }
     
-    if (grepl("KGE", var)) {
+    if (grepl("(KGE)|(NSE)", var)) {
         Palette_level = c(5, 4, 3, 2, 1)
         bin = c(-Inf, 0, 0.25, 0.5, 0.75, 1)
         upBin = c(0, 0.25, 0.5, 0.75, 1)
         lowBin = c(-Inf, 0, 0.25, 0.5, 0.75)
         Palette = get_IPCC_Palette("rainbow")[4:8]
 
-    } else if (!grepl("RAT", var)) {
-        if (grepl("(Biais)|(^Q)|(^med[{]t)", var)) {
+    } else if (!grepl("(RAT)|(HYP)", var)) {
+        if (grepl("(Biais)|(^Q)|(^moyQ)|(^V)|(^BF)|(^med[{]v)|(^med[{]t)|(^med[{]debut)|(^med[{]centre)|(^med[{]fin)|(^med[{]dt)", var)) {
             center = 0
         }
-        if (grepl("(^epsilon)|(^alpha)", var)) {
+        if (grepl("(Rc)|(^epsilon)|(^alpha)|(STD)", var)) {
             center = 1
         }
+
+        if (grepl("(Biais)|(^Q)|(^alpha)|(^moyQ)|(^V)|(^BF)|(^med[{]v)", var)) {
+            reverse = FALSE
+            name = "ground_short"
+        }
+        if (grepl("(Rc)|(^epsilon)|(^med[{]t)|(^med[{]debut)|(^med[{]centre)|(^med[{]fin)|(^med[{]dt)|(STD)", var)) {
+            reverse = TRUE
+            name = "rainbow"
+        }
+        
         Palette_level = c(4, 3, 2, 1, 1, 2, 3, 4)
-        Palette = get_IPCC_Palette("rainbow", reverse_palette)
-        res = compute_colorBin(quantile(dataEXind_model_var[[var]],
-                                        0.1, na.rm=TRUE),
-                               quantile(dataEXind_model_var[[var]],
-                                        0.9, na.rm=TRUE),
+        Palette = get_IPCC_Palette(name, reverse=reverse)
+        if (is.null(min_var)) {
+            min_var = quantile(dataEXind_model_var[[var]],
+                               0.1, na.rm=TRUE)
+        }
+        if (is.null(max_var)) {
+            max_var = quantile(dataEXind_model_var[[var]],
+                               0.9, na.rm=TRUE)
+        }
+        
+        res = compute_colorBin(min_var,
+                               max_var,
                                colorStep=8,
                                center=center,
                                include=FALSE)
@@ -189,22 +208,22 @@ panel_criteria_map = function (dataEXind_model_var,
         lowBin = res$lowBin
     }
 
-    if (grepl("KGE", var)) {
+    if (grepl("(KGE)|(NSE)", var)) {
         lim = c(0.5, 1)
-    }
-    if (grepl("Biais", var)) {
+    } else if (grepl("Biais", var)) {
         lim = c(-0.2, 0.2)
-    }
-    if (grepl("(^Q)|(^med[{]t)", var)) {
+    } else if (grepl("(^Q)|(^med[{]t)", var)) {
         lim = c(-1, 1)
-    }
-    if (grepl("(^epsilon)|(^alpha)", var)) {
+    } else if (grepl("(^epsilon)|(^alpha)", var)) {
         lim = c(0.5, 2)
+    } else if (!grepl("(RAT)|(HYP)", var)) {
+        lim = c(center-1, center+1)
     }
     
-    if (grepl("RAT", var)) {
+    if (grepl("(RAT)|(HYP)", var)) {
         Palette_level = c(1, 2)
-        Palette = get_IPCC_Palette("OrangePurple", TRUE)[c(2, 5)]
+        Palette = get_IPCC_Palette("OrangePurple",
+                                   reverse=TRUE)[c(2, 5)]
         RAT = dataEXind_var[[var]]
         RAT[is.na(RAT)] = FALSE
         fills = rep(Palette[2], length(RAT))
@@ -223,7 +242,7 @@ panel_criteria_map = function (dataEXind_model_var,
     
     dataEXind_var$color = "grey30"
     dataEXind_var$stroke = 0.5
-    if (!grepl("RAT", var)) {
+    if (!grepl("(RAT)|(HYP)", var)) {
         dataEXind_var$color[lim[1] <= dataEXind_var[[var]] &
                             dataEXind_var[[var]] <= lim[2]] = "grey75"
         dataEXind_var$stroke[lim[1] <= dataEXind_var[[var]] &
@@ -299,7 +318,7 @@ panel_criteria_map = function (dataEXind_model_var,
         d_space = 0.1
         margin = margin(t=1.5, r=0.5, b=2.5, l=5.5, "cm")
 
-    } else if (grepl("RAT", var)) {
+    } else if (grepl("(RAT)|(HYP)", var)) {
         bin = c(0, 1)
         label = c("Test validé",
                   "Test non validé")
