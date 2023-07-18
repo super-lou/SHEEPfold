@@ -64,7 +64,7 @@ get_IPCC_Palette = function (palette_name, colorStep=NA, reverse=FALSE) {
               "#45AED4")
     }
 
-    if (palette_name == "ground_short") {
+    if (palette_name == "ground_8") {
         Palette =
             c("#7F4A23",
               "#B3762A",
@@ -76,7 +76,7 @@ get_IPCC_Palette = function (palette_name, colorStep=NA, reverse=FALSE) {
               "#2A6863")
     }
 
-    if (palette_name == "ground") {
+    if (palette_name == "ground_10") {
         Palette =
             c("#452C1A",
               "#7F4A23",
@@ -90,7 +90,7 @@ get_IPCC_Palette = function (palette_name, colorStep=NA, reverse=FALSE) {
               "#193830")
     }
 
-    if (palette_name == "ground_long") {
+    if (palette_name == "ground_14") {
         Palette =
             c("#452C1A",
               "#704220",
@@ -117,8 +117,18 @@ get_IPCC_Palette = function (palette_name, colorStep=NA, reverse=FALSE) {
               "#E58DBE",
               "#893687")
     }
+
+    if (palette_name == "rainbow_6") {
+        Palette =  
+            c("#D73027",
+              "#FC8D59",
+              "#FEE090",
+              "#E0F3F8",
+              "#91BFDB",
+              "#4575B4")
+    }
         
-    if (palette_name == "rainbow") {
+    if (palette_name == "rainbow_8") {
         Palette =  
             c("#96221b",
               "#D73027",

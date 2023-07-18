@@ -40,7 +40,7 @@ panel_correlation_matrix = function (dataEX,
     
     dy_T1 = 0.6
     size_T1 = 3.2
-    ech_T1 = 1
+    ech_T1 = 0.95
 
     dy_L2_min = 1
     lw_L2 = 0.25
@@ -197,11 +197,21 @@ panel_correlation_matrix = function (dataEX,
         }
     }
 
-    Colors = get_color(CORRmat_model, -1, 1,
-                       Palette=Palette_rainbow(),
-                       colorStep=6, include=TRUE,
-                       reverse=TRUE)
+
+    Palette = get_IPCC_Palette("rainbow_6", reverse=TRUE)
+    res = compute_colorBin(-1, 1,
+                           colorStep=6,
+                           center=0,
+                           include=TRUE)
+    bin = res$bin
+    upBin = res$upBin
+    lowBin = res$lowBin
     
+    Colors = get_colors(CORRmat_model,
+                        upBin=upBin,
+                        lowBin=lowBin,
+                        Palette=Palette)
+
     COLORmat = matrix(Colors,
                       nrow=nrow(CORRmat_model),
                       ncol=ncol(CORRmat_model))
@@ -263,7 +273,7 @@ panel_correlation_matrix = function (dataEX,
                  x=rep(-d_W_mat*ech, nVar),
                  y=(nVar-1):0*ech + 0.5*ech,
                  hjust=1, vjust=0.5,
-                 label=TeX(VarTEX), size=size_T1,
+                 label=TeX(VarTeX), size=size_T1,
                  color=IPCCgrey40) +
         
         annotate("text",
@@ -271,12 +281,12 @@ panel_correlation_matrix = function (dataEX,
                  y=rep(-d_W_mat*ech, nVar),
                  hjust=1, vjust=0.5,
                  angle=90,
-                 label=TeX(VarTEX), size=size_T1,
+                 label=TeX(VarTeX), size=size_T1,
                  color=IPCCgrey40)
 
     PX = get_alphabet_in_px(style="bold")
     
-    VarRAW = VarTEX
+    VarRAW = VarTeX
     VarRAW = gsub("textit", "", VarRAW)
     VarRAW = gsub("textbf", "", VarRAW)
     VarRAW = gsub("bf", "", VarRAW)
@@ -360,7 +370,7 @@ panel_correlation_matrix = function (dataEX,
                      x=((i-1) + 0.5)*ech,
                      y=(dy +
                         dy_L1 + dy_I1 + dy_T1)*ech,
-                     label=TeX(VarTEX[i]),
+                     label=TeX(VarTeX[i]),
                      hjust=0, vjust=0.675,
                      angle=90,
                      size=size_T1,

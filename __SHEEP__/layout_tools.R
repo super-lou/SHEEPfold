@@ -171,6 +171,7 @@ gpct = function (pct, L, min_lim=NULL, shift=FALSE) {
 #' @title round_label
 #' @export
 round_label = function (labelRaw, direction="V", ncharLim=4) {
+    labelRaw = round(labelRaw, 10)
     if (direction == "V") {
         label2 = signif(labelRaw, 2)
         label2[label2 >= 0] = paste0(" ", label2[label2 >= 0])
@@ -237,6 +238,7 @@ load_shapefile = function (computer_shp_path, Code,
                            france_shp_path,
                            basinHydro_shp_path,
                            regionHydro_shp_path,
+                           secteurHydro_shp_path,
                            entiteHydro_shp_path, entiteHydro_coord,
                            entitePiezo_shp_path,
                            river_shp_path,
@@ -253,6 +255,8 @@ load_shapefile = function (computer_shp_path, Code,
                                 basinHydro_shp_path)
     regionHydro_path = file.path(computer_shp_path,
                                  regionHydro_shp_path)
+    secteurHydro_path = file.path(computer_shp_path,
+                                  secteurHydro_shp_path)
     entiteHydro_path = file.path(computer_shp_path,
                                  entiteHydro_shp_path)
     entitePiezo_path = file.path(computer_shp_path,
@@ -281,6 +285,13 @@ load_shapefile = function (computer_shp_path, Code,
     regionHydro = st_simplify(regionHydro,
                               preserveTopology=TRUE,
                               dTolerance=toleranceRel*0.6)
+
+    # Hydrological sector
+    secteurHydro = st_read(secteurHydro_path)
+    secteurHydro = st_transform(secteurHydro, 2154)
+    secteurHydro = st_simplify(secteurHydro,
+                               preserveTopology=TRUE,
+                               dTolerance=toleranceRel*0.6)
     
     # Hydrological code bassin
     entiteHydro_list = lapply(entiteHydro_path, read_sf)
@@ -328,6 +339,7 @@ load_shapefile = function (computer_shp_path, Code,
     return (list(france=france,
                  basinHydro=basinHydro,
                  regionHydro=regionHydro,
+                 secteurHydro=secteurHydro,
                  entiteHydro=entiteHydro,
                  entitePiezo=entitePiezo,
                  river=river))
@@ -542,7 +554,7 @@ guess_newline = function (text, px=40, nChar=100,
 
 
 
-convert2TeX = function (Var, bold=TRUE, font="normalsize") {
+convert2TeX = function (Var, bold=TRUE) {
     nVar = length(Var)
     
     VarTEX = gsub("etiage", "étiage", Var)
@@ -581,58 +593,58 @@ convert2TeX = function (Var, bold=TRUE, font="normalsize") {
         }
 
         if (grepl("inv", var) & !grepl("inv[{]", var)) {
-            var = gsub("inv", "\\\\small{\\\\textit{inv}}", var)
+            var = gsub("inv", "\\\\textit{inv}", var)
         } else if (grepl("inv", var) & grepl("inv[{]", var)) {
             var = gsub("[}]", "", var)
-            var = gsub("inv[{]", "\\\\small{\\\\textit{inv}}", var)
+            var = gsub("inv[{]", "\\\\textit{inv}", var)
         } 
 
         if (grepl("log", var) & !grepl("log[{]", var)) {
-            var = gsub("log", "\\\\small{\\\\textit{log}}", var)
+            var = gsub("log", "\\\\textit{log}", var)
         } else if (grepl("log", var) & grepl("log[{]", var)) {
             var = gsub("[}]", "", var)
-            var = gsub("log[{]", "\\\\small{\\\\textit{log}}", var)
+            var = gsub("log[{]", "\\\\textit{log}", var)
         } 
 
         if (grepl("moy", var) & !grepl("moy[{]", var)) {
-            var = gsub("moy", "\\\\small{\\\\textit{moy}}", var)
+            var = gsub("moy", "\\\\textit{moy}", var)
         } else if (grepl("moy", var) & grepl("moy[{]", var)) {
             var = gsub("[}]", "", var)
-            var = gsub("moy[{]", "\\\\small{\\\\textit{moy}}", var)
+            var = gsub("moy[{]", "\\\\textit{moy}", var)
         } 
 
         if (grepl("med", var) & !grepl("med[{]", var)) {
-            var = gsub("med", "\\\\small{\\\\textit{med}}", var)
+            var = gsub("med", "\\\\textit{med}", var)
         } else if (grepl("med", var) & grepl("med[{]", var)) {
             var = gsub("[}]", "", var)
-            var = gsub("med[{]", "\\\\small{\\\\textit{med}}", var)
+            var = gsub("med[{]", "\\\\textit{med}", var)
         } 
         
         if (grepl("racine", var) & !grepl("racine[{]", var)) {
-            var = gsub("racine", "\\\\small{\u221A}", var)
+            var = gsub("racine", "\u221A", var)
         } else if (grepl("racine", var) & grepl("racine[{]", var)) {
             var = gsub("[}]", "", var)
-            var = gsub("racine[{]", "\\\\small{\u221A}", var)
+            var = gsub("racine[{]", "\u221A", var)
         }
 
         if (grepl("ips", var) & !grepl("ips[{]", var)) {
-            var = gsub("ips", "\\\\small{\\\\textit{ips}}", var)
+            var = gsub("ips", "\\\\textit{ips}", var)
         } else if (grepl("ips", var) & grepl("ips[{]", var)) {
             var = gsub("[}]", "", var)
-            var = gsub("ips[{]", "\\\\small{\\\\textit{ips}}", var)
+            var = gsub("ips[{]", "\\\\textit{ips}", var)
         }
 
         if (grepl("biais", var) & !grepl("biais[{]", var)) {
-            var = gsub("biais", "\\\\small{\\\\textit{biais}}", var)
+            var = gsub("biais", "\\\\textit{biais}", var)
         } else if (grepl("biais", var) & grepl("biais[{]", var)) {
             var = gsub("[}]", "", var)
-            var = gsub("biais[{]", "\\\\small{\\\\textit{biais}}", var)
+            var = gsub("biais[{]", "\\\\textit{biais}", var)
         }
         
         VarTEX[i] = var
     }
 
-    VarTEX = paste0("\\", font, "{", VarTEX, "}")
+    # VarTEX = paste0("\\", font, "{", VarTEX, "}")
     
     if (bold) {
         VarTEX = paste0("\\textbf{", VarTEX, "}")

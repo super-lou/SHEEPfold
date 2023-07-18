@@ -28,20 +28,31 @@ sheet_criteria_map = function (dataEXind,
                                one_colorbar=FALSE,
                                icon_path="",
                                logo_path="",
+                               is_foot=TRUE,
+                               is_secteur=FALSE,
                                figdir="",
                                df_page=NULL,
                                Shapefiles=NULL,
                                verbose=FALSE) {
 
     paper_size = c(15, 15)
-    page_margin = c(t=0.5, r=0.5, b=0.5, l=0.5)
-    foot_height = 1.25
-    map_height = 15 - 1 - foot_height
+    page_margin = c(t=0.5, r=0.5, b=0.25, l=0.5)
+    if (is_foot) {
+        foot_height = 1.25
+    } else {
+        foot_height = 0
+    }
+    map_height = 15 - 0.5 - 0.25 - foot_height
     
-    
-    plan = matrix(c("title", "map", "foot",
-                    "map", "map", "foot"),
-                  ncol=2)
+    if (is_foot) {
+        plan = matrix(c("title", "map", "foot",
+                        "map", "map", "foot"),
+                      ncol=2)
+    } else {
+        plan = matrix(c("title", "map",
+                        "map", "map"),
+                      ncol=2)
+    }
 
 
     if (is.null(ModelSelection)) {
@@ -106,17 +117,26 @@ sheet_criteria_map = function (dataEXind,
             
             title = ggplot() + theme_void() +
                 theme(plot.margin=margin(t=0, r=0, b=0, l=0, "cm"))
+
+            if (is_foot) {
+                y1 = 0.98
+                y2 = 0.875
+            } else {
+                y1 = 0.98
+                y2 = 0.89
+            }
+            
             title = title +
                 annotate("text",
                          x=0,
-                         y=0.98,
+                         y=y1,
                          label=TeX(paste0("\\textbf{",
                                           model2Disp, "}")),
                          size=7, hjust=0, vjust=1,
                          color=Colors[model_names]) +
                 annotate("text",
                          x=0,
-                         y=0.87,
+                         y=y2,
                          label=TeX(paste0(VarTeX[j],
                                           " ", UnitTeX[j])),
                          size=4, hjust=0, vjust=1,
@@ -153,6 +173,7 @@ sheet_criteria_map = function (dataEXind,
                                      meta,
                                      min_var,
                                      max_var,
+                                     is_secteur=is_secteur,
                                      Shapefiles=Shapefiles,
                                      margin(t=0, r=0, b=0, l=0, "cm"),
                                      verbose=verbose)
@@ -163,37 +184,38 @@ sheet_criteria_map = function (dataEXind,
                              height=map_height,
                              verbose=verbose)
 
+            if (is_foot) {
+                footName = 'Carte de diagnostic'
+                if (is.null(df_page)) {
+                    n_page = i
+                } else {
+                    if (nrow(df_page) == 0) {
+                        n_page = 1
+                    } else {
+                        n_page = df_page$n[nrow(df_page)] + 1
+                    }
+                    if (is.null(ModelSelection)) {
+                        subsection = model
+                    } else {
+                        subsection = var
+                    }
+                    df_page = bind_rows(
+                        df_page,
+                        tibble(section=footName,
+                               subsection=subsection,
+                               n=n_page))
+                }
+                
+                foot = panel_foot(footName, n_page,
+                                  foot_height, logo_path)
 
-            footName = 'Carte de diagnostic'
-            if (is.null(df_page)) {
-                n_page = i
-            } else {
-                if (nrow(df_page) == 0) {
-                    n_page = 1
-                } else {
-                    n_page = df_page$n[nrow(df_page)] + 1
-                }
-                if (is.null(ModelSelection)) {
-                    subsection = model
-                } else {
-                    subsection = var
-                }
-                df_page = bind_rows(
-                    df_page,
-                    tibble(section=footName,
-                           subsection=subsection,
-                           n=n_page))
+                
+                herd = add_sheep(herd,
+                                 sheep=foot,
+                                 id="foot",
+                                 height=foot_height,
+                                 verbose=verbose)
             }
-            
-            foot = panel_foot(footName, n_page,
-                              foot_height, logo_path)
-
-            
-            herd = add_sheep(herd,
-                             sheep=foot,
-                             id="foot",
-                             height=foot_height,
-                             verbose=verbose)
             
 
             res = return_to_sheepfold(herd,
@@ -205,8 +227,12 @@ sheet_criteria_map = function (dataEXind,
             plot = res$plot
             paper_size = res$paper_size
 
-            filename = paste0(model4Save, "_", var, ".pdf")
-
+            if (is_secteur) {
+                filename = paste0(model4Save, "_", var, "_secteur.pdf")
+            } else {
+                filename = paste0(model4Save, "_", var, ".pdf")
+            }
+            
             if (!(file.exists(figdir))) {
                 dir.create(figdir, recursive=TRUE)
             }

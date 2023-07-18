@@ -30,30 +30,29 @@ sheet_correlation_matrix = function (dataEX, metaEX,
     if (is.null(ModelGroup)) {
         Model = levels(factor(dataEX$Model))
         ModelGroup = append(as.list(Model), list(Model))
-        names(ModelGroup) = c(Model, "Multi-model")
+        names(ModelGroup) = c(Model, "Multi-modèle")
     }
     nModelGroup = length(ModelGroup)
 
     page_margin = c(t=0.5, r=0.5, b=0.5, l=0.5)
     
     info_height = 1
-    cm_height = 24
-    cm_width = 21 - page_margin["l"] - page_margin["r"]
-    
     cb_height = 1.25
     ssg_height = 1.25
-    si_height = 1
-    
+    si_height = 1.25
     foot_height = 1.25
+    
+    cm_height = 29.7 - page_margin["t"] - page_margin["b"] -
+        info_height - cb_height - si_height - foot_height
+    cm_width = 21 - page_margin["l"] - page_margin["r"]
+    
 
-    cm_margin = margin(t=1.2, r=0, b=2, l=1.5, "cm")
-    cb_margin = margin(t=0, r=2, b=0, l=2, "cm")
+
+    cm_margin = margin(t=1, r=0, b=2, l=1.75, "cm")
+    cb_margin = margin(t=0, r=2, b=0.4, l=1.2, "cm")
     ssg_margin = margin(t=0.3, r=1, b=0.1, l=2, "cm")
     si_margin = margin(t=0.3, r=3.5, b=0.4, l=0, "cm")
     
-    cb_shift = c(x=2.5, y=0)
-    ssg_shift = c(x=2.5, y=0)
-    si_shift = c(x=2.5, y=0.2)
 
     plan = matrix(c("info", "cm", "cb", "ssg", "foot",
                     "info", "cm", "cb", "si", "foot",
@@ -113,6 +112,7 @@ sheet_correlation_matrix = function (dataEX, metaEX,
                          sheep=cm,
                          id="cm",
                          height=cm_height,
+                         width=cm_width,
                          verbose=verbose)
 
         herd = add_sheep(herd,
@@ -120,7 +120,8 @@ sheet_correlation_matrix = function (dataEX, metaEX,
                          id="void",
                          verbose=verbose)
         
-        cb = panel_colorbar(-1, 1, Palette=Palette_rainbow(),
+        cb = panel_colorbar(-1, 1,
+                            palette_name="rainbow_6",
                             colorStep=6, include=TRUE,
                             asFrac=TRUE,
                             reverse=TRUE,

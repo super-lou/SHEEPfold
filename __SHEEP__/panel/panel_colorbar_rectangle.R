@@ -20,7 +20,7 @@
 # If not, see <https://www.gnu.org/licenses/>.
 
 
-panel_colorbar = function (min, max, Palette,
+panel_colorbar = function (min, max, palette_name,
                            colorStep=256, include=FALSE,
                            label=NULL, asFrac=FALSE,
                            reverse=FALSE,
@@ -30,14 +30,15 @@ panel_colorbar = function (min, max, Palette,
                            margin=margin(0, 0, 0, 0),
                            WIP=FALSE) {
     
-    colorBin = compute_colorBin(min, max,
-                                Palette=Palette,
-                                colorStep=colorStep,
-                                include=include,
-                                reverse=reverse)
-
-    Palette = colorBin$Palette
-    bin = colorBin$bin
+    Palette = get_IPCC_Palette(palette_name, colorStep=colorStep, reverse=reverse)
+    res = compute_colorBin(min, max,
+                           colorStep=colorStep,
+                           center=0,
+                           include=include)
+    bin = res$bin
+    upBin = res$upBin
+    lowBin = res$lowBin
+    
     if (is.null(label)) {
         if (asFrac) {
             label = float2frac(bin, round(colorStep/2))

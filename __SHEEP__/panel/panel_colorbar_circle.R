@@ -28,9 +28,12 @@ panel_colorbar_circle = function (bin,
                                   d_space=0.5,
                                   d_text=0.5,
                                   text_size=2,
+                                  text_fontface="bold",
                                   label=NULL,
                                   stroke=NULL,
                                   color=NULL,
+                                  colorText=IPCCgrey50,
+                                  colorLine=IPCCgrey50,
                                   on_circle=FALSE,
                                   margin=margin(t=0, r=0, b=0, l=0,
                                                 "cm")) {
@@ -76,7 +79,7 @@ panel_colorbar_circle = function (bin,
                          x=c(0, d_line),
                          y=c((i-1)-1/2,
                          (i-1)-1/2),
-                         linewidth=linewidth, color=IPCCgrey50)
+                         linewidth=linewidth, color=colorLine)
             plot = plot +
                 annotate("text",
                          x=d_line+d_space,
@@ -84,7 +87,8 @@ panel_colorbar_circle = function (bin,
                          label=Label[i],
                          size=text_size,
                          hjust=0, vjust=0.5,
-                         fontface="bold", color=IPCCgrey50)
+                         fontface=text_fontface,
+                         color=colorText)
 
         } else {
             plot = plot +
@@ -94,7 +98,8 @@ panel_colorbar_circle = function (bin,
                          label=Label[i],
                          size=text_size,
                          hjust=0, vjust=0.5,
-                         fontface="bold", color=IPCCgrey50)
+                         fontface=text_fontface,
+                         color=colorText)
         }
     }
 

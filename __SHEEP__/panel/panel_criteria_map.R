@@ -29,6 +29,7 @@ panel_criteria_map = function (dataEXind_model_var,
                                meta,
                                min_var,
                                max_var,
+                               is_secteur=FALSE,
                                Shapefiles=Shapefiles,
                                margin=margin(t=0, r=0, b=0, l=0, "cm"),
                                verbose=verbose) {
@@ -52,6 +53,7 @@ panel_criteria_map = function (dataEXind_model_var,
     france = Shapefiles$france
     basinHydro = Shapefiles$basinHydro
     regionHydro = Shapefiles$regionHydro
+    secteurHydro = Shapefiles$secteurHydro
     entiteHydro = Shapefiles$entiteHydro
     river = Shapefiles$river
 
@@ -62,62 +64,25 @@ panel_criteria_map = function (dataEXind_model_var,
 
     # Open a new plot with the personalise theme
     map = ggplot() + theme_void() + cf +
-        
-        theme(plot.margin=margin) +
-        
-        # Plot the background of France
-        geom_sf(data=france,
-                color=NA,
-                fill=IPCCgrey99)
-
-    map = map +
-        # Plot the hydrological basin
-        geom_sf(data=basinHydro,
-                color=IPCCgrey85,
-                fill=NA,
-                size=0.2)
-    
-    # If the river shapefile exists
-    if (!is.null(river)) {
-        # Plot the river
-        # map = map +
-        #     geom_sf(data=river,
-        #             color="white",
-        #             alpha=1,
-        #             fill=NA,
-        #             linewidth=0.4,
-        #             na.rm=TRUE)
-        map = map +
-            geom_sf(data=river,
-                    color=INRAElightcyan,
-                    alpha=1,
-                    fill=NA,
-                    linewidth=0.3,
-                    na.rm=TRUE)
-    }
-
-    map = map +
-        geom_sf(data=france,
-                color=IPCCgrey50,
-                fill=NA,
-                linewidth=0.35)
+        theme(plot.margin=margin)        
     
     xlim = c(90000, 1250000)
     ylim = c(6040000, 7120000)
     
     xmin = gpct(62, xlim, shift=TRUE)
     xint = c(0, 50*1E3, 100*1E3, 250*1E3)
-    ymin = gpct(4, ylim, shift=TRUE)
-    ymax = ymin + gpct(1, ylim)
-    size = 2.1
-    sizekm = 1.6
-
-
+    ymin = gpct(5, ylim, shift=TRUE)
+    ymax = ymin + gpct(1.3, ylim)
+    size = 2.6
+    sizekm = 2.5
+    linewidth = 0.4
+    
     map = map +
         # Adds the base line of the scale
         geom_line(aes(x=c(xmin, max(xint)+xmin),
                       y=c(ymin, ymin)),
-                  color=IPCCgrey40, size=0.2) +
+                  color=IPCCgrey50, size=linewidth,
+                  lineend="round") +
         # Adds the 'km' unit
         annotate("text",
                  x=max(xint)+xmin+gpct(1, xlim), y=ymin,
@@ -129,12 +94,14 @@ panel_criteria_map = function (dataEXind_model_var,
             # Draws the tick
             annotate("segment",
                      x=x+xmin, xend=x+xmin, y=ymin, yend=ymax,
-                     color=IPCCgrey40, size=0.2) +
+                     color=IPCCgrey50, size=linewidth,
+                     lineend="round") +
             # Adds the value
             annotate("text",
                      x=x+xmin, y=ymax+gpct(0.5, ylim),
                      vjust=0, hjust=0.5, label=x/1E3,
-                     color=IPCCgrey40, size=size)
+                     fontface="bold",
+                     color=IPCCgrey50, size=size)
     }
 
     print(var)
@@ -151,13 +118,23 @@ panel_criteria_map = function (dataEXind_model_var,
         }
     }
 
-    dataEXind_var =
-        dplyr::left_join(dataEXind_var,
-                         dplyr::select(meta,
-                                       c("Code",
-                                         "XL93_m",
-                                         "YL93_m")),
-                         by="Code")
+    if (is_secteur) {
+        dataEXind_var =
+            dplyr::summarise(dplyr::group_by(dataEXind_var,
+                                             Secteur=substr(Code,
+                                                            1, 2)),
+                             !!var:=median(get(var), na.rm=TRUE),
+                             .groups="drop")
+
+    } else {
+        dataEXind_var =
+            dplyr::left_join(dataEXind_var,
+                             dplyr::select(meta,
+                                           c("Code",
+                                             "XL93_m",
+                                             "YL93_m")),
+                             by="Code")
+    }
 
     if (is.null(reverse_palette)) {
         reverse_palette = FALSE
@@ -168,7 +145,7 @@ panel_criteria_map = function (dataEXind_model_var,
         bin = c(-Inf, 0, 0.25, 0.5, 0.75, 1)
         upBin = c(0, 0.25, 0.5, 0.75, 1)
         lowBin = c(-Inf, 0, 0.25, 0.5, 0.75)
-        Palette = get_IPCC_Palette("rainbow")[4:8]
+        Palette = get_IPCC_Palette("rainbow_8")[4:8]
 
     } else if (!grepl("(RAT)|(HYP)", var)) {
         if (grepl("(Biais)|(^Q)|(^moyQ)|(^V)|(^BF)|(^med[{]v)|(^med[{]t)|(^med[{]debut)|(^med[{]centre)|(^med[{]fin)|(^med[{]dt)", var)) {
@@ -180,21 +157,21 @@ panel_criteria_map = function (dataEXind_model_var,
 
         if (grepl("(Biais)|(^Q)|(^alpha)|(^moyQ)|(^V)|(^BF)|(^med[{]v)", var)) {
             reverse = FALSE
-            name = "ground_short"
+            name = "ground_8"
         }
         if (grepl("(Rc)|(^epsilon)|(^med[{]t)|(^med[{]debut)|(^med[{]centre)|(^med[{]fin)|(^med[{]dt)|(STD)", var)) {
             reverse = TRUE
-            name = "rainbow"
+            name = "rainbow_8"
         }
         
         Palette_level = c(4, 3, 2, 1, 1, 2, 3, 4)
         Palette = get_IPCC_Palette(name, reverse=reverse)
         if (is.null(min_var)) {
-            min_var = quantile(dataEXind_model_var[[var]],
+            min_var = quantile(dataEXind_var[[var]],
                                0.1, na.rm=TRUE)
         }
         if (is.null(max_var)) {
-            max_var = quantile(dataEXind_model_var[[var]],
+            max_var = quantile(dataEXind_var[[var]],
                                0.9, na.rm=TRUE)
         }
         
@@ -256,21 +233,68 @@ panel_criteria_map = function (dataEXind_model_var,
 
     level = as.numeric(levels(factor(Palette_level)))
 
-    for (l in level) {
-        dataEXind_var_tmp = dplyr::filter(dataEXind_var,
-                                          level==l)
+    map = map +
+        geom_sf(data=france,
+                color=NA,
+                fill=IPCCgrey99)
+
+    map = map +
+        geom_sf(data=basinHydro,
+                color=IPCCgrey85,
+                fill=NA,
+                size=0.2)
+
+    if (!is.null(river)) {
         map = map +
-            geom_point(data=dataEXind_var_tmp,
-                       aes(x=XL93_m, y=YL93_m),
-                       color=dataEXind_var_tmp$color,
-                       fill=dataEXind_var_tmp$fill,
-                       shape=21, size=3,
-                       stroke=dataEXind_var_tmp$stroke)
+            geom_sf(data=river,
+                    color=INRAElightcyan,
+                    alpha=1,
+                    fill=NA,
+                    linewidth=0.3,
+                    na.rm=TRUE)
+    }
+
+    if (is_secteur) {
+        dataEXind_var = dplyr::rename(dataEXind_var,
+                                      CdSecteurH=Secteur)
+        secteurHydro = dplyr::inner_join(secteurHydro,
+                                         dataEXind_var,
+                                         by="CdSecteurH")
+        map = map +
+            geom_sf(data=secteurHydro,
+                    color=IPCCgrey99,
+                    size=0.1,
+                    fill=secteurHydro$fill)
+
+        map = map +
+            geom_sf(data=france,
+                    color=IPCCgrey99,
+                    fill=NA,
+                    linewidth=0.8)
+    }
+    
+    map = map +
+        geom_sf(data=france,
+                color=IPCCgrey50,
+                fill=NA,
+                linewidth=0.35)
+    
+    if (!is_secteur) {
+        for (l in level) {
+            dataEXind_var_tmp = dplyr::filter(dataEXind_var,
+                                              level==l)
+            map = map +
+                geom_point(data=dataEXind_var_tmp,
+                           aes(x=XL93_m, y=YL93_m),
+                           color=dataEXind_var_tmp$color,
+                           fill=dataEXind_var_tmp$fill,
+                           shape=21, size=3,
+                           stroke=dataEXind_var_tmp$stroke)
+        }
     }
 
 
     map = map +
-        # Allows to crop shapefile without graphical problem
         coord_sf(xlim=xlim, ylim=ylim,
                  expand=FALSE)
 
@@ -288,23 +312,28 @@ panel_criteria_map = function (dataEXind_model_var,
                      height=0.7,
                      verbose=verbose)
 
-    ca = panel_colorbar_circle(c(0, 1),
-                               c("transparent",
-                                 "transparent"),
-                               size_circle=2.2,
-                               d_line=0.1,
-                               linewidth=0.35,
-                               d_space=0,
-                               d_text=0.5,
-                               text_size=2.2,
-                               stroke=c(0.4, 0.5),
-                               color=c("grey75",
-                                       "grey30"),
-                               label=c("Aucun avertissement",
-                                       "Avertissement"),
-                               on_circle=TRUE,
-                               margin=margin(t=0.2, r=0.5, b=0.5, l=2.5,
-                                             "cm"))
+    if (!is_secteur) {
+        ca = panel_colorbar_circle(c(0, 1),
+                                   c("transparent",
+                                     "transparent"),
+                                   size_circle=2.2,
+                                   d_line=0.1,
+                                   linewidth=0.35,
+                                   d_space=0,
+                                   d_text=0.5,
+                                   text_size=2.8,
+                                   stroke=c(0.4, 0.5),
+                                   color=c("grey75",
+                                           "grey30"),
+                                   label=c("Aucun avertissement",
+                                           "Avertissement"),
+                                   on_circle=TRUE,
+                                   margin=margin(t=0.2, r=0.5,
+                                                 b=0.5, l=2.5,
+                                                 "cm"))
+    } else {
+        ca = void()
+    }
     herd = add_sheep(herd,
                      sheep=ca,
                      id="ca",
@@ -314,34 +343,39 @@ panel_criteria_map = function (dataEXind_model_var,
     
     if (grepl("KGE", var)) {
         label = bin
+        text_size = 3
         on_circle = FALSE
-        d_space = 0.1
+        d_space = 0.15
         margin = margin(t=1.5, r=0.5, b=2.5, l=5.5, "cm")
 
     } else if (grepl("(RAT)|(HYP)", var)) {
         bin = c(0, 1)
+        text_size = 2.7
         label = c("Test validé",
                   "Test non validé")
         on_circle = TRUE
         d_space = 0
-        margin = margin(t=3, r=0.5, b=4, l=4.3, "cm")
+        margin = margin(t=3.5, r=0, b=4.8, l=4, "cm")
 
     } else {
         label = NULL
+        text_size = 3
         on_circle = FALSE
-        d_space = 0.1
-        margin = margin(t=0.8, r=0.5, b=1.6, l=5.5, "cm")
+        d_space = 0.15
+        margin = margin(t=0.3, r=0.5, b=2.1, l=5.5, "cm")
     }
 
     cb = panel_colorbar_circle(bin,
                                Palette,
-                               size_circle=2.7,
+                               size_circle=3.3,
                                d_line=0.2,
                                linewidth=0.35,
                                d_space=d_space,
                                d_text=0.5,
-                               text_size=2.2,
+                               text_size=text_size,
                                label=label,
+                               colorText=IPCCgrey50,
+                               colorLine=IPCCgrey50,
                                on_circle=on_circle,
                                margin=margin)
     
