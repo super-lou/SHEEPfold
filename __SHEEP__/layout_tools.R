@@ -589,35 +589,35 @@ convert2TeX = function (Var, bold=TRUE) {
         }
 
         if (grepl("HYP", var)) {
-            var = gsub("HYP", "\\\\textit{H}", var)
+            var = gsub("HYP", "H", var)
         }
 
         if (grepl("inv", var) & !grepl("inv[{]", var)) {
-            var = gsub("inv", "\\\\textit{inv}", var)
+            var = gsub("inv", "\\\\small{\\\\textit{inv}}", var)
         } else if (grepl("inv", var) & grepl("inv[{]", var)) {
             var = gsub("[}]", "", var)
-            var = gsub("inv[{]", "\\\\textit{inv}", var)
+            var = gsub("inv[{]", "\\\\small{\\\\textit{inv}}", var)
         } 
 
         if (grepl("log", var) & !grepl("log[{]", var)) {
-            var = gsub("log", "\\\\textit{log}", var)
+            var = gsub("log", "\\\\small{\\\\textit{log}}", var)
         } else if (grepl("log", var) & grepl("log[{]", var)) {
             var = gsub("[}]", "", var)
-            var = gsub("log[{]", "\\\\textit{log}", var)
+            var = gsub("log[{]", "\\\\small{\\\\textit{log}}", var)
         } 
 
         if (grepl("moy", var) & !grepl("moy[{]", var)) {
-            var = gsub("moy", "\\\\textit{moy}", var)
+            var = gsub("moy", "\\\\small{\\\\textit{moy}}", var)
         } else if (grepl("moy", var) & grepl("moy[{]", var)) {
             var = gsub("[}]", "", var)
-            var = gsub("moy[{]", "\\\\textit{moy}", var)
+            var = gsub("moy[{]", "\\\\small{\\\\textit{moy}}", var)
         } 
 
         if (grepl("med", var) & !grepl("med[{]", var)) {
-            var = gsub("med", "\\\\textit{med}", var)
+            var = gsub("med", "\\\\small{\\\\textit{med}}", var)
         } else if (grepl("med", var) & grepl("med[{]", var)) {
             var = gsub("[}]", "", var)
-            var = gsub("med[{]", "\\\\textit{med}", var)
+            var = gsub("med[{]", "\\\\small{\\\\textit{med}}", var)
         } 
         
         if (grepl("racine", var) & !grepl("racine[{]", var)) {
@@ -628,17 +628,17 @@ convert2TeX = function (Var, bold=TRUE) {
         }
 
         if (grepl("ips", var) & !grepl("ips[{]", var)) {
-            var = gsub("ips", "\\\\textit{ips}", var)
+            var = gsub("ips", "\\\\small{\\\\textit{ips}}", var)
         } else if (grepl("ips", var) & grepl("ips[{]", var)) {
             var = gsub("[}]", "", var)
-            var = gsub("ips[{]", "\\\\textit{ips}", var)
+            var = gsub("ips[{]", "\\\\small{\\\\textit{ips}}", var)
         }
 
         if (grepl("biais", var) & !grepl("biais[{]", var)) {
-            var = gsub("biais", "\\\\textit{biais}", var)
+            var = gsub("biais", "\\\\small{\\\\textit{biais}}", var)
         } else if (grepl("biais", var) & grepl("biais[{]", var)) {
             var = gsub("[}]", "", var)
-            var = gsub("biais[{]", "\\\\textit{biais}", var)
+            var = gsub("biais[{]", "\\\\small{\\\\textit{biais}}", var)
         }
         
         VarTEX[i] = var

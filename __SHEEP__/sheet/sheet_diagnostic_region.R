@@ -39,7 +39,8 @@ sheet_diagnostic_region = function (meta,
     void_height = 0.2
     medQJ_height = 7
     foot_height = 1.25
-    criteria_height = 29.7 - 0.5*2 - info_height - void_height - medQJ_height*2 - foot_height
+    criteria_height = 11.45
+    # criteria_height = 29.7 - 0.5*2 - info_height - void_height - medQJ_height*2 - foot_height
     
     medQJ_width = 10
     
@@ -47,8 +48,7 @@ sheet_diagnostic_region = function (meta,
         "info", "void", "medQJ_1", "medQJ_025", "criteria", "foot",
         "info", "void", "medQJ_075", "medQJ_0", "criteria", "foot"),
         ncol=2)
-    WIP = FALSE
-
+    
 
     Model = levels(factor(dataEXind$Model))
     nModel = length(Model)
@@ -225,7 +225,7 @@ sheet_diagnostic_region = function (meta,
                          verbose=verbose)
 
 
-        footName = 'Fiche région de diagnostic'
+        footName = 'Fiche de diagnostic région'
         if (is.null(df_page)) {
             n_page = i
         } else {

@@ -49,8 +49,8 @@ panel_diagnostic_criteria = function (dataEXind,
     NP = length(Probs)
     
     ## 1. PARAMETERS _____________________________________________________
-    dl_grid=0.10
-    dr_grid=0.10
+    dl_grid=0.1
+    dr_grid=0.1
 
     dspace_label = 0.12
     dspace_grid = 0.13
@@ -114,14 +114,18 @@ panel_diagnostic_criteria = function (dataEXind,
     dx_arrow = 0.8
     ech_bar = 5.5
 
-    perfect_tick_val = list("(KGE)|(NSE)|(r)"=c(1),
-                            "^Biais$"=c(0),
-                            "(^epsilon)|(^alpha)"=c(1),
-                            "default"=c(0))
+    perfect_tick_val = list("(KGE)|(NSE)|(r)"=1,
+                            "^Biais$"=0,
+                            "(^epsilon)|(^alpha)|(^a)"=1,
+                            "Q10"=0,
+                            "Q90"=0,
+                            "default"=0)
     
     major_tick_val = list("(KGE)|(NSE)|(r)"=c(0.5),
                           "^Biais$"=c(-0.2, 0.2),
-                          "(^epsilon)|(^alpha)"=c(0.5, 2),
+                          "(^epsilon)|(^alpha)|(^a)"=c(0.5, 2),
+                          "Q10"=c(-0.2, 0.2),
+                          "Q90"=c(-0.8, 0.8),
                           "default"=c(-1, 1))
     
     minor_tick_val =
@@ -129,8 +133,12 @@ panel_diagnostic_criteria = function (dataEXind,
                  c(0, 0.1, 0.2, 0.3, 0.4, 0.6, 0.7, 0.8, 0.9),
              "^Biais$"=
                  c(-0.5, -0.4, -0.3, -0.1, 0.1, 0.3, 0.4, 0.5),
-             "(^epsilon)|(^alpha)"=
+             "(^epsilon)|(^alpha)|(^a)"=
                  c(0, 0.2, 0.4, 0.6, 0.8, 1.2, 1.4, 1.6, 1.8),
+             "Q10"=
+                 c(-1, -0.8, -0.6, -0.4, 0.4, 0.6, 0.8, 1),
+             "Q90"=
+                 c(-1, -0.6, -0.4, -0.2, 0.2, 0.4, 0.6, 1),
              "default"=
                  c(-0.8, -0.6, -0.4, -0.2, 0.2, 0.4, 0.6, 0.8))
 
@@ -240,8 +248,6 @@ panel_diagnostic_criteria = function (dataEXind,
 
     dataEXind = dplyr::select(dataEXind, vars2keep)
 
-    # print(dataEXind)
-    
     CodeIN = c(codeLight, groupCode)
     
     Model = levels(factor(dataEXind$Model[dataEXind$Code %in% CodeIN]))
@@ -254,22 +260,13 @@ panel_diagnostic_criteria = function (dataEXind,
     }
 
     nModel = length(Model)
-
-    print(dataEXind)
     
     dataEXind_tmp = dataEXind
     dataEXind_tmp = dplyr::select(dataEXind_tmp, -c(Code, Model))
 
-    # print(metaEXind)
-    
     matchVar = match(names(dataEXind_tmp), metaEXind$var)
     matchVar = matchVar[!is.na(matchVar)]
 
-    # print(names(dataEXind_tmp))
-    # print(metaEXind$var)
-    # print(matchVar)
-
-    # print("")
     dataEXind_tmp = dataEXind_tmp[matchVar]
 
     nameCol = names(dataEXind_tmp)
@@ -279,7 +276,11 @@ panel_diagnostic_criteria = function (dataEXind,
     VarTeX = convert2TeX(Var)
         
     Code = levels(factor(dataEXind$Code))    
-    id_save = ""
+    perfect_tick_save = ""
+    major_tick_save = Inf
+    # major_tick_next = Inf
+    min_tick_save = -Inf
+    max_tick_save = Inf
     space = 0
     Spaces = c()
 
@@ -307,6 +308,12 @@ panel_diagnostic_criteria = function (dataEXind,
     for (i in 1:nVar) {
         var = Var[i]
 
+        if (i == nVar) {
+            dr_grid_tmp = 0
+        } else {
+            dr_grid_tmp = dspace_grid/2
+        }
+
         varRAW = gsub("[{]", "[{]", var)
         varRAW = gsub("[}]", "[}]", varRAW)
         varRAW = gsub("[_]", "[_]", varRAW)
@@ -318,20 +325,59 @@ panel_diagnostic_criteria = function (dataEXind,
             id = names(perfect_tick_val)[id]
         }
 
-        perfect_tick = perfect_tick_val[[id]]
+        perfect_tick = perfect_tick_val[[id]]        
         major_tick = major_tick_val[[id]]
         minor_tick = minor_tick_val[[id]]
         norm = norm_tick_info[id]
         shift = shift_tick_info[id]
-        
-        if (id != id_save) {
+        min_tick = min(c(perfect_tick, major_tick, minor_tick))
+        max_tick = max(c(perfect_tick, major_tick, minor_tick))
 
-            space = space + dspace_label
+
+        if (i < nVar) {
+            var_next = Var[i+1]
+
+            varRAW_next = gsub("[{]", "[{]", var_next)
+            varRAW_next = gsub("[}]", "[}]", varRAW_next)
+            varRAW_next = gsub("[_]", "[_]", varRAW_next)
             
+            id_next = sapply(names(perfect_tick_val), grepl, x=varRAW_next)
+            if (all(!id_next)) {
+                id_next = "default"
+            } else {
+                id_next = names(perfect_tick_val)[id_next]
+            }
+            perfect_tick_next = perfect_tick_val[[id_next]]        
+            major_tick_next = major_tick_val[[id_next]]
+            minor_tick_next = minor_tick_val[[id_next]]
+            min_tick_next = min(c(perfect_tick_next,
+                                  major_tick_next,
+                                  minor_tick_next))
+            max_tick_next = max(c(perfect_tick_next,
+                                  major_tick_next,
+                                  minor_tick_next))
+        }
+        
+
+        if (perfect_tick == perfect_tick_next) {
+            dr_grid_tmp = dspace_grid/2
+        } else {
+            dr_grid_tmp = dr_grid
+        }
+        
+        if (perfect_tick != perfect_tick_save |
+            min_tick != min_tick_save |
+            max_tick != max_tick_save) {
+
+            i_block = i
+            major_tick_block = major_tick
+            
+            space = space + dspace_label
+
             Ind = Ind +
                 annotate("rect",
                          xmin=(i-1+dl_grid+space)*ech_x,
-                         xmax=(i-dr_grid+space)*ech_x,
+                         xmax=(i-dr_grid_tmp+space)*ech_x,
                          ymin=(max(c(major_tick,
                                      perfect_tick))+shift)*norm,
                          ymax=ymax_grid + dy_rect*ech_bar,
@@ -339,7 +385,7 @@ panel_diagnostic_criteria = function (dataEXind,
                          size=0) +
                 annotate("rect",
                          xmin=(i-1+dl_grid+space)*ech_x,
-                         xmax=(i-dr_grid+space)*ech_x,
+                         xmax=(i-dr_grid_tmp+space)*ech_x,
                          ymin=ymin_grid - dy_rect*ech_bar,
                          ymax=(min(c(major_tick,
                                    perfect_tick))+shift)*norm,
@@ -360,7 +406,7 @@ panel_diagnostic_criteria = function (dataEXind,
                 Ind = Ind +
                     annotate("line",
                              x=c(i-1+dl_grid+space,
-                                 i-dr_grid+space)*ech_x,
+                                 i-dr_grid_tmp+space)*ech_x,
                              y=(c(t, t)+shift)*norm,
                              color=IPCCgrey60,
                              size=0.4,
@@ -371,7 +417,7 @@ panel_diagnostic_criteria = function (dataEXind,
                 Ind = Ind +
                     annotate("line",
                              x=c(i-1+dl_grid+space,
-                                 i-dr_grid+space)*ech_x,
+                                 i-dr_grid_tmp+space)*ech_x,
                              y=(c(t, t)+shift)*norm,
                              color=IPCCgrey60,
                              size=0.2,
@@ -382,7 +428,7 @@ panel_diagnostic_criteria = function (dataEXind,
                 Ind = Ind +
                     annotate("line",
                              x=c(i-1+dl_grid+space,
-                                 i-dr_grid+space)*ech_x,
+                                 i-dr_grid_tmp+space)*ech_x,
                              y=(c(t, t)+shift)*norm,
                              color=IPCCgrey85,
                              size=0.2,
@@ -400,47 +446,26 @@ panel_diagnostic_criteria = function (dataEXind,
                              vjust=0.57,
                              color=IPCCgrey40,
                              size=2.2)
-            }
-            
-            for (t in major_tick) {
-                Ind = Ind +
-                    annotate("text",
-                             x=(i-1-dx_label+space)*ech_x,
-                             y=(t+shift)*norm,
-                             label=t,
-                             hjust=1,
-                             vjust=0.55,
-                             color=IPCCgrey40,
-                             size=2.2)
-            }
-            
-            for (t in minor_tick) {
-                Ind = Ind +
-                    annotate("text",
-                             x=(i-1-dx_label+space)*ech_x,
-                             y=(t+shift)*norm,
-                             label=t,
-                             hjust=1,
-                             vjust=0.49,
-                             color=IPCCgrey67,
-                             size=2)
-            }
+            }                       
+
             
         } else {
+            
+            major_tick_block = c(major_tick_block, major_tick)
             space = space - dspace_grid
-
+            
             Ind = Ind +
                 annotate("rect",
-                         xmin=(i-1-dr_grid+space)*ech_x,
-                         xmax=(i-dr_grid+space)*ech_x,
+                         xmin=(i-1+dspace_grid/2+space)*ech_x,
+                         xmax=(i-dr_grid_tmp+space)*ech_x,
                          ymin=(max(c(major_tick,
                                      perfect_tick))+shift)*norm,
                          ymax=ymax_grid + dy_rect*ech_bar,
                          fill=IPCCgrey99,
                          size=0) +
                 annotate("rect",
-                         xmin=(i-1-dr_grid+space)*ech_x,
-                         xmax=(i-dr_grid+space)*ech_x,
+                         xmin=(i-1+dspace_grid/2+space)*ech_x,
+                         xmax=(i-dr_grid_tmp+space)*ech_x,
                          ymin=ymin_grid - dy_rect*ech_bar,
                          ymax=(min(c(major_tick,
                                      perfect_tick))+shift)*norm,
@@ -450,8 +475,8 @@ panel_diagnostic_criteria = function (dataEXind,
             for (t in perfect_tick) {
                 Ind = Ind +
                     annotate("line",
-                             x=c(i-1-dr_grid+space,
-                                 i-dr_grid+space)*ech_x,
+                             x=c(i-1+dspace_grid/2+space,
+                                 i-dr_grid_tmp+space)*ech_x,
                              y=(c(t, t)+shift)*norm,
                              color=IPCCgrey60,
                              size=0.4,
@@ -460,8 +485,8 @@ panel_diagnostic_criteria = function (dataEXind,
             for (t in major_tick) {
                 Ind = Ind +
                     annotate("line",
-                             x=c(i-1-dr_grid+space,
-                                 i-dr_grid+space)*ech_x,
+                             x=c(i-1+dspace_grid/2+space,
+                                 i-dr_grid_tmp+space)*ech_x,
                              y=(c(t, t)+shift)*norm,
                              color=IPCCgrey60,
                              size=0.2,
@@ -470,16 +495,55 @@ panel_diagnostic_criteria = function (dataEXind,
             for (t in minor_tick) {
                 Ind = Ind +
                     annotate("line",
-                             x=c(i-1-dr_grid+space,
-                                 i-dr_grid+space)*ech_x,
+                             x=c(i-1+dspace_grid/2+space,
+                                 i-dr_grid_tmp+space)*ech_x,
                              y=(c(t, t)+shift)*norm,
                              color=IPCCgrey85,
                              size=0.2,
                              lineend="round")
             }
-        }
-        id_save = id
+        }        
+
+        perfect_tick_save = perfect_tick
+        major_tick_save = major_tick
+        min_tick_save = min_tick
+        max_tick_save = max_tick
         Spaces = c(Spaces, space)
+
+        
+        if (perfect_tick != perfect_tick_next |
+            min_tick != min_tick_next |
+            max_tick != max_tick_next |
+            i == nVar) {
+
+            major_tick_block = major_tick_block[!duplicated(major_tick_block)]
+            
+            for (t in major_tick_block) {
+                Ind = Ind +
+                    annotate("text",
+                             x=(i_block-1-dx_label+Spaces[i_block])*ech_x,
+                             y=(t+shift)*norm,
+                             label=t,
+                             hjust=1,
+                             vjust=0.55,
+                             color=IPCCgrey40,
+                             size=2.2)
+            }
+
+            minor_tick_block = minor_tick[!(minor_tick %in% major_tick_block)]
+            
+            for (t in minor_tick_block) {
+                Ind = Ind +
+                    annotate("text",
+                             x=(i_block-1-dx_label+Spaces[i_block])*ech_x,
+                             y=(t+shift)*norm,
+                             label=t,
+                             hjust=1,
+                             vjust=0.49,
+                             color=IPCCgrey67,
+                             size=2)
+            } 
+        }
     }
 
     for (i in 1:nVar) {

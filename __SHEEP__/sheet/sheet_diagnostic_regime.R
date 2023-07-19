@@ -33,17 +33,18 @@ sheet_diagnostic_regime = function (meta,
                                     figdir="",
                                     verbose=FALSE) {
 
-    page_margin = c(t=0.5, r=1, b=0.5, l=1)
+    page_margin = c(t=0.5, r=0.5, b=0.5, l=0.5)
     
     info_height = 3
     void_height = 0.2
     medQJ_height = 7
     foot_height = 1.25
-    criteria_height = 29.7 - 0.5*2 - info_height - void_height - medQJ_height*2 - foot_height
-    
-    medQJ_width = 10
-    
+    criteria_height = 11.45
+    # criteria_height = 29.7 - 0.5*2 - info_height - void_height - medQJ_height*2 - foot_height
 
+    info_width = 20
+    # medQJ_width = 10
+    
     plan = matrix(c(
         "info", "void", "medQJ_1", "medQJ_025", "criteria", "foot",
         "info", "void", "medQJ_075", "medQJ_0", "criteria", "foot"),
@@ -135,6 +136,16 @@ sheet_diagnostic_regime = function (meta,
             dataEXserieQM_obs_detail =
                 dataEXserieQM_obs[dataEXserieQM_obs$Code %in%
                                   Code_detail,]
+
+            dataEXserieQM_obs_detail =
+                dplyr::mutate(dplyr::group_by(
+                                         dataEXserieQM_obs_detail,
+                                         Code),
+                              QM=QM/sum(QM, na.rm=TRUE))
+
+            dataEXserieQM_obs_detail =
+                dplyr::ungroup(dataEXserieQM_obs_detail)
+            
             dataEXserieQM_obs_detail_med =
                 dplyr::summarise(dplyr::group_by(
                                             dataEXserieQM_obs_detail,
@@ -235,7 +246,7 @@ sheet_diagnostic_regime = function (meta,
                              id=paste0("medQJ", "_",
                                        gsub("[.]", "", prob)),
                              height=medQJ_height,
-                             width=medQJ_width,
+                             # width=medQJ_width,
                              verbose=verbose)
         }
         

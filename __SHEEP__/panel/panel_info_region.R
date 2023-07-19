@@ -67,7 +67,7 @@ panel_info_region = function(meta,
         text2 = paste0("<b>", length(meta_region$Code),
                        " stations de référence", "</b>")
         gtext2 = richtext_grob(text2,
-                               x=0, y=1,
+                               x=0, y=1.1,
                                margin=unit(c(t=0, r=0, b=0, l=0),
                                            "mm"),
                                hjust=0, vjust=1,
@@ -128,12 +128,12 @@ panel_info_region = function(meta,
     herd = add_sheep(herd,
                      sheep=gtext1,
                      id="text1",
-                     height=0.625,
+                     height=0.35,
                      verbose=verbose)
     herd = add_sheep(herd,
                      sheep=gtext2,
                      id="text2",
-                     height=0.78,
+                     height=0.35,
                      verbose=verbose)
     herd = add_sheep(herd,
                      sheep=gtext3,
@@ -145,9 +145,6 @@ panel_info_region = function(meta,
                      id="map",
                      height=1,
                      verbose=verbose)
-    
-    # herd = shear_sheeps(herd,
-    #                     verbose=verbose)
     
     return (herd)
 }  

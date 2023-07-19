@@ -48,7 +48,6 @@ sheet_diagnostic_couche = function (meta,
         "info", "void", "medQJ_1", "medQJ_025", "criteria", "foot",
         "info", "void", "medQJ_075", "medQJ_0", "criteria", "foot"),
         ncol=2)
-    WIP = FALSE
 
     Model = levels(factor(dataEXind$Model))
     nModel = length(Model)
@@ -242,7 +241,7 @@ sheet_diagnostic_couche = function (meta,
                          verbose=verbose)
 
 
-        footName = "Fiche entité piezométrique de diagnostic"
+        footName = "Fiche de diagnostic piézomètres"
         if (is.null(df_page)) {
             n_page = i
         } else {

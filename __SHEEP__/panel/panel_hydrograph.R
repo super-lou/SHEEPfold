@@ -23,6 +23,7 @@
 #' @title Hydrograph panel
 #' @export
 panel_hydrograph = function (QM_code, regimeLight, period=NULL,
+                             legend="QM ($m^{3}.s^{-1}$)",
                              ratio_title=1/4,
                              varAbove=FALSE,
                              margin_title=margin(t=0, r=0,
@@ -39,7 +40,7 @@ panel_hydrograph = function (QM_code, regimeLight, period=NULL,
             annotate("text",
                      x=0,
                      y=1,
-                     label=TeX("QM ($m^{3}.s^{-1}$)"),
+                     label=TeX(legend),
                      size=3, hjust=0, vjust=1,
                      color=IPCCgrey40) +
             annotate("text",
@@ -51,10 +52,10 @@ panel_hydrograph = function (QM_code, regimeLight, period=NULL,
     } else {
         title = title +
             annotate("text",
-                     x=0,
+                     x=1,
                      y=1,
                      label=regimeLight,
-                     size=2.5, hjust=0, vjust=1,
+                     size=2.5, hjust=1, vjust=1,
                      color=IPCCgrey40)
     }
     
@@ -104,7 +105,7 @@ panel_hydrograph = function (QM_code, regimeLight, period=NULL,
             theme(axis.title.y=element_text(size=7.2,
                                             vjust=0, hjust=0.5,
                                             color=IPCCgrey40)) + 
-            ylab(TeX("QM ($m^{3}.s^{-1}$)"))
+            ylab(TeX(legend))
     }
     
     hyd = hyd +

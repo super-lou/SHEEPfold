@@ -47,12 +47,11 @@ sheet_diagnostic_station = function (data,
     medQJ_width = 10
     CDC_width = 10
 
-    
     plan = matrix(c(
         "info", "chronicle", "QA", "medQJ", "criteria", "foot",
         "info", "chronicle", "QA", "CDC", "criteria", "foot"),
         ncol=2)
-    WIP = FALSE
+
     
     data_obs =
         dplyr::summarise(dplyr::group_by(data, Code, Date),
@@ -335,7 +334,7 @@ sheet_diagnostic_station = function (data,
         # print("criteria")
         # print(herd)
 
-        footName = 'Fiche station de référence'
+        footName = 'Fiche de diagnostic station'
         if (is.null(df_page)) {
             n_page = i
         } else {

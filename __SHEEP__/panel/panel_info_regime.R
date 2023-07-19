@@ -36,18 +36,20 @@ panel_info_regime = function(QM_code,
             hyd1 = panel_hydrograph(
                 QM_code[[1]],
                 names(QM_code)[1],
+                legend="CM",
                 ratio_title=1/7,
-                margin_title=margin(t=0, r=0, b=0, l=10,
+                margin_title=margin(t=0, r=0, b=0, l=4,
                                     unit="mm"),
-                margin_hyd=margin(t=1, r=0, b=0, l=1,
+                margin_hyd=margin(t=1, r=0, b=0, l=3,
                                   unit="mm"))
             hyd2 = panel_hydrograph(
                 QM_code[[2]],
                 names(QM_code)[2],
+                legend="CM",
                 ratio_title=1/7,
-                margin_title=margin(t=0, r=0, b=0, l=14,
+                margin_title=margin(t=0, r=0, b=0, l=4,
                                     unit="mm"),
-                margin_hyd=margin(t=1, r=0, b=0, l=5,
+                margin_hyd=margin(t=1, r=0, b=0, l=3,
                                   unit="mm"))
         } else {
             if (!is.list(QM_code)) {
@@ -57,10 +59,11 @@ panel_info_regime = function(QM_code,
             hyd2 = panel_hydrograph(
                 QM_code[[1]],
                 names(QM_code)[1],
+                legend="CM",
                 ratio_title=1/7,
-                margin_title=margin(t=0, r=0, b=0, l=14,
+                margin_title=margin(t=0, r=0, b=0, l=4,
                                     unit="mm"),
-                margin_hyd=margin(t=1, r=0, b=0, l=5,
+                margin_hyd=margin(t=1, r=0, b=0, l=3,
                                   unit="mm"))
         }
     # Otherwise
