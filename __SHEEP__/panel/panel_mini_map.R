@@ -160,7 +160,7 @@ panel_mini_map = function (meta, Shapefiles,
                        aes(x=L93X, y=L93Y),
                        shape=21, size=1.4, stroke=0.3,
                        color="white",
-                       fill=INRAEcyan)
+                       fill=refCOL)
     }
 
     if (!is.null(regionLight)) {

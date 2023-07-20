@@ -21,11 +21,13 @@
 
 
 sheet_correlation_matrix = function (dataEX, metaEX,
-                                    ModelGroup=NULL,
-                                    icon_path="", logo_path="",
-                                    df_page=NULL,
-                                    figdir='',
-                                    verbose=FALSE) {
+                                     ModelGroup=NULL,
+                                     Colors=NULL,
+                                     subtitle=NULL,
+                                     icon_path="", logo_path="",
+                                     df_page=NULL,
+                                     figdir='',
+                                     verbose=FALSE) {
 
     if (is.null(ModelGroup)) {
         Model = levels(factor(dataEX$Model))
@@ -36,17 +38,16 @@ sheet_correlation_matrix = function (dataEX, metaEX,
 
     page_margin = c(t=0.5, r=0.5, b=0.5, l=0.5)
     
-    info_height = 1
+    title_height = 1
     cb_height = 1.25
     ssg_height = 1.25
     si_height = 1.25
     foot_height = 1.25
     
     cm_height = 29.7 - page_margin["t"] - page_margin["b"] -
-        info_height - cb_height - si_height - foot_height
+        title_height - cb_height - si_height - foot_height
     cm_width = 21 - page_margin["l"] - page_margin["r"]
     
-
 
     cm_margin = margin(t=1, r=0, b=2, l=1.75, "cm")
     cb_margin = margin(t=0, r=2, b=0.4, l=1.2, "cm")
@@ -54,10 +55,10 @@ sheet_correlation_matrix = function (dataEX, metaEX,
     si_margin = margin(t=0.3, r=3.5, b=0.4, l=0, "cm")
     
 
-    plan = matrix(c("info", "cm", "cb", "ssg", "foot",
-                    "info", "cm", "cb", "si", "foot",
-                    "info", "cm", "void", "void", "foot",
-                    "info", "cm", "void", "void", "foot"),
+    plan = matrix(c("title", "cm", "cb", "ssg", "foot",
+                    "title", "cm", "cb", "si", "foot",
+                    "title", "cm", "void", "void", "foot",
+                    "title", "cm", "void", "void", "foot"),
                   ncol=4)
     WIP = FALSE
 
@@ -90,18 +91,37 @@ sheet_correlation_matrix = function (dataEX, metaEX,
         
         dataEX_model = dataEX[dataEX$Model %in% Model,]
 
-        text = paste0(
-            "<b>Matrice de corrélation des critères d'évaluation</b><br>",
-            Model2Disp)
-        info = richtext_grob(text,
-                             x=0, y=1,
-                             margin=unit(c(t=0, r=0, b=0, l=0), "mm"),
-                             hjust=0, vjust=1,
-                             gp=gpar(col="#00A3A8", fontsize=16))
+
+
+        
+        if (is.null(Colors) | !(Model2Disp %in% names(Colors))) {
+            model_color = refCOL
+        } else {
+            model_color = Colors[names(Colors) == Model2Disp]
+        }
+
+        title = paste0("<b style='font-size:16pt; color:", refCOL, "'>",
+                       "Matrice de corrélation des critères d'évaluation", "</b>",
+                       "<br>",
+                       "<b style='font-size:14pt; color:", model_color, "'>", Model2Disp, "</b>")
+        if (!is.null(subtitle)) {
+            title = paste0(title, nbsp(1),
+                           "<span style='font-size:10pt; color:", model_color, "'>", subtitle, "</span>")
+        }
+        
+        title = richtext_grob(title,
+                              x=0, y=1,
+                              margin=unit(c(t=0, r=0, b=0, l=0), "mm"),
+                              hjust=0, vjust=1)
+
+
+
+
+        
         herd = add_sheep(herd,
-                         sheep=info,
-                         id="info",
-                         height=info_height,
+                         sheep=title,
+                         id="title",
+                         height=title_height,
                          verbose=verbose)
         
         cm = panel_correlation_matrix(dataEX_model,
@@ -209,8 +229,13 @@ sheet_correlation_matrix = function (dataEX, metaEX,
         plot = res$plot
         paper_size = res$paper_size
 
-        filename = paste0("matrice_correlation_", Model4Save, ".pdf")
-
+        if (!is.null(subtitle)) {
+            filename = paste0("matrice_correlation_", Model4Save, "_",
+                              gsub(" ", "_", subtitle), ".pdf")
+        } else {
+            filename = paste0("matrice_correlation_", Model4Save, ".pdf")
+        }
+        
         if (!(file.exists(figdir))) {
             dir.create(figdir, recursive=TRUE)
         }

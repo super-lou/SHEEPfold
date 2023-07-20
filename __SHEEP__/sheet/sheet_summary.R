@@ -114,37 +114,37 @@ sheet_summary = function (df_page, title="title", subtitle="subtitle", logo_path
                            x=0, y=1,
                            margin=unit(c(t=0, r=0, b=0, l=0), "mm"),
                            hjust=0, vjust=1,
-                           gp=gpar(col="#00A3A8", fontsize=20))
+                           gp=gpar(col=refCOL, fontsize=20))
 
     gsubtitle = richtext_grob(text_subtitle,
                               x=0, y=1,
                               margin=unit(c(t=0, r=0, b=0, l=0), "mm"),
                               hjust=0, vjust=1,
-                              gp=gpar(col="#00A3A8", fontsize=15))
+                              gp=gpar(col=refCOL, fontsize=15))
 
     gsum1 = richtext_grob(text_sum1,
                           x=0, y=1,
                           margin=unit(c(t=0, r=0, b=0, l=0), "mm"),
                           hjust=0, vjust=1,
-                          gp=gpar(col="#00A3A8", fontsize=10))
+                          gp=gpar(col=refCOL, fontsize=10))
     
     gpage1 = richtext_grob(text_page1,
                            x=0, y=1,
                            margin=unit(c(t=0, r=0, b=0, l=0), "mm"),
                            hjust=0, vjust=1,
-                           gp=gpar(col="#00A3A8", fontsize=10))
+                           gp=gpar(col=refCOL, fontsize=10))
 
     gsum2 = richtext_grob(text_sum2,
                           x=0, y=1,
                           margin=unit(c(t=0, r=0, b=0, l=0), "mm"),
                           hjust=0, vjust=1,
-                          gp=gpar(col="#00A3A8", fontsize=10))
+                          gp=gpar(col=refCOL, fontsize=10))
     
     gpage2 = richtext_grob(text_page2,
                            x=0, y=1,
                            margin=unit(c(t=0, r=0, b=0, l=0), "mm"),
                            hjust=0, vjust=1,
-                           gp=gpar(col="#00A3A8", fontsize=10))
+                           gp=gpar(col=refCOL, fontsize=10))
     
     
     # If there is a foot note

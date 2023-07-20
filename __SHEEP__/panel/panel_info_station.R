@@ -64,18 +64,18 @@ panel_info_station = function(data_code,
     if ('title' %in% to_do | 'all' %in% to_do) {
         # Converts all texts to graphical object in the right position
         gtext1 = richtext_grob(
-            paste0("<b style='font-size:14pt; color:", INRAEcyan, "'>",
+            paste0("<b style='font-size:14pt; color:", refCOL, "'>",
                    codeLight, "</b>",
                    nbsp(1),
-                   "<span style='font-size:14pt; color:", INRAEcyan, "'>", "-", "</span>",
+                   "<span style='font-size:14pt; color:", refCOL, "'>", "-", "</span>",
                    nbsp(1),
-                   "<span style='font-size:14pt; color:", INRAEcyan, "'>",
+                   "<span style='font-size:14pt; color:", refCOL, "'>",
                    meta_code$Nom, "</span>"),
             x=0, y=1,
             margin=unit(c(t=0, r=5, b=0, l=0),
                         "mm"),
             hjust=0, vjust=1)
-                               # gp=gpar(col=INRAEcyan, fontsize=14))
+                               # gp=gpar(col=refCOL, fontsize=14))
     } else if ('short_title' %in% to_do) {
         # Name of the datasheet
         text1 = paste(
@@ -87,7 +87,7 @@ panel_info_station = function(data_code,
                                margin=unit(c(t=0, r=5, b=0, l=0),
                                            "mm"),
                                hjust=0, vjust=1,
-                               gp=gpar(col=INRAEcyan, fontsize=14))
+                               gp=gpar(col=refCOL, fontsize=14))
     } else {
         gtext1 = void()
     }
@@ -105,7 +105,7 @@ panel_info_station = function(data_code,
                                margin=unit(c(t=0, r=0, b=0, l=0),
                                            "mm"),
                                hjust=0, vjust=1,
-                               gp=gpar(col=INRAEcyan, fontsize=8))
+                               gp=gpar(col=refCOL, fontsize=8))
     } else {
         gtext2 = void()
     }

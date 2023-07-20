@@ -33,7 +33,7 @@ panel_foot = function (name, n_page, foot_height, logo_path) {
     #                            x=0, y=0.5,
     #                            margin=unit(c(t=0, r=0, b=0, l=0), "mm"),
     #                            hjust=0, vjust=0.5,
-    #                            gp=gpar(col="#00A3A8", fontsize=8))
+    #                            gp=gpar(col=refCOL, fontsize=8))
     
     # P[[1]] = gtext_name
     P[[1]] = void()
@@ -97,13 +97,13 @@ panel_foot = function (name, n_page, foot_height, logo_path) {
                                x=1, y=0,
                                margin=unit(c(t=0, r=0, b=0, l=0), "mm"),
                                hjust=1, vjust=0.5,
-                               gp=gpar(col="#00A3A8", fontsize=8))
+                               gp=gpar(col=refCOL, fontsize=8))
 
     gtext_date = richtext_grob(text_date,
                                x=1, y=0.55,
                                margin=unit(c(t=0, r=0, b=0, l=0), "mm"),
                                hjust=1, vjust=0.5,
-                               gp=gpar(col="#00A3A8", fontsize=6))
+                               gp=gpar(col=refCOL, fontsize=6))
 
     P[[nLogo+2]] = gtext_page
     LM_row1 = c(LM_row, nLogo+2)

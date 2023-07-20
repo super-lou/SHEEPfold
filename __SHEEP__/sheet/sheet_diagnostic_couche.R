@@ -21,7 +21,8 @@
 
 
 
-sheet_diagnostic_couche = function (meta,
+sheet_diagnostic_couche = function (data,
+                                    meta,
                                     dataEXind,
                                     metaEXind,
                                     dataEXserie,
@@ -57,11 +58,12 @@ sheet_diagnostic_couche = function (meta,
 
     Couche = levels(factor(unlist(meta$Couche)))
     Couche = Couche[nchar(Couche) > 0]
-
+    # Couche = "348"
     nCouche = length(Couche)
 
     for (i in 1:nCouche) {
         couche = Couche[i]
+        
         Code_couche = Code[is_in_couche(meta$Couche, couche)]
         meta_couche = meta[is_in_couche(meta$Couche, couche),]
         couche_disp = paste0(couche)
@@ -162,36 +164,80 @@ sheet_diagnostic_couche = function (meta,
                                         Date="Date",
                                         Q_obs="medQJC5_obs",
                                         Q_sim="medQJC5_sim")
-                
-                medQJ = panel_spaghetti(dataMOD,
-                                        Colors,
-                                        title=title,
-                                        unit="m",
-                                        alpha=0.85,
-                                        isSqrt=FALSE,
-                                        missRect=FALSE,
-                                        isBack=FALSE,
-                                        isTitle=TRUE,
-                                        date_labels="%d %b",
-                                        breaks="3 months",
-                                        minor_breaks="1 months",
-                                        add_x_breaks=
-                                            as.Date("1970-12-31"),
-                                        Xlabel="",
-                                        limits_ymin=NA,
-                                        isBackObsAbove=TRUE,
-                                        lwObs=0.6,
-                                        lwObs_back=1,
-                                        lwSim=0.4,
-                                        lwSim_back=0.7,
-                                        grid=TRUE,
-                                        ratio_title=1/15,
-                                        margin_title=
-                                            margin(t=0, r=7, b=0, l=0, "mm"),
-                                        margin_spag=
-                                            margin(t=0, r=6, b=0, l=0, "mm"),
-                                        first=FALSE,
-                                        last=TRUE)
+
+                if (all(is.na(dataMOD$Q_obs))) {
+                    dataMOD =  data[data$Model == dataMOD$Model[1] & data$Code == code,]
+                    dataMOD = dplyr::rename(dataMOD,
+                                            Date="Date",
+                                            Q_obs="H_obs",
+                                            Q_sim="H_sim")
+
+                    title = paste0("(", letters[j],
+                                   ") Hauteur annuelle ",
+                                   "\\unit : ",
+                                   "\\textbf{", code, "}")
+                    
+                    medQJ = panel_spaghetti(
+                        dataMOD,
+                        Colors,
+                        title=title,
+                        unit="m",
+                        alpha=0.85,
+                        isSqrt=FALSE,
+                        missRect=FALSE,
+                        isBack=FALSE,
+                        isTitle=TRUE,
+                        date_labels="%Y",
+                        breaks="5 years",
+                        minor_breaks="1 years",
+                        Xlabel="",
+                        limits_ymin=NA,
+                        isBackObsAbove=TRUE,
+                        lwObs=0.6,
+                        lwObs_back=1,
+                        lwSim=0.4,
+                        lwSim_back=0.7,
+                        grid=TRUE,
+                        ratio_title=1/15,
+                        margin_title=
+                            margin(t=0, r=7, b=0, l=0, "mm"),
+                        margin_spag=
+                            margin(t=0, r=6, b=0, l=0, "mm"),
+                        first=FALSE,
+                        last=TRUE)
+                    
+                } else {
+                    medQJ = panel_spaghetti(
+                        dataMOD,
+                        Colors,
+                        title=title,
+                        unit="m",
+                        alpha=0.85,
+                        isSqrt=FALSE,
+                        missRect=FALSE,
+                        isBack=FALSE,
+                        isTitle=TRUE,
+                        date_labels="%d %b",
+                        breaks="3 months",
+                        minor_breaks="1 months",
+                        add_x_breaks=
+                            as.Date("1970-12-31"),
+                        Xlabel="",
+                        limits_ymin=NA,
+                        isBackObsAbove=TRUE,
+                        lwObs=0.6,
+                        lwObs_back=1,
+                        lwSim=0.4,
+                        lwSim_back=0.7,
+                        grid=TRUE,
+                        ratio_title=1/15,
+                        margin_title=
+                            margin(t=0, r=7, b=0, l=0, "mm"),
+                        margin_spag=
+                            margin(t=0, r=6, b=0, l=0, "mm"),
+                        first=FALSE,
+                        last=TRUE)
+                }
             }
             
             herd = add_sheep(herd,
@@ -206,7 +252,7 @@ sheet_diagnostic_couche = function (meta,
         herd$sheep$label[herd$sheep$id %in% c("medQJ_1.spag", "medQJ_025.spag")] = "align1"
         herd$sheep$label[herd$sheep$id %in% c("medQJ_075.spag", "medQJ_0.spag")] = "align2"
 
-        Warnings = "Les stations choisies pour illustrer les résultats à l'échelle régionale illustrent la variabilité des performances obtenues sur les hydrogrammes des débits journaliers médians (piézomètres associées aux maximum, quantile 75 % et    25 %, et minimum du KGE<i>biais</i>)."
+        Warnings = "Les stations choisies pour illustrer les résultats à l'échelle régionale illustrent la variabilité des performances obtenues sur les hydrogrammes des débits journaliers médians (piézomètres associées aux maximum, quantile 75 % et    25 %, et minimum du NSE<i>biais</i>)."
         
         criteria = panel_diagnostic_criteria(
             dataEXind,

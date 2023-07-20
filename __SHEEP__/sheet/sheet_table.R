@@ -727,7 +727,7 @@ sheet_table = function (list_df2plot, meta, trend_period,
                     annotate("text", x=xt, y=yt,
                              label=Title,
                              hjust=0, vjust=1, 
-                             size=6, color="#00A3A8")
+                             size=6, color=refCOL)
 
                 ### Trend ###
                 # For all the trend period
@@ -1298,12 +1298,12 @@ sheet_table = function (list_df2plot, meta, trend_period,
                         annotate('text', x=0.3, y=k + 0.14,
                                  label=bquote(bold(.(code))),
                                  hjust=1, vjust=0.5, 
-                                 size=3.5, color="#00A3A8") +
+                                 size=3.5, color=refCOL) +
                         # Writes the name of the station
                         annotate('text', x=0.3, y=k - 0.14,
                                  label=name,
                                  hjust=1, vjust=0.5, 
-                                 size=3.5, color="#00A3A8")
+                                 size=3.5, color=refCOL)
                 }
 
                 ### Environment ###

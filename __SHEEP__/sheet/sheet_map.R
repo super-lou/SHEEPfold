@@ -630,15 +630,15 @@ sheet_map = function (list_df2plot, meta, shapefile_list,
                     
                     # Plots separation lines
                     geom_line(aes(x=c(0, 9.7), y=c(84.4, 84.4)),
-                              size=0.6, color="#00A3A8") +
+                              size=0.6, color=refCOL) +
                     geom_line(aes(x=c(0, 9.7), y=c(Yline, Yline)),
-                              size=0.6, color="#00A3A8") +
+                              size=0.6, color=refCOL) +
                     # Writes title
                     geom_shadowtext(data=tibble(x=0, y=Ytitle,
                                                 label=var),
                                     aes(x=x, y=y, label=label),
                                     fontface="bold",
-                                    color="#00A3A8",
+                                    color=refCOL,
                                     bg.colour="white",
                                     hjust=0, vjust=0, size=10) +
                     
@@ -647,7 +647,7 @@ sheet_map = function (list_df2plot, meta, shapefile_list,
                                                 label=gloseName),
                                     aes(x=x, y=y, label=label),
                                     fontface="bold",
-                                    color="#00A3A8",
+                                    color=refCOL,
                                     bg.colour="white",
                                     hjust=0, vjust=0, size=3) +
     
@@ -1035,13 +1035,13 @@ peu altérés par les activités humaines."
                     
                     # Plots separation lines
                     geom_line(aes(x=c(0, 9.7), y=c(79.3, 79.3)),
-                              size=0.6, color="#00A3A8") +
+                              size=0.6, color=refCOL) +
                         
                     # Writes title
                     geom_shadowtext(data=plot_title,
                                     aes(x=x, y=y, label=label),
                                     fontface="bold",
-                                    color="#00A3A8",
+                                    color=refCOL,
                                     bg.colour="white",
                                     hjust=0, vjust=0, size=10) +
                     

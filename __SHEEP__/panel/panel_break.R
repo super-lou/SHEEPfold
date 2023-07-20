@@ -69,7 +69,7 @@ panel_break_histogram = function (df_break, meta, title='') {
               # Remove y title
               axis.title.y=element_blank(),
               # Title
-              plot.title = element_text(face="bold", colour="#00A3A8",
+              plot.title = element_text(face="bold", colour=refCOL,
                                         size=10, hjust=0, vjust=-0.1)) +
         
         # Title
@@ -78,12 +78,12 @@ panel_break_histogram = function (df_break, meta, title='') {
         # Plot bar for all data
         geom_bar(aes(x=mids, y=counts_pct), 
                  stat='identity',
-                 fill="#00A3A8", alpha=0.5) +
+                 fill=refCOL, alpha=0.5) +
         
         # Plot bar for significant data
         geom_bar(aes(x=midsOk, y=counts_pctOk), 
                  stat='identity',
-                 fill="#00A3A8") +
+                 fill=refCOL) +
        
         # X axis 
         scale_x_date(date_breaks=paste(as.character(datebreak), 
@@ -202,7 +202,7 @@ panel_break_cumulative = function (df_break, meta, title='', dyear=10) {
               # Remove y title
               axis.title.y=element_blank(),
               # Title
-              plot.title = element_text(face="bold", colour="#00A3A8",
+              plot.title = element_text(face="bold", colour=refCOL,
                                         size=10, hjust=0, vjust=-0.1)) +
         
         # Title
@@ -210,11 +210,11 @@ panel_break_cumulative = function (df_break, meta, title='', dyear=10) {
         
         # Plot line of cumulative sum for all data
         geom_line(aes(x=mids, y=cumul_pct), 
-                  color="#00A3A8", alpha=0.5) +
+                  color=refCOL, alpha=0.5) +
         
         # Plot line of cumulative sum for significant data
         geom_line(aes(x=midsOk, y=cumul_pctOk), 
-                  color="#00A3A8") +
+                  color=refCOL) +
         
         # Plot the median line
         geom_line(aes(x=c(q50, q50), y=c(0, max(cumul_pctOk))), 

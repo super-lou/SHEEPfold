@@ -151,11 +151,11 @@ panel_criteria_map = function (dataEXind_model_var,
         if (grepl("(Biais)|(^Q)|(^moyQ)|(^V)|(^BF)|(^med[{]v)|(^med[{]t)|(^med[{]debut)|(^med[{]centre)|(^med[{]fin)|(^med[{]dt)", var)) {
             center = 0
         }
-        if (grepl("(Rc)|(^epsilon)|(^alpha)|(STD)", var)) {
+        if (grepl("(Rc)|(^epsilon)|(^alpha)|(^a)|(STD)", var)) {
             center = 1
         }
 
-        if (grepl("(Biais)|(^Q)|(^alpha)|(^moyQ)|(^V)|(^BF)|(^med[{]v)", var)) {
+        if (grepl("(Biais)|(^Q)|(^alpha)|(^a)|(^moyQ)|(^V)|(^BF)|(^med[{]v)", var)) {
             reverse = FALSE
             name = "ground_8"
         }
@@ -191,7 +191,7 @@ panel_criteria_map = function (dataEXind_model_var,
         lim = c(-0.2, 0.2)
     } else if (grepl("(^Q)|(^med[{]t)", var)) {
         lim = c(-1, 1)
-    } else if (grepl("(^epsilon)|(^alpha)", var)) {
+    } else if (grepl("(^epsilon)|(^alpha)|(^a)", var)) {
         lim = c(0.5, 2)
     } else if (!grepl("(RAT)|(HYP)", var)) {
         lim = c(center-1, center+1)

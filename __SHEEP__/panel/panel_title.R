@@ -29,7 +29,7 @@ panel_title = function(title=NULL,
                          x=0, y=1,
                          margin=margin,
                          hjust=0, vjust=1,
-                         gp=gpar(col=INRAEcyan, fontsize=14))
+                         gp=gpar(col=refCOL, fontsize=14))
     
     return (plot)
 }  

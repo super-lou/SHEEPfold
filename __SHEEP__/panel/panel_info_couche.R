@@ -57,16 +57,16 @@ panel_info_couche = function(meta_couche,
         } else {
             sep = paste0(nbsp(1),
                          "<span style='font-size:14pt; color:",
-                         INRAEcyan,
+                         refCOL,
                          "'>", "-", "</span>",
                          nbsp(1))
         }
         
         # Converts all texts to graphical object in the right position
         gtext1 = richtext_grob(
-            paste0("<b style='font-size:14pt; color:", INRAEcyan, "'>",
+            paste0("<b style='font-size:14pt; color:", refCOL, "'>",
                    Nom, "</b>", sep,
-                   "<span style='font-size:14pt; color:", INRAEcyan, "'>",
+                   "<span style='font-size:14pt; color:", refCOL, "'>",
                    coucheLight, "</span>"),
             x=0, y=1,
             margin=unit(c(t=0, r=5, b=0, l=0),
@@ -87,7 +87,7 @@ panel_info_couche = function(meta_couche,
                                margin=unit(c(t=0, r=0, b=0, l=0),
                                            "mm"),
                                hjust=0, vjust=1,
-                               gp=gpar(col=INRAEcyan, fontsize=8))
+                               gp=gpar(col=refCOL, fontsize=8))
     } else {
         gtext2 = void()
     }

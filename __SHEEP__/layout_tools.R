@@ -554,8 +554,16 @@ guess_newline = function (text, px=40, nChar=100,
 
 
 
-convert2TeX = function (Var, bold=TRUE) {
+convert2TeX = function (Var, size="normalsize", is_it_small=FALSE, bold=TRUE) {
     nVar = length(Var)
+
+    if (is_it_small) {
+        ita = "\\\\small{"
+        itb = "}"
+    } else {
+        ita = ""
+        itb = ""
+    }
     
     VarTEX = gsub("etiage", "étiage", Var)
     for (i in 1:nVar) {
@@ -593,31 +601,47 @@ convert2TeX = function (Var, bold=TRUE) {
         }
 
         if (grepl("inv", var) & !grepl("inv[{]", var)) {
-            var = gsub("inv", "\\\\small{\\\\textit{inv}}", var)
+            var = gsub("inv",
+                       paste0(ita, "\\\\textit{inv}", itb),
+                       var)
         } else if (grepl("inv", var) & grepl("inv[{]", var)) {
             var = gsub("[}]", "", var)
-            var = gsub("inv[{]", "\\\\small{\\\\textit{inv}}", var)
+            var = gsub("inv[{]", 
+                       paste0(ita, "\\\\textit{inv}", itb),
+                       var)
         } 
 
         if (grepl("log", var) & !grepl("log[{]", var)) {
-            var = gsub("log", "\\\\small{\\\\textit{log}}", var)
+            var = gsub("log", 
+                       paste0(ita, "\\\\textit{log}", itb),
+                       var)
         } else if (grepl("log", var) & grepl("log[{]", var)) {
             var = gsub("[}]", "", var)
-            var = gsub("log[{]", "\\\\small{\\\\textit{log}}", var)
+            var = gsub("log[{]", 
+                       paste0(ita, "\\\\textit{log}", itb),
+                       var)
         } 
 
         if (grepl("moy", var) & !grepl("moy[{]", var)) {
-            var = gsub("moy", "\\\\small{\\\\textit{moy}}", var)
+            var = gsub("moy", 
+                       paste0(ita, "\\\\textit{moy}", itb),
+                       var)
         } else if (grepl("moy", var) & grepl("moy[{]", var)) {
             var = gsub("[}]", "", var)
-            var = gsub("moy[{]", "\\\\small{\\\\textit{moy}}", var)
+            var = gsub("moy[{]", 
+                       paste0(ita, "\\\\textit{moy}", itb),
+                       var)
         } 
 
         if (grepl("med", var) & !grepl("med[{]", var)) {
-            var = gsub("med", "\\\\small{\\\\textit{med}}", var)
+            var = gsub("med", 
+                       paste0(ita, "\\\\textit{med}", itb),
+                       var)
         } else if (grepl("med", var) & grepl("med[{]", var)) {
             var = gsub("[}]", "", var)
-            var = gsub("med[{]", "\\\\small{\\\\textit{med}}", var)
+            var = gsub("med[{]", 
+                       paste0(ita, "\\\\textit{med}", itb),
+                       var)
         } 
         
         if (grepl("racine", var) & !grepl("racine[{]", var)) {
@@ -628,23 +652,31 @@ convert2TeX = function (Var, bold=TRUE) {
         }
 
         if (grepl("ips", var) & !grepl("ips[{]", var)) {
-            var = gsub("ips", "\\\\small{\\\\textit{ips}}", var)
+            var = gsub("ips", 
+                       paste0(ita, "\\\\textit{ips}", itb),
+                       var)
         } else if (grepl("ips", var) & grepl("ips[{]", var)) {
             var = gsub("[}]", "", var)
-            var = gsub("ips[{]", "\\\\small{\\\\textit{ips}}", var)
+            var = gsub("ips[{]", 
+                       paste0(ita, "\\\\textit{ips}", itb),
+                       var)
         }
 
         if (grepl("biais", var) & !grepl("biais[{]", var)) {
-            var = gsub("biais", "\\\\small{\\\\textit{biais}}", var)
+            var = gsub("biais", 
+                       paste0(ita, "\\\\textit{biais}", itb),
+                       var)
         } else if (grepl("biais", var) & grepl("biais[{]", var)) {
             var = gsub("[}]", "", var)
-            var = gsub("biais[{]", "\\\\small{\\\\textit{biais}}", var)
+            var = gsub("biais[{]", 
+                       paste0(ita, "\\\\textit{biais}", itb),
+                       var)
         }
         
         VarTEX[i] = var
     }
 
-    # VarTEX = paste0("\\", font, "{", VarTEX, "}")
+    VarTEX = paste0("\\", size, "{", VarTEX, "}")
     
     if (bold) {
         VarTEX = paste0("\\textbf{", VarTEX, "}")

@@ -99,7 +99,7 @@ panel_info_regime = function(QM_code,
                                margin=unit(c(t=0, r=5, b=0, l=0),
                                            "mm"),
                                hjust=0, vjust=1,
-                               gp=gpar(col=INRAEcyan, fontsize=14))
+                               gp=gpar(col=refCOL, fontsize=14))
     } else {
         gtext1 = void()
     }
@@ -113,7 +113,7 @@ panel_info_regime = function(QM_code,
                                margin=unit(c(t=0, r=0, b=0, l=0),
                                            "mm"),
                                hjust=0, vjust=1,
-                               gp=gpar(col=INRAEcyan, fontsize=8))
+                               gp=gpar(col=refCOL, fontsize=8))
     } else {
         gtext2 = void()
     }

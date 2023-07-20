@@ -53,6 +53,14 @@ INRAEmediumcyan = "#008c8e"
 INRAEdarkcyan = "#275662"
 INRAElightblue = "#9ed6e3"
 
+EXPLORE2blue = "#007A92"
+EXPLORE2orange = "#EE7402"
+
+
+refCOL =
+    # INRAEcyan
+    EXPLORE2blue
+
 
 get_IPCC_Palette = function (palette_name, colorStep=NA, reverse=FALSE) {
     if (palette_name == "SSP") {

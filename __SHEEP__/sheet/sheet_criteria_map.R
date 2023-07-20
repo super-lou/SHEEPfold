@@ -24,7 +24,8 @@ sheet_criteria_map = function (dataEXind,
                                metaEXind,
                                meta,
                                ModelSelection=NULL,
-                               Colors=INRAEcyan,
+                               Colors=refCOL,
+                               subtitle=NULL,
                                one_colorbar=FALSE,
                                icon_path="",
                                logo_path="",
@@ -68,9 +69,6 @@ sheet_criteria_map = function (dataEXind,
         Colors = rep(Colors, nModel)
     }
     
-    # Model = levels(factor(dataEXind$Model))
-    # nModel = length(Model)
-    
     Code = levels(factor(data$Code))
     CodeALL = levels(factor(dataEXind$Code))
     nCode = length(Code)
@@ -84,7 +82,7 @@ sheet_criteria_map = function (dataEXind,
          !grepl("bool", Unit)] = "sans unité"
     Unit[grepl("jour de l", Unit)] = "en mois"
     
-    UnitTeX =  convert2TeX(Unit, bold=FALSE, font="small")
+    UnitTeX = convert2TeX(Unit, size="small", bold=FALSE)
 
     for (i in 1:nModel) {
         model = Model[[i]]
@@ -119,24 +117,48 @@ sheet_criteria_map = function (dataEXind,
                 theme(plot.margin=margin(t=0, r=0, b=0, l=0, "cm"))
 
             if (is_foot) {
-                y1 = 0.98
-                y2 = 0.875
+                if (is.null(subtitle)) {
+                    y1 = 0.98
+                    y3 = 0.875
+                } else {
+                    y1 = 0.98
+                    y2 = 0.89
+                    y3 = 0.825
+                }
+
             } else {
-                y1 = 0.98
-                y2 = 0.89
+                if (is.null(subtitle)) {
+                    y1 = 0.98
+                    y3 = 0.89
+                } else {
+                    y1 = 0.98
+                    y2 = 0.9
+                    y3 = 0.84
+                }
             }
-            
+
             title = title +
                 annotate("text",
                          x=0,
                          y=y1,
-                         label=TeX(paste0("\\textbf{",
-                                          model2Disp, "}")),
+                         label=TeX(paste0("\\textbf{", model2Disp, "}")),
                          size=7, hjust=0, vjust=1,
-                         color=Colors[model_names]) +
+                         color=Colors[model_names])
+
+            if (!is.null(subtitle)) {
+                title = title +
+                    annotate("text",
+                             x=0,
+                             y=y2,
+                             label=subtitle,
+                             size=3, hjust=0, vjust=1,
+                             color=Colors[model_names])
+            }
+
+            title = title +
                 annotate("text",
                          x=0,
-                         y=y2,
+                         y=y3,
                          label=TeX(paste0(VarTeX[j],
                                           " ", UnitTeX[j])),
                          size=4, hjust=0, vjust=1,
@@ -184,32 +206,30 @@ sheet_criteria_map = function (dataEXind,
                              height=map_height,
                              verbose=verbose)
 
-            if (is_foot) {
-                footName = 'Carte de diagnostic'
-                if (is.null(df_page)) {
-                    n_page = i
+            footName = "Carte des critères d'évaluation"
+            if (is.null(df_page)) {
+                n_page = i
+            } else {
+                if (nrow(df_page) == 0) {
+                    n_page = 1
                 } else {
-                    if (nrow(df_page) == 0) {
-                        n_page = 1
-                    } else {
-                        n_page = df_page$n[nrow(df_page)] + 1
-                    }
-                    if (is.null(ModelSelection)) {
-                        subsection = model
-                    } else {
-                        subsection = var
-                    }
-                    df_page = bind_rows(
-                        df_page,
-                        tibble(section=footName,
-                               subsection=subsection,
-                               n=n_page))
+                    n_page = df_page$n[nrow(df_page)] + 1
                 }
-                
+                if (is.null(ModelSelection)) {
+                    subsection = model
+                } else {
+                    subsection = var
+                }
+                df_page = bind_rows(
+                    df_page,
+                    tibble(section=footName,
+                           subsection=subsection,
+                           n=n_page))
+            }
+
+            if (is_foot) {
                 foot = panel_foot(footName, n_page,
                                   foot_height, logo_path)
-
-                
                 herd = add_sheep(herd,
                                  sheep=foot,
                                  id="foot",

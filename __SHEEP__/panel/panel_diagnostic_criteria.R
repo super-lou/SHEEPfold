@@ -116,6 +116,7 @@ panel_diagnostic_criteria = function (dataEXind,
 
     perfect_tick_val = list("(KGE)|(NSE)|(r)"=1,
                             "^Biais$"=0,
+                            "^Biaismoy$"=0,
                             "(^epsilon)|(^alpha)|(^a)"=1,
                             "Q10"=0,
                             "Q90"=0,
@@ -123,6 +124,7 @@ panel_diagnostic_criteria = function (dataEXind,
     
     major_tick_val = list("(KGE)|(NSE)|(r)"=c(0.5),
                           "^Biais$"=c(-0.2, 0.2),
+                          "^Biaismoy$"=c(-2, 2),
                           "(^epsilon)|(^alpha)|(^a)"=c(0.5, 2),
                           "Q10"=c(-0.2, 0.2),
                           "Q90"=c(-0.8, 0.8),
@@ -133,6 +135,8 @@ panel_diagnostic_criteria = function (dataEXind,
                  c(0, 0.1, 0.2, 0.3, 0.4, 0.6, 0.7, 0.8, 0.9),
              "^Biais$"=
                  c(-0.5, -0.4, -0.3, -0.1, 0.1, 0.3, 0.4, 0.5),
+             "^Biaismoy$"=
+                 c(-5, -4, -3, -1, 1, 3, 4, 5),
              "(^epsilon)|(^alpha)|(^a)"=
                  c(0, 0.2, 0.4, 0.6, 0.8, 1.2, 1.4, 1.6, 1.8),
              "Q10"=
