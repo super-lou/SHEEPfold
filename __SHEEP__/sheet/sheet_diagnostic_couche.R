@@ -58,14 +58,14 @@ sheet_diagnostic_couche = function (data,
 
     Couche = levels(factor(unlist(meta$Couche)))
     Couche = Couche[nchar(Couche) > 0]
-    # Couche = "348"
+    # Couche = "139"
     nCouche = length(Couche)
 
     for (i in 1:nCouche) {
         couche = Couche[i]
         
-        Code_couche = Code[is_in_couche(meta$Couche, couche)]
         meta_couche = meta[is_in_couche(meta$Couche, couche),]
+        Code_couche = meta_couche$Code
         couche_disp = paste0(couche)
 
         if (verbose) {

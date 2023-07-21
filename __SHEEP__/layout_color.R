@@ -45,6 +45,7 @@ IPCCwhitecyan = "#a8ded3"
 IPCCbrique = "#794822"
 IPCCgold = "#e6d495"
 IPCCblue = "#1e2f59"
+IPCCfreshblue = "#BBD6ED"
 
 INRAEcyan = "#00a3a6"
 INRAElightercyan = "#b2e0df"
@@ -148,6 +149,12 @@ get_IPCC_Palette = function (palette_name, colorStep=NA, reverse=FALSE) {
               "#30527e")
     }
 
+    if (palette_name == "red_ramp") {
+        Palette =  
+            c("#59141C",
+              "#F9DDD5")
+    }
+    
     if (!is.na(colorStep)) {
         Palette = colorRampPalette(Palette)(colorStep)
     }
@@ -282,20 +289,46 @@ compute_colorBin = function (min, max, colorStep, center=NULL,
         maxValue = max
     }
     
-    if (include) {
+    if (all(include)) {
         nBin = colorStep + 1
-    } else {
+    } else if (all(!include)) {
         nBin = colorStep - 1
-    } 
+    } else {
+        nBin = colorStep
+    }
     
     bin = seq(minValue, maxValue, length.out=nBin)
-    if (!include) {
-        upBin = c(bin, Inf)
-        lowBin = c(-Inf, bin)
-        bin = c(-Inf, bin, Inf)
-    } else {
-        upBin = bin[2:length(bin)]
-        lowBin = bin[1:(length(bin)-1)]
+
+    if (length(include) == 1) {
+        if (!include) {
+            upBin = c(bin, Inf)
+            lowBin = c(-Inf, bin)
+            bin = c(-Inf, bin, Inf)
+        } else {
+            upBin = bin[2:length(bin)]
+            lowBin = bin[1:(length(bin)-1)]
+        }
+
+    } else if (length(include) == 2) {
+        if (!include[1] & !include[2]) {
+            upBin = c(bin, Inf)
+            lowBin = c(-Inf, bin)
+            bin = c(-Inf, bin, Inf)
+            
+        } else if (include[1] & !include[2]) {
+            upBin = c(bin[2:length(bin)], Inf)
+            lowBin = bin
+            bin = c(bin, Inf)
+
+        } else if (!include[1] & include[2]) {
+            upBin = bin
+            lowBin = c(-Inf, bin[1:(length(bin)-1)])
+            bin = c(-Inf, bin)
+            
+        } else if (include[1] & include[2]) {
+            upBin = bin[2:length(bin)]
+            lowBin = bin[1:(length(bin)-1)]
+        }
     }
 
     midBin = zoo::rollmean(bin, 2)
@@ -305,21 +338,70 @@ compute_colorBin = function (min, max, colorStep, center=NULL,
     return (res)
 }
 
-get_color = function (value, upBin, lowBin, Palette) {
-    id = which(value <= upBin & value > lowBin)
-    if (length(id) == 0) {
-        color = NA
+
+# get_id = function (value, upBin, lowBin, include_min, include_max) {
+#     if ()
+# }
+
+get_color = function (value, upBin, lowBin, Palette,
+                      include_min=FALSE,
+                      include_max=TRUE,
+                      return_id=FALSE) {
+
+
+    if (length(include_min) != 1 | length(include_max) != 1) {
+        if (length(include_min) != length(Palette)) {
+            include_min = rep(include_min, length.out=length(Palette))
+        }
+        if (length(include_max) != length(Palette)) {
+            include_max = rep(include_max, length.out=length(Palette))
+        }
+
+        id = mapply(get_color, include_min, include_max,
+                    MoreArgs=list(value=value,
+                                  upBin=upBin, lowBin=lowBin,
+                                  Palette=Palette,
+                                  return_id=TRUE))
+        id = id[!is.na(id)]
+        id = id[1]
+        
     } else {
-        color = Palette[id]
+        if (!include_min & include_max) {
+            id = which(lowBin < value & value <= upBin)
+        } else if (include_min & !include_max) {
+            id = which(lowBin <= value & value < upBin)
+        } else if (!include_min & !include_max) {
+            id = which(lowBin < value & value < upBin)
+        } else if (include_min & include_max) {
+            id = which(lowBin < value & value <= upBin)
+        }
     }
-    return (color)
+
+    if (return_id) {
+        if (length(id) == 0) {
+            id = NA
+        }
+        return (id)
+        
+    } else {
+        if (length(id) == 0) {
+            color = NA
+        } else {
+            color = Palette[id]
+        }
+        return (color)
+    }
 }
 
-get_colors = function (Value, upBin, lowBin, Palette) {
+get_colors = function (Value, upBin, lowBin, Palette,
+                       include_min=FALSE,
+                       include_max=TRUE) {
     colors = unlist(sapply(Value, get_color,
                            upBin=upBin,
                            lowBin=lowBin,
-                           Palette=Palette))
+                           Palette=Palette,
+                           include_min=include_min,
+                           include_max=include_max))
     return (colors)
 } 
 

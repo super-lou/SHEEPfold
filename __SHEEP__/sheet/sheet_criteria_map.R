@@ -31,6 +31,7 @@ sheet_criteria_map = function (dataEXind,
                                logo_path="",
                                is_foot=TRUE,
                                is_secteur=FALSE,
+                               is_warning=FALSE,
                                figdir="",
                                df_page=NULL,
                                Shapefiles=NULL,
@@ -77,13 +78,19 @@ sheet_criteria_map = function (dataEXind,
     VarTeX = convert2TeX(Var)
     nVar = length(Var)
 
-    Unit = metaEXind$unit
-    Unit[!grepl("jour de l", Unit) &
-         !grepl("bool", Unit)] = "sans unité"
-    Unit[grepl("jour de l", Unit)] = "en mois"
-    
-    UnitTeX = convert2TeX(Unit, size="small", bold=FALSE)
+    if (!is_warning) {
+        Unit = metaEXind$unit
+        Unit[!grepl("jour de l", Unit) &
+             !grepl("bool", Unit) &
+             !grepl("m", Unit)] = "sans unité"
+        Unit[grepl("jour de l", Unit)] = "en mois"
+        
+        UnitTeX = convert2TeX(Unit, size="small", bold=FALSE)
+    } else {
+        UnitTeX = rep("\\small{proportion en %}", nVar)
+    }
 
+    
     for (i in 1:nModel) {
         model = Model[[i]]
         model_names = names(Model)[i]
@@ -103,6 +110,12 @@ sheet_criteria_map = function (dataEXind,
             print(paste0("diagnostic map for ",
                          model2Disp,
                          "   ", round(i/nModel*100, 1), "% done"))
+        }
+
+        if (is.null(Colors) | !(model2Disp %in% names(Colors))) {
+            model_color = refCOL
+        } else {
+            model_color = Colors[names(Colors) == model2Disp]
         }
 
         for (j in 1:nVar) {
@@ -143,16 +156,18 @@ sheet_criteria_map = function (dataEXind,
                          y=y1,
                          label=TeX(paste0("\\textbf{", model2Disp, "}")),
                          size=7, hjust=0, vjust=1,
-                         color=Colors[model_names])
+                         color=model_color)
 
             if (!is.null(subtitle)) {
                 title = title +
-                    annotate("text",
+                    annotate("shadowText",
                              x=0,
                              y=y2,
                              label=subtitle,
                              size=3, hjust=0, vjust=1,
-                             color=Colors[model_names])
+                             bg.color="white",
+                             bg.r=0.15,
+                             color=model_color)
             }
 
             title = title +
@@ -196,6 +211,7 @@ sheet_criteria_map = function (dataEXind,
                                      min_var,
                                      max_var,
                                      is_secteur=is_secteur,
+                                     is_warning=is_warning,
                                      Shapefiles=Shapefiles,
                                      margin(t=0, r=0, b=0, l=0, "cm"),
                                      verbose=verbose)

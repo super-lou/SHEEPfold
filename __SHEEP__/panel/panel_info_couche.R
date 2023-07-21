@@ -38,13 +38,12 @@ panel_info_couche = function(meta_couche,
         map = void()
     }
 
-    
     # Gets the metadata about the station
     if ('title' %in% to_do | 'all' %in% to_do) {
         Nom =
-            levels(Shapefiles$entitePiezo$libelleeh)[
-                Shapefiles$entitePiezo$codeeh ==
-                meta_couche$Couche[1]]
+            as.character(Shapefiles$entitePiezo$libelleeh)[
+                as.character(Shapefiles$entitePiezo$codeeh) ==
+                meta_couche$Couche[[1]]]
 
         PX = get_alphabet_in_px()
         Nom = guess_newline(Nom, px=26, PX=PX)
