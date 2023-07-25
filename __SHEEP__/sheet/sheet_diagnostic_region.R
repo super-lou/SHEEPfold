@@ -144,7 +144,7 @@ sheet_diagnostic_region = function (meta,
                 
                 dataMOD = dataEXserie_code[["medQJC5"]]
                 dataMOD = dplyr::rename(dataMOD,
-                                        Date="Yearday",
+                                        Date="Date",
                                         Q_obs="medQJC5_obs",
                                         Q_sim="medQJC5_sim")
                 
