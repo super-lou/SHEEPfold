@@ -31,6 +31,8 @@ panel_criteria_map = function (dataEXind_model_var,
                                max_var,
                                is_secteur=FALSE,
                                is_warning=FALSE,
+                               model_by_shape=FALSE,
+                               remove_warning_lim=FALSE,
                                Shapefiles=Shapefiles,
                                margin=margin(t=0, r=0, b=0, l=0, "cm"),
                                verbose=verbose) {
@@ -40,6 +42,7 @@ panel_criteria_map = function (dataEXind_model_var,
     }
 
     Model = levels(factor(dataEXind_model_var$Model))
+    nModel = length(Model)
     
     var = names(dataEXind_model_var)[which(sapply(dataEXind_model_var,
                                                   is_numeric_logical))[1]]
@@ -107,18 +110,6 @@ panel_criteria_map = function (dataEXind_model_var,
 
     print(var)
 
-    if (!grepl("(RAT)|(HYP)", var)) {
-        dataEXind_var =
-            dplyr::summarise(dplyr::group_by(dataEXind_model_var, Code),
-                             !!var:=median(get(var), na.rm=TRUE))
-    } else {
-        if (length(Model) == 1) {
-            dataEXind_var = dataEXind_model_var
-        } else {
-            return (void())
-        }
-    }
-
     ## center
     if (grepl("(Biais)|(^Q)|(^moyQ)|(^V)|(^BF)|(^med[{]v)|(^med[{]t)|(^med[{]debut)|(^med[{]centre)|(^med[{]fin)|(^med[{]dt)", var)) {
         center = 0
@@ -139,15 +130,36 @@ panel_criteria_map = function (dataEXind_model_var,
     } else if (!grepl("(RAT)|(HYP)", var)) {
         lim = c(center-1, center+1)
     }
+
     
-    ## count warning
+    ## count warning or agreagate for multi model
     if (is_warning) {
+        dataEXind_var = dataEXind_model_var
         if (!grepl("(RAT)|(HYP)", var)) {
             dataEXind_var[[var]] = !(lim[1] < dataEXind_var[[var]] & dataEXind_var[[var]] < lim[2])
         } else {
             dataEXind_var[[var]] = !dataEXind_var[[var]]
         }
+        
+    } else {
+        if (model_by_shape) {
+            dataEXind_var = dataEXind_model_var
+            
+        } else {
+            if (!grepl("(RAT)|(HYP)", var)) {
+                dataEXind_var =
+                    dplyr::summarise(dplyr::group_by(dataEXind_model_var, Code),
+                                     !!var:=median(get(var), na.rm=TRUE))
+            } else {
+                if (nModel == 1) {
+                    dataEXind_var = dataEXind_model_var
+                } else {
+                    return (void())
+                }
+            } 
+        }
     }
+
 
     # by secteur or not
     if (is_secteur | is_warning) {
@@ -246,14 +258,17 @@ panel_criteria_map = function (dataEXind_model_var,
         
         dataEXind_var$color = "grey30"
         dataEXind_var$stroke = 0.5
-        if (!grepl("(RAT)|(HYP)", var)) {
-            dataEXind_var$color[lim[1] <= dataEXind_var[[var]] &
-                                dataEXind_var[[var]] <= lim[2]] = "grey75"
-            dataEXind_var$stroke[lim[1] <= dataEXind_var[[var]] &
-                                 dataEXind_var[[var]] <= lim[2]] = 0.4
-        } else {
-            dataEXind_var$color[dataEXind_var[[var]]] = "grey75"
-            dataEXind_var$stroke[dataEXind_var[[var]]] = 0.4
+        
+        if (!remove_warning_lim) {
+            if (!grepl("(RAT)|(HYP)", var)) {
+                dataEXind_var$color[lim[1] <= dataEXind_var[[var]] &
+                                    dataEXind_var[[var]] <= lim[2]] = "grey75"
+                dataEXind_var$stroke[lim[1] <= dataEXind_var[[var]] &
+                                     dataEXind_var[[var]] <= lim[2]] = 0.4
+            } else {
+                dataEXind_var$color[dataEXind_var[[var]]] = "grey75"
+                dataEXind_var$stroke[dataEXind_var[[var]]] = 0.4
+            }
         }
 
 
@@ -287,8 +302,22 @@ panel_criteria_map = function (dataEXind_model_var,
         dataEXind_var$stroke = 0.4
     }
 
-        
-    
+    dataEXind_var$shape = 21
+    if (model_by_shape) {
+        shape = c(21, 22, 23, 24, 25)
+
+        Model = levels(factor(dataEXind_var$Model))
+        nModel = length(Model)
+
+        if (nModel > length(shape)) {
+            stop ("too many model")
+        }
+        for (i in 1:nModel) {
+            dataEXind_var$shape[dataEXind_var$Model == Model[i]] = shape[i]
+        }
+    }
+
+
     dataEXind_var$color[is.na(dataEXind_var$fill)] = NA
 
     level = as.numeric(levels(factor(Palette_level)))
@@ -314,7 +343,7 @@ panel_criteria_map = function (dataEXind_model_var,
                     na.rm=TRUE)
     }
 
-    if (is_secteur) {
+    if (is_secteur | is_warning) {
         dataEXind_var = dplyr::rename(dataEXind_var,
                                       CdSecteurH=Secteur)
         secteurHydro = dplyr::inner_join(secteurHydro,
@@ -339,7 +368,7 @@ panel_criteria_map = function (dataEXind_model_var,
                 fill=NA,
                 linewidth=0.35)
     
-    if (!is_secteur) {
+    if (!is_secteur & !is_warning) {
         for (l in level) {
             dataEXind_var_tmp = dplyr::filter(dataEXind_var,
                                               level==l)
@@ -348,7 +377,8 @@ panel_criteria_map = function (dataEXind_model_var,
                            aes(x=XL93_m, y=YL93_m),
                            color=dataEXind_var_tmp$color,
                            fill=dataEXind_var_tmp$fill,
-                           shape=21, size=3,
+                           shape=dataEXind_var_tmp$shape,
+                           size=3,
                            stroke=dataEXind_var_tmp$stroke)
         }
     }
@@ -372,7 +402,8 @@ panel_criteria_map = function (dataEXind_model_var,
                      height=0.7,
                      verbose=verbose)
 
-    if (!is_secteur) {
+    if (!is_secteur & !is_warning &
+        !remove_warning_lim & !model_by_shape) {
         ca = panel_colorbar_circle(c(0, 1),
                                    c("transparent",
                                      "transparent"),
@@ -391,6 +422,28 @@ panel_criteria_map = function (dataEXind_model_var,
                                    margin=margin(t=0.2, r=0.5,
                                                  b=0.5, l=2.5,
                                                  "cm"))
+    } else if (model_by_shape & nModel > 1) {
+        ca = panel_colorbar_circle(c(0, 0.5, 1),
+                                   c("transparent",
+                                     "transparent",
+                                     "transparent"),
+                                   size_circle=2.2,
+                                   d_line=0.1,
+                                   linewidth=0.35,
+                                   d_space=0,
+                                   d_text=0.5,
+                                   text_size=2.8,
+                                   stroke=c(0.5, 0.5, 0.5),
+                                   color=c("grey30",
+                                           "grey30",
+                                           "grey30"),
+                                   label=Model,
+                                   shape=shape[1:nModel],
+                                   on_circle=TRUE,
+                                   margin=margin(t=0.2, r=0.5,
+                                                 b=0.2, l=2.5,
+                                                 "cm"))
+        
     } else {
         ca = void()
     }

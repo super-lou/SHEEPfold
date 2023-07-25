@@ -32,6 +32,7 @@ panel_colorbar_circle = function (bin,
                                   label=NULL,
                                   stroke=NULL,
                                   color=NULL,
+                                  shape=21,
                                   colorText=IPCCgrey50,
                                   colorLine=IPCCgrey50,
                                   on_circle=FALSE,
@@ -63,7 +64,7 @@ panel_colorbar_circle = function (bin,
     plot = plot +
         geom_point(aes(x=rep(d_line/2, nColor),
                        y=seq(0, nColor-1, by=1)),
-                   fill=Palette, color=color, shape=21,
+                   fill=Palette, color=color, shape=shape,
                    stroke=stroke,
                    size=size_circle)
     
