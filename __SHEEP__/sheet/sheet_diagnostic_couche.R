@@ -150,9 +150,9 @@ sheet_diagnostic_couche = function (data,
                 names(dataEXserie_code) = names(dataEXserie)
 
                 title = paste0("(", letters[j],
-                               ") Hauteur journalière médiane inter-annuel ",
-                               "\\unit : ",
-                               "\\textbf{", code, "}")
+                               ") Hauteur journalière médiane interannuelle ",
+                               "*unit*")
+                subtitle = paste0("     \\textbf{", code, "}")
                 if (j %% 2 == 0) {
                     margin_add = margin(t=0, r=0, b=0, l=3.5, "mm")
                 } else {
@@ -174,13 +174,14 @@ sheet_diagnostic_couche = function (data,
 
                     title = paste0("(", letters[j],
                                    ") Hauteur annuelle ",
-                                   "\\unit : ",
-                                   "\\textbf{", code, "}")
+                                   "*unit*")
+                    subtitle = paste0("     \\textbf{", code, "}")
                     
                     medQJ = panel_spaghetti(
                         dataMOD,
                         Colors,
                         title=title,
+                        subtitle=subtitle,
                         unit="m",
                         alpha=0.85,
                         isSqrt=FALSE,
@@ -198,7 +199,7 @@ sheet_diagnostic_couche = function (data,
                         lwSim=0.4,
                         lwSim_back=0.7,
                         grid=TRUE,
-                        ratio_title=1/15,
+                        ratio_title=1.5/15,
                         margin_title=
                             margin(t=0, r=7, b=0, l=0, "mm"),
                         margin_spag=
@@ -211,6 +212,7 @@ sheet_diagnostic_couche = function (data,
                         dataMOD,
                         Colors,
                         title=title,
+                        subtitle=subtitle,
                         unit="m",
                         alpha=0.85,
                         isSqrt=FALSE,
@@ -230,7 +232,7 @@ sheet_diagnostic_couche = function (data,
                         lwSim=0.4,
                         lwSim_back=0.7,
                         grid=TRUE,
-                        ratio_title=1/15,
+                        ratio_title=1.5/15,
                         margin_title=
                             margin(t=0, r=7, b=0, l=0, "mm"),
                         margin_spag=
@@ -252,7 +254,7 @@ sheet_diagnostic_couche = function (data,
         herd$sheep$label[herd$sheep$id %in% c("medQJ_1.spag", "medQJ_025.spag")] = "align1"
         herd$sheep$label[herd$sheep$id %in% c("medQJ_075.spag", "medQJ_0.spag")] = "align2"
 
-        Warnings = "Les stations choisies pour illustrer les résultats à l'échelle régionale illustrent la variabilité des performances obtenues sur les hydrogrammes des débits journaliers médians (piézomètres associées aux maximum, quantile 75 % et    25 %, et minimum du NSE<i>biais</i>)."
+        Warnings = "Les piézomètres choisis pour illustrer les résultats à l'échelle de l'entité illustrent la variabilité des performances obtenues (piézomètres associés aux maximum, quantile 75 % et 25 %, et minimum du NSE<i>biais</i>)."
         
         criteria = panel_diagnostic_criteria(
             dataEXind,
@@ -270,7 +272,7 @@ sheet_diagnostic_couche = function (data,
             width=11.9,
             add_name=TRUE,
             group_name="dans l'entité",
-            text2px_lim=51,
+            text2px_lim=50,
             margin_add=
                 margin(t=0, r=0, b=0, l=0, "cm"))
 

@@ -24,6 +24,7 @@
 #' @export
 panel_spaghetti = function (data_code, Colors=NULL,
                             title="débit journalier",
+                            subtitle=NULL,
                             unit="m^{3}.s^{-1}",
                             alpha=0.7,
                             isSqrt=FALSE, missRect=FALSE,
@@ -53,28 +54,23 @@ panel_spaghetti = function (data_code, Colors=NULL,
                             first=FALSE, last=FALSE,
                             verbose=FALSE) {
 
-
-    if (grepl("racine", title) & !grepl("racine[{]", title)) {
-        title = gsub("racine", "\u221A", title)
-    } else if (grepl("racine", title) & grepl("racine[{]", title)) {
-        title = gsub("[}]", "", title)
-        title = gsub("racine[{]", "\u221A", title)
-    }
     
-    unit = gsub(" ", "\\\\,", unit)
-    if (grepl("[_]", title)) {
-        title = gsub("[_]", "$_{$", title)
-        title = paste0(title, "}")
-    }
-    if (grepl("\\unit", title)) {
-        title = gsub("\\\\unit",
-                     paste0("($", unit, "$)"),
-                     title)
+    # unitTeX = convert2TeX(unit, bold=FALSE)    
+    unitTeX = gsub(" ", "\\\\,", unit)
+    
+    titleTeX = convert2TeX(title, bold=FALSE)
+    if (grepl("[*]unit[*]", titleTeX)) {
+        titleTeX = gsub("[*]unit[*]",
+                     paste0("($", unitTeX, "$)"),
+                     titleTeX)
     } else {
-        title = paste0(title, "\\,", "($", unit, "$)")
+        titleTeX = paste0(titleTeX, "\\,", "($", unitTeX, "$)")
     }
+
     
-    label = TeX(title)
+    if (!is.null(subtitle)) {
+        subtitleTeX = convert2TeX(subtitle, bold=FALSE)
+    }
     
     title = ggplot() + theme_void() +
         theme(plot.margin=margin_title)
@@ -83,9 +79,19 @@ panel_spaghetti = function (data_code, Colors=NULL,
         annotate("text",
                  x=0,
                  y=1,
-                 label=label,
+                 label=TeX(titleTeX),
                  size=3, hjust=0, vjust=1,
                  color=IPCCgrey25)
+
+    if (!is.null(subtitle)) {
+        title = title +
+            annotate("text",
+                     x=0,
+                     y=0,
+                     label=TeX(subtitleTeX),
+                     size=3, hjust=0, vjust=0,
+                     color=IPCCgrey25)
+    }
 
     if (isLegend) {
         title = title +

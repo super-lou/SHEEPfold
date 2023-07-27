@@ -133,9 +133,9 @@ sheet_diagnostic_region = function (meta,
                 names(dataEXserie_code) = names(dataEXserie)
 
                 title = paste0("(", letters[j],
-                               ") Débit journalier médian inter-annuel ",
-                               "\\unit : ",
-                               "\\textbf{", code, "}")
+                               ") Débit journalier médian interannuel ",
+                               "*unit*")
+                subtitle = paste0("     \\textbf{", code, "}")
                 if (j %% 2 == 0) {
                     margin_add = margin(t=0, r=0, b=0, l=3.5, "mm")
                 } else {
@@ -151,6 +151,7 @@ sheet_diagnostic_region = function (meta,
                 medQJ = panel_spaghetti(dataMOD,
                                         Colors,
                                         title=title,
+                                        subtitle=subtitle,
                                         unit="m^{3}.s^{-1}",
                                         alpha=0.85,
                                         isSqrt=TRUE,
@@ -170,7 +171,7 @@ sheet_diagnostic_region = function (meta,
                                         lwSim=0.4,
                                         lwSim_back=0.7,
                                         grid=TRUE,
-                                        ratio_title=1/15,
+                                        ratio_title=1.8/15,
                                         margin_title=
                                             margin(t=0, r=7, b=0, l=0, "mm"),
                                         margin_spag=

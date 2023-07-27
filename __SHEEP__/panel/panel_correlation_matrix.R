@@ -85,18 +85,9 @@ panel_correlation_matrix = function (dataEX,
     midMainTopic = (startMainTopic + endMainTopic)/2
     mainTopic = mainTopicVAR[!duplicated(mainTopicVAR)]
 
-    # subTopic = sapply(Topic, '[[', 2)
-    # names(subTopic) = metaEX$var
-    
     mainTopic_icon = lapply(
         file.path(icon_path, paste0(gsub(" ", "_", mainTopic), ".svg")),
         svgparser::read_svg)
-
-    # subTopic_path = file.path(icon_path, paste0(gsub(" ", "_", subTopic), ".svg"))
-    # subTopic_icon = lapply(subTopic_path, svgparser::read_svg)
-    
-    # names(mainTopic_icon) = mainTopic
-    # names(subTopic_icon) = subTopic
 
     vars2keep = names(dataEX)
     vars2keep = vars2keep[!grepl("([_]obs)|([_]sim)", vars2keep)]
@@ -285,8 +276,9 @@ panel_correlation_matrix = function (dataEX,
                  color=IPCCgrey40)
 
     PX = get_alphabet_in_px(style="bold")
-    
+
     VarRAW = VarTeX
+    VarRAW = gsub("normalsize", "", VarRAW)
     VarRAW = gsub("textit", "", VarRAW)
     VarRAW = gsub("textbf", "", VarRAW)
     VarRAW = gsub("bf", "", VarRAW)

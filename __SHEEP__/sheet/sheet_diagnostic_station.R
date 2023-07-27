@@ -219,7 +219,7 @@ sheet_diagnostic_station = function (data,
                                 Q_sim="medQJC5_sim")
         medQJ = panel_spaghetti(dataMOD,
                                 Colors,
-                                title="(c) Débit journalier médian inter-annuel",
+                                title="(c) Débit journalier médian interannuel",
                                 unit="m^{3}.s^{-1}",
                                 alpha=0.85,
                                 isSqrt=TRUE,

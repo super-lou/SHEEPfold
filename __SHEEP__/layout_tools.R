@@ -554,7 +554,7 @@ guess_newline = function (text, px=40, nChar=100,
 
 
 
-convert2TeX = function (Var, size="normalsize", is_it_small=FALSE, bold=TRUE) {
+convert2TeX = function (Var, size=NULL, is_it_small=FALSE, replace_space=FALSE, bold=TRUE) {
     nVar = length(Var)
 
     if (is_it_small) {
@@ -564,8 +564,9 @@ convert2TeX = function (Var, size="normalsize", is_it_small=FALSE, bold=TRUE) {
         ita = ""
         itb = ""
     }
-    
+
     VarTEX = gsub("etiage", "étiage", Var)
+    
     for (i in 1:nVar) {
         var = VarTEX[i]
         
@@ -582,7 +583,7 @@ convert2TeX = function (Var, size="normalsize", is_it_small=FALSE, bold=TRUE) {
             var = gsub("\\^[{]", "$^{$", var)
         }
         if (grepl("\\^[{][$][-]", var)) {
-            var = gsub("\\^[{][$][-]", "$^{-$", var)
+            var = gsub("\\^[{][$][-]", "^{-$", var)
         }
         if (grepl("\\^[[:alnum:]]", var)) {
             var = gsub("\\^", "$^$", var)
@@ -672,11 +673,17 @@ convert2TeX = function (Var, size="normalsize", is_it_small=FALSE, bold=TRUE) {
                        paste0(ita, "\\\\textit{biais}", itb),
                        var)
         }
+
+        if (replace_space) {
+            var = gsub(" ", "\\\\,", var)
+        }
         
         VarTEX[i] = var
     }
 
-    VarTEX = paste0("\\", size, "{", VarTEX, "}")
+    if (!is.null(size)) {
+        VarTEX = paste0("\\", size, "{", VarTEX, "}")
+    }
     
     if (bold) {
         VarTEX = paste0("\\textbf{", VarTEX, "}")

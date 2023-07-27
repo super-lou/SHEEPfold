@@ -40,10 +40,10 @@ sheet_diagnostic_regime = function (meta,
     medQJ_height = 7
     foot_height = 1.25
     criteria_height = 11.45
+
     # criteria_height = 29.7 - 0.5*2 - info_height - void_height - medQJ_height*2 - foot_height
 
-    info_width = 20
-    # medQJ_width = 10
+    medQJ_width = 10
     
     plan = matrix(c(
         "info", "void", "medQJ_1", "medQJ_025", "criteria", "foot",
@@ -69,7 +69,7 @@ sheet_diagnostic_regime = function (meta,
                                          PA=median(PA_obs, na.rm=TRUE),
                                          .groups="drop")
 
-    regimeHydro = find_regimeHydro(dataEXserieQM_obs, lim_number=2,
+    regimeHydro = find_regimeHydro(dataEXserieQM_obs, lim_number=NULL,
                                    dataEXseriePA_med)
 
     Regime = split(regimeHydro$detail, factor(regimeHydro$typology_2))
@@ -82,6 +82,9 @@ sheet_diagnostic_regime = function (meta,
     orderRegime = lapply(orderRegime, '[', 1)
     orderRegime = order(as.numeric(unlist(orderRegime)))
     Regime = Regime[orderRegime]
+
+    Regime = Regime[4]
+    
     nRegime = length(Regime)
 
     for (i in 1:nRegime) {
@@ -172,7 +175,6 @@ sheet_diagnostic_regime = function (meta,
                          sheep=info,
                          id="info",
                          height=info_height,
-                         width=info_width,
                          verbose=verbose)
 
 
@@ -194,9 +196,9 @@ sheet_diagnostic_regime = function (meta,
                 names(dataEXserie_code) = names(dataEXserie)
 
                 title = paste0("(", letters[j],
-                               ") Débit journalier médian inter-annuel ",
-                               "\\unit : ",
-                               "\\textbf{", code, "}")
+                               ") Débit journalier médian interannuel ",
+                               "*unit*")
+                subtitle = paste0("     \\textbf{", code, "}")
                 if (j %% 2 == 0) {
                     margin_add = margin(t=0, r=0, b=0, l=3.5, "mm")
                 } else {
@@ -213,6 +215,7 @@ sheet_diagnostic_regime = function (meta,
                     dataMOD,
                     Colors,
                     title=title,
+                    subtitle=subtitle,
                     unit="m^{3}.s^{-1}",
                     alpha=0.85,
                     isSqrt=TRUE,
@@ -232,7 +235,7 @@ sheet_diagnostic_regime = function (meta,
                     lwSim=0.4,
                     lwSim_back=0.7,
                     grid=TRUE,
-                    ratio_title=1/15,
+                    ratio_title=1.8/15,
                     margin_title=
                         margin(t=0, r=7, b=0, l=0, "mm"),
                     margin_spag=
@@ -246,7 +249,7 @@ sheet_diagnostic_regime = function (meta,
                              id=paste0("medQJ", "_",
                                        gsub("[.]", "", prob)),
                              height=medQJ_height,
-                             # width=medQJ_width,
+                             width=medQJ_width,
                              verbose=verbose)
         }
         

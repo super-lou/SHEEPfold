@@ -121,9 +121,15 @@ panel_criteria_map = function (dataEXind_model_var,
     ## lim
     if (grepl("(KGE)|(NSE)|(r)", var)) {
         lim = c(0.5, 1)
-    } else if (grepl("Biais", var)) {
+    } else if (grepl("^Biais$", var)) {
         lim = c(-0.2, 0.2)
-    } else if (grepl("(^Q)|(^med[{]t)", var)) {
+    } else if (grepl("^Biaismoy$", var)) {
+        lim = c(-2, 2)
+    } else if (grepl("^Q10$", var)) {
+        lim = c(-0.2, 0.2)
+    } else if (grepl("^Q90$", var)) {  
+        lim = c(-0.8, 0.8)
+    } else if (grepl("^med[{]t", var)) {
         lim = c(-1, 1)
     } else if (grepl("(^epsilon)|(^alpha)|(^a)", var)) {
         lim = c(0.5, 2)

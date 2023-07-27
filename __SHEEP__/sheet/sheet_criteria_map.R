@@ -197,7 +197,7 @@ sheet_criteria_map = function (dataEXind,
             dataEXind_model_var =
                 dataEXind_var[dataEXind_var$Model %in% model,]
 
-            if (is.null(ModelSelection)) {
+            if (one_colorbar) {
                 min_var = quantile(dataEXind_var[[var]],
                                    0.1, na.rm=TRUE)
                 max_var = quantile(dataEXind_var[[var]],
