@@ -57,20 +57,37 @@ sheet_diagnostic_regime = function (meta,
     Code = levels(factor(dataEXind$Code))
     nCode = length(Code)
 
+    # dataEXserieQM_obs =
+    #     dplyr::summarise(dplyr::group_by(dataEXserie$QM, Code, Date),
+    #                      QM=select_good(QM_obs),
+    #                      .groups="drop")
+
+    # dataEXseriePA_med = dplyr::summarise(dplyr::group_by(dataEXserie$PA,
+    #                                                      Code, Date),
+    #                                      PAs=median(PAs_obs, na.rm=TRUE),
+    #                                      PAl=median(PAl_obs, na.rm=TRUE),
+    #                                      PA=median(PA_obs, na.rm=TRUE),
+    #                                      .groups="drop")
+
+    # regimeHydro = find_regimeHydro(dataEXserieQM_obs, lim_number=NULL,
+    #                                dataEXseriePA_med)
+
+
     dataEXserieQM_obs =
-        dplyr::summarise(dplyr::group_by(dataEXserie$QM, Code, Date),
+        dplyr::summarise(dplyr::group_by(dataEXserie$QM,
+                                         Code, Date),
                          QM=select_good(QM_obs),
                          .groups="drop")
-
-    dataEXseriePA_med = dplyr::summarise(dplyr::group_by(dataEXserie$PA,
-                                                         Code, Date),
-                                         PAs=median(PAs_obs, na.rm=TRUE),
-                                         PAl=median(PAl_obs, na.rm=TRUE),
-                                         PA=median(PA_obs, na.rm=TRUE),
-                                         .groups="drop")
-
-    regimeHydro = find_regimeHydro(dataEXserieQM_obs, lim_number=NULL,
-                                   dataEXseriePA_med)
+    dataEXserieP_r =
+        dplyr::summarise(dplyr::group_by(dataEXserie$P_r,
+                                         Code),
+                         Ps_r=median(Ps_r_obs, na.rm=TRUE),
+                         Pl_r=median(Pl_r_obs, na.rm=TRUE),
+                         .groups="drop")
+    regimeHydro = find_regimeHydro(dataEXserieQM_obs,
+                                   lim_number=NULL,
+                                   dataEXserieP_r)
+    
 
     Regime = split(regimeHydro$detail, factor(regimeHydro$typology_2))
     rm_duplicated = function (X) {
@@ -82,9 +99,6 @@ sheet_diagnostic_regime = function (meta,
     orderRegime = lapply(orderRegime, '[', 1)
     orderRegime = order(as.numeric(unlist(orderRegime)))
     Regime = Regime[orderRegime]
-
-    Regime = Regime[4]
-    
     nRegime = length(Regime)
 
     for (i in 1:nRegime) {
