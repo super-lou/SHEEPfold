@@ -85,6 +85,20 @@ get_IPCC_Palette = function (palette_name, colorStep=NA, reverse=FALSE) {
               "#2A6863")
     }
 
+    if (palette_name == "MAKAHO_ground") {
+        Palette =
+            c("#543005",
+              "#8C510A",
+              "#BF812D",
+              "#DFC27D",
+              "#F6E8C3",
+              "#C7EAE5",
+              "#80CDC1",
+              "#35978F",
+              "#01665E",
+              "#003C30")
+    }
+
     if (palette_name == "ground_10") {
         Palette =
             c("#452C1A",
