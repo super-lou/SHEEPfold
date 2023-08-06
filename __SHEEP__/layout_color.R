@@ -57,6 +57,19 @@ INRAElightblue = "#9ed6e3"
 EXPLORE2blue = "#007A92"
 EXPLORE2orange = "#EE7402"
 
+# EXPLORE2pmc = "#008837"
+# EXPLORE2pc = "#a6dba0"
+# EXPLORE2pn = "#f7f7f7"
+# EXPLORE2np = "#c2a5cf"
+# EXPLORE2nng = "#7b3294"
+
+EXPLORE2pmc = '#075e9b'
+EXPLORE2pc = '#43a2ca'
+EXPLORE2pn = '#7bccc4'
+EXPLORE2np = '#bae4bc'
+EXPLORE2nng = '#f0f9e8'
+
+
 
 refCOL =
     # INRAEcyan
