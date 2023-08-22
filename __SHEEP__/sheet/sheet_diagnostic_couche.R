@@ -92,6 +92,10 @@ sheet_diagnostic_couche = function (data,
                                           na.rm=TRUE),
                              .groups="drop")
         REFprobs = c(1, 0.75, 0.25, 0)
+        REFnames = c("maxium du NSE\\textit{biais} dans l'entité",
+                     "quantile 75 % du \\textit{biais} dans l'entité",
+                     "quantile 25 % du \\textit{biais} dans l'entité",
+                     "minimum du \\textit{biais} dans l'entité")
         REFq = quantile(medREF$value,
                         probs=REFprobs, na.rm=TRUE)
 
@@ -136,6 +140,7 @@ sheet_diagnostic_couche = function (data,
         for (j in 1:length(REFprobs)) {
             code = Code_REFprobs[j]
             prob = names(Code_REFprobs)[j]
+            prob_name = REFnames[j]
 
             if (is.na(code)) {
                 medQJ = void()
@@ -152,7 +157,7 @@ sheet_diagnostic_couche = function (data,
                 title = paste0("(", letters[j],
                                ") Hauteur journalière médiane interannuelle ",
                                "*unit*")
-                subtitle = paste0("     \\textbf{", code, "}")
+                subtitle = paste0("     \\textbf{", code, "} ", prob_name)
                 if (j %% 2 == 0) {
                     margin_add = margin(t=0, r=0, b=0, l=3.5, "mm")
                 } else {

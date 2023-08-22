@@ -225,9 +225,9 @@ panel_diagnostic_criteria = function (dataEXind,
     dataEXind = dataEXind[!(names(dataEXind) %in% logicalCol)]
     metaEXind = metaEXind[!(metaEXind$var %in% logicalCol),]
     
-    Topic = strsplit(metaEXind$topic, "/")
+    Topic = strsplit(metaEXind$topic, "[|]")
     Topic = lapply(Topic, complete)
-    mainTopicVAR = sapply(Topic, '[[', 1)
+    mainTopicVAR = sapply(Topic, '[[', 2)
     names(mainTopicVAR) = metaEXind$var
     lenMainTopic = rle(mainTopicVAR)$lengths
     nMainTopic = length(lenMainTopic)
@@ -277,7 +277,7 @@ panel_diagnostic_criteria = function (dataEXind,
     Var = nameCol
     nVar = length(Var)
 
-    VarTeX = convert2TeX(Var)
+    VarTeX = convert2TeX(Var, is_it_small=TRUE)
         
     Code = levels(factor(dataEXind$Code))    
     perfect_tick_save = ""

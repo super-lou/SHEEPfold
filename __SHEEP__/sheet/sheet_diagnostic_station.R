@@ -57,19 +57,34 @@ sheet_diagnostic_station = function (data,
         dplyr::summarise(dplyr::group_by(data, Code, Date),
                          Q=select_good(Q_obs),
                          .groups="drop")
+    # dataEXserieQM_obs =
+    #     dplyr::summarise(dplyr::group_by(dataEXserie$QM, Code, Date),
+    #                      QM=select_good(QM_obs),
+    #                      .groups="drop")
+
+    # dataEXseriePA_med = dplyr::summarise(dplyr::group_by(dataEXserie$PA,
+    #                                                      Code, Date),
+    #                                      PAs=median(PAs_obs, na.rm=TRUE),
+    #                                      PAl=median(PAl_obs, na.rm=TRUE),
+    #                                      PA=median(PA_obs, na.rm=TRUE),
+    #                                      .groups="drop")
+
+    # regimeHydro = find_regimeHydro(dataEXserieQM_obs, lim_number=2, dataEXseriePA_med)
+
     dataEXserieQM_obs =
-        dplyr::summarise(dplyr::group_by(dataEXserie$QM, Code, Date),
+        dplyr::summarise(dplyr::group_by(dataEXserie$QM,
+                                         Code, Date),
                          QM=select_good(QM_obs),
                          .groups="drop")
-
-    dataEXseriePA_med = dplyr::summarise(dplyr::group_by(dataEXserie$PA,
-                                                         Code, Date),
-                                         PAs=median(PAs_obs, na.rm=TRUE),
-                                         PAl=median(PAl_obs, na.rm=TRUE),
-                                         PA=median(PA_obs, na.rm=TRUE),
-                                         .groups="drop")
-
-    regimeHydro = find_regimeHydro(dataEXserieQM_obs, lim_number=2, dataEXseriePA_med)
+    dataEXseriePA_ratio =
+        dplyr::summarise(dplyr::group_by(dataEXserie$PA_ratio,
+                                         Code),
+                         Ps_ratio=median(Ps_ratio_obs, na.rm=TRUE),
+                         Pl_ratio=median(Pl_ratio_obs, na.rm=TRUE),
+                         .groups="drop")
+    regimeHydro = find_regimeHydro(dataEXserieQM_obs,
+                                   lim_number=NULL,
+                                   dataEXseriePA_ratio)
 
     Model = levels(factor(dataEXind$Model))
     nModel = length(Model)

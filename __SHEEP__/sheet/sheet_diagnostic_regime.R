@@ -36,6 +36,7 @@ sheet_diagnostic_regime = function (meta,
     page_margin = c(t=0.5, r=0.5, b=0.5, l=0.5)
     
     info_height = 3
+    info_width = 10
     void_height = 0.2
     medQJ_height = 7
     foot_height = 1.25
@@ -78,15 +79,15 @@ sheet_diagnostic_regime = function (meta,
                                          Code, Date),
                          QM=select_good(QM_obs),
                          .groups="drop")
-    dataEXserieP_r =
-        dplyr::summarise(dplyr::group_by(dataEXserie$P_r,
+    dataEXseriePA_ratio =
+        dplyr::summarise(dplyr::group_by(dataEXserie$PA_ratio,
                                          Code),
-                         Ps_r=median(Ps_r_obs, na.rm=TRUE),
-                         Pl_r=median(Pl_r_obs, na.rm=TRUE),
+                         Ps_ratio=median(Ps_ratio_obs, na.rm=TRUE),
+                         Pl_ratio=median(Pl_ratio_obs, na.rm=TRUE),
                          .groups="drop")
     regimeHydro = find_regimeHydro(dataEXserieQM_obs,
                                    lim_number=NULL,
-                                   dataEXserieP_r)
+                                   dataEXseriePA_ratio)
     
 
     Regime = split(regimeHydro$detail, factor(regimeHydro$typology_2))
@@ -99,6 +100,9 @@ sheet_diagnostic_regime = function (meta,
     orderRegime = lapply(orderRegime, '[', 1)
     orderRegime = order(as.numeric(unlist(orderRegime)))
     Regime = Regime[orderRegime]
+
+    # Regime = Regime[length(Regime)]
+    
     nRegime = length(Regime)
 
     for (i in 1:nRegime) {
@@ -131,6 +135,10 @@ sheet_diagnostic_regime = function (meta,
                                           na.rm=TRUE),
                              .groups="drop")
         KGEprobs = c(1, 0.75, 0.25, 0)
+        KGEnames = c("maxium du KGE\u221A du régime",
+                     "quantile 75 % du KGE\u221A du régime",
+                     "quantile 25 % du KGE\u221A du régime",
+                     "minimum du KGE\u221A du régime")
         KGEq = quantile(medKGEracine$value,
                         probs=KGEprobs, na.rm=TRUE)
         id_nearest = function (target, In) {
@@ -189,13 +197,15 @@ sheet_diagnostic_regime = function (meta,
                          sheep=info,
                          id="info",
                          height=info_height,
+                         width=info_width,
                          verbose=verbose)
 
 
         for (j in 1:length(KGEprobs)) {
             code = Code_KGEprobs[j]
             prob = names(Code_KGEprobs)[j]
-
+            prob_name = KGEnames[j]
+            
             if (is.na(code)) {
                 medQJ = void()
                 
@@ -212,7 +222,7 @@ sheet_diagnostic_regime = function (meta,
                 title = paste0("(", letters[j],
                                ") Débit journalier médian interannuel ",
                                "*unit*")
-                subtitle = paste0("     \\textbf{", code, "}")
+                subtitle = paste0("     \\textbf{", code, "} ", prob_name)
                 if (j %% 2 == 0) {
                     margin_add = margin(t=0, r=0, b=0, l=3.5, "mm")
                 } else {
@@ -249,7 +259,7 @@ sheet_diagnostic_regime = function (meta,
                     lwSim=0.4,
                     lwSim_back=0.7,
                     grid=TRUE,
-                    ratio_title=1.8/15,
+                    ratio_title=1.9/15,
                     margin_title=
                         margin(t=0, r=7, b=0, l=0, "mm"),
                     margin_spag=

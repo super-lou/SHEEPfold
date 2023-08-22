@@ -88,6 +88,10 @@ sheet_diagnostic_region = function (meta,
                                           na.rm=TRUE),
                              .groups="drop")
         KGEprobs = c(1, 0.75, 0.25, 0)
+        KGEnames = c("maxium du KGE\u221A dans la région",
+                     "quantile 75 % du KGE\u221A dans la région",
+                     "quantile 25 % du KGE\u221A dans la région",
+                     "minimum du KGE\u221A dans la région")
         KGEq = quantile(medKGEracine$value,
                         probs=KGEprobs, na.rm=TRUE)
         id_nearest = function (target, In) {
@@ -119,6 +123,7 @@ sheet_diagnostic_region = function (meta,
         for (j in 1:length(KGEprobs)) {
             code = Code_KGEprobs[j]
             prob = names(Code_KGEprobs)[j]
+            prob_name = KGEnames[j]
 
             if (is.na(code)) {
                 medQJ = void()
@@ -135,7 +140,7 @@ sheet_diagnostic_region = function (meta,
                 title = paste0("(", letters[j],
                                ") Débit journalier médian interannuel ",
                                "*unit*")
-                subtitle = paste0("     \\textbf{", code, "}")
+                subtitle = paste0("     \\textbf{", code, "} ", prob_name)
                 if (j %% 2 == 0) {
                     margin_add = margin(t=0, r=0, b=0, l=3.5, "mm")
                 } else {
@@ -171,7 +176,7 @@ sheet_diagnostic_region = function (meta,
                                         lwSim=0.4,
                                         lwSim_back=0.7,
                                         grid=TRUE,
-                                        ratio_title=1.8/15,
+                                        ratio_title=1.9/15,
                                         margin_title=
                                             margin(t=0, r=7, b=0, l=0, "mm"),
                                         margin_spag=

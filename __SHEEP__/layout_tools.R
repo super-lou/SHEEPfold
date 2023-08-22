@@ -580,11 +580,12 @@ convert2TeX = function (Var, size=NULL, is_it_small=FALSE, replace_space=FALSE, 
         }
 
         if (grepl("\\^[{]", var)) {
-            var = gsub("\\^[{]", "$^{$", var)
+            var = gsub("\\^[{]", "$^{", var)
+            var = gsub("[}]", "}$", var)
         }
-        if (grepl("\\^[{][$][-]", var)) {
-            var = gsub("\\^[{][$][-]", "^{-$", var)
-        }
+        # if (grepl("\\^[{][$][-]", var)) {
+            # var = gsub("\\^[{][$][-]", "^{-$", var)
+        # }
         if (grepl("\\^[[:alnum:]]", var)) {
             var = gsub("\\^", "$^$", var)
         }

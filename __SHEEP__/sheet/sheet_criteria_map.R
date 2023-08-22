@@ -92,7 +92,6 @@ sheet_criteria_map = function (dataEXind,
         UnitTeX = rep("\\small{proportion en %}", nVar)
     }
 
-    
     for (i in 1:nModel) {
         model = Model[[i]]
         model_names = names(Model)[i]

@@ -470,8 +470,10 @@ panel_criteria_map = function (dataEXind_model_var,
     } else if (grepl("(RAT)|(HYP)", var) & !is_warning) {
         bin = c(0, 1)
         text_size = 2.7
-        label = c("Test validé",
-                  "Test non validé")
+        ###########################################
+        label = c("Modèle robuste",
+                  "Modèle non robuste")
+        ###########################################
         on_circle = TRUE
         d_space = 0
         margin = margin(t=3.5, r=0, b=4.8, l=4, "cm")
