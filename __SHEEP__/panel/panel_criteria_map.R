@@ -169,20 +169,41 @@ panel_criteria_map = function (dataEXind_model_var,
 
     # by secteur or not
     if (is_secteur | is_warning) {
+
+        get_for_coord = function (i, meta) {
+            st_point(as.numeric(meta[i, ]))
+        }
+        points = do.call("st_sfc",
+                         c(lapply(1:nrow(meta), 
+                                  get_for_coord,
+                                  meta=meta[which(grepl("L93",
+                                                        names(meta)))]),
+                           list("crs"=2154)))
+
+        get_name = function (col) { 
+            secteurHydro[which(col), ]$CdSecteurH
+        }
+        meta$Secteur = apply(st_intersects(secteurHydro,
+                                           points,
+                                           sparse=FALSE),
+                             2, get_name)
+
+        dataEXind_var = dplyr::full_join(dataEXind_var,
+                                         dplyr::select(meta,
+                                                       c("Code",
+                                                         "Secteur")),
+                                         by="Code")
+        
         if (is_warning) {
             dataEXind_var =
                 dplyr::summarise(
-                           dplyr::group_by(dataEXind_var,
-                                           Secteur=substr(Code,
-                                                          1, 2)),
+                           dplyr::group_by(dataEXind_var, Secteur),
                            !!var:=sum(get(var),
                                       na.rm=TRUE)/dplyr::n()*100,
                            .groups="drop")
         } else {
             dataEXind_var =
-                dplyr::summarise(dplyr::group_by(dataEXind_var,
-                                                 Secteur=substr(Code,
-                                                                1, 2)),
+                dplyr::summarise(dplyr::group_by(dataEXind_var, Secteur),
                                  !!var:=median(get(var), na.rm=TRUE),
                                  .groups="drop")
         }
@@ -296,7 +317,7 @@ panel_criteria_map = function (dataEXind_model_var,
         bin = res$bin
         upBin = res$upBin
         lowBin = res$lowBin
-        
+
         dataEXind_var$fill = get_colors(
             dataEXind_var[[var]],
             upBin=upBin,
@@ -389,6 +410,13 @@ panel_criteria_map = function (dataEXind_model_var,
         }
     }
 
+    # map = map +
+    #     geom_point(data=meta,
+    #                aes(x=XL93_m, y=YL93_m),
+    #                fill="black",
+    #                alpha=0.7,
+    #                stroke=0,
+    #                size=1)
 
     map = map +
         coord_sf(xlim=xlim, ylim=ylim,

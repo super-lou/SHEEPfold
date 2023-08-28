@@ -73,9 +73,9 @@ panel_correlation_matrix = function (dataEX,
     dataEX = dataEX[!(names(dataEX) %in% logicalCol)]
     metaEX = metaEX[!(metaEX$var %in% logicalCol),]
     
-    Topic = strsplit(metaEX$topic, "/")
+    Topic = strsplit(metaEX$topic, "[|]")
     Topic = lapply(Topic, complete)
-    mainTopicVAR = sapply(Topic, '[[', 1)
+    mainTopicVAR = sapply(Topic, '[[', 2)
     names(mainTopicVAR) = metaEX$var
     lenMainTopic = rle(mainTopicVAR)$lengths
     nMainTopic = length(lenMainTopic)

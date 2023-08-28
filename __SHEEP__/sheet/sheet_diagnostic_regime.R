@@ -135,7 +135,7 @@ sheet_diagnostic_regime = function (meta,
                                           na.rm=TRUE),
                              .groups="drop")
         KGEprobs = c(1, 0.75, 0.25, 0)
-        KGEnames = c("maxium du KGE\u221A du régime",
+        KGEnames = c("maximum du KGE\u221A du régime",
                      "quantile 75 % du KGE\u221A du régime",
                      "quantile 25 % du KGE\u221A du régime",
                      "minimum du KGE\u221A du régime")
@@ -222,7 +222,7 @@ sheet_diagnostic_regime = function (meta,
                 title = paste0("(", letters[j],
                                ") Débit journalier médian interannuel ",
                                "*unit*")
-                subtitle = paste0("     \\textbf{", code, "} ", prob_name)
+                subtitle = paste0("     \\textbf{", code, "} ")
                 if (j %% 2 == 0) {
                     margin_add = margin(t=0, r=0, b=0, l=3.5, "mm")
                 } else {
@@ -280,7 +280,7 @@ sheet_diagnostic_regime = function (meta,
         herd$sheep$label[herd$sheep$id %in% c("medQJ_1.spag", "medQJ_025.spag")] = "align1"
         herd$sheep$label[herd$sheep$id %in% c("medQJ_075.spag", "medQJ_0.spag")] = "align2"
 
-        Warnings = "Les stations choisies pour illustrer les résultats aux régimes identiques illustrent la variabilité des performances obtenues sur les hydrogrammes des débits journaliers médians (stations associées aux maximum, quantile 75 % et 25 %, et minimum du KGE\u221A)."
+        Warnings = "Les stations choisies pour illustrer les résultats aux régimes identiques illustrent la variabilité des performances obtenues sur les hydrogrammes des débits journaliers médians (stations associées aux maximum, quantile 75 % et 25 %, et minimum de la médiane multi-modèle des KGE\u221A)."
         
         criteria = panel_diagnostic_criteria(
             dataEXind,
