@@ -143,9 +143,10 @@ panel_criteria_map = function (dataEXind_model_var,
         dataEXind_var = dataEXind_model_var
         if (!grepl("(RAT)|(HYP)", var)) {
             dataEXind_var[[var]] = !(lim[1] < dataEXind_var[[var]] & dataEXind_var[[var]] < lim[2])
-        } else {
-            dataEXind_var[[var]] = !dataEXind_var[[var]]
         }
+        # else {
+            # dataEXind_var[[var]] = !dataEXind_var[[var]]
+        # }
         
     } else {
         if (model_by_shape) {
@@ -188,7 +189,7 @@ panel_criteria_map = function (dataEXind_model_var,
                                            sparse=FALSE),
                              2, get_name)
 
-        dataEXind_var = dplyr::full_join(dataEXind_var,
+        dataEXind_var = dplyr::left_join(dataEXind_var,
                                          dplyr::select(meta,
                                                        c("Code",
                                                          "Secteur")),
@@ -268,9 +269,9 @@ panel_criteria_map = function (dataEXind_model_var,
             Palette = get_IPCC_Palette("OrangePurple",
                                        reverse=TRUE)[c(2, 5)]
             RAT = dataEXind_var[[var]]
-            RAT[is.na(RAT)] = FALSE
-            fills = rep(Palette[2], length(RAT))
-            fills[RAT] = Palette[1]
+            RAT[is.na(RAT)] = TRUE
+            fills = rep(Palette[1], length(RAT))
+            fills[RAT] = Palette[2]
             dataEXind_var$fill = fills
         } else {
             dataEXind_var$fill = get_colors(dataEXind_var[[var]],
@@ -293,8 +294,8 @@ panel_criteria_map = function (dataEXind_model_var,
                 dataEXind_var$stroke[lim[1] <= dataEXind_var[[var]] &
                                      dataEXind_var[[var]] <= lim[2]] = 0.4
             } else {
-                dataEXind_var$color[dataEXind_var[[var]]] = "grey75"
-                dataEXind_var$stroke[dataEXind_var[[var]]] = 0.4
+                dataEXind_var$color[!dataEXind_var[[var]]] = "grey75"
+                dataEXind_var$stroke[!dataEXind_var[[var]]] = 0.4
             }
         }
 
@@ -373,9 +374,12 @@ panel_criteria_map = function (dataEXind_model_var,
     if (is_secteur | is_warning) {
         dataEXind_var = dplyr::rename(dataEXind_var,
                                       CdSecteurH=Secteur)
-        secteurHydro = dplyr::inner_join(secteurHydro,
-                                         dataEXind_var,
-                                         by="CdSecteurH")
+        # secteurHydro = dplyr::filter(secteurHydro,
+                                     # CdSecteurH %in%
+                                     # dataEXind_var$CdSecteurH)
+        secteurHydro = dplyr::full_join(secteurHydro,
+                                        dataEXind_var,
+                                        by="CdSecteurH")
         map = map +
             geom_sf(data=secteurHydro,
                     color=IPCCgrey99,
@@ -488,23 +492,23 @@ panel_criteria_map = function (dataEXind_model_var,
                      verbose=verbose)
     
     
-    if (grepl("KGE|(NSE)|(r)", var)) {
+    if (grepl("KGE|(NSE)|(r)", var) & !is_warning) {
         label = bin
         text_size = 3
         on_circle = FALSE
         d_space = 0.15
-        margin = margin(t=1.5, r=0.5, b=2.5, l=5.5, "cm")
+        margin = margin(t=1.5, r=0.5, b=2.5, l=5.3, "cm")
 
     } else if (grepl("(RAT)|(HYP)", var) & !is_warning) {
         bin = c(0, 1)
-        text_size = 2.7
+        text_size = 2.6
         ###########################################
         label = c("Modèle robuste",
                   "Modèle non robuste")
         ###########################################
         on_circle = TRUE
-        d_space = 0
-        margin = margin(t=3.5, r=0, b=4.8, l=4, "cm")
+        d_space = -0.05
+        margin = margin(t=3.5, r=0, b=5.1, l=3.9, "cm")
 
     } else {
         label = NULL

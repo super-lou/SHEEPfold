@@ -58,6 +58,9 @@ sheet_diagnostic_region = function (meta,
 
     Region = levels(factor(substr(Code, 1, 1)))
     nRegion = length(Region)
+
+    # Region = "K"
+    # nRegion = 1
     
     for (i in 1:nRegion) {
         region = Region[i]
