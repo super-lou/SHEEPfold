@@ -165,6 +165,11 @@ sheet_diagnostic_couche = function (data,
                 }
                 
                 dataMOD = dataEXserie_code[["medQJC5"]]
+
+                print("aaa")
+                print(dataMOD)
+                print(nrow(dataMOD))
+                
                 dataMOD = dplyr::rename(dataMOD,
                                         Date="Date",
                                         Q_obs="medQJC5_obs",
@@ -172,45 +177,57 @@ sheet_diagnostic_couche = function (data,
 
                 if (all(is.na(dataMOD$Q_obs))) {
                     dataMOD =  data[data$Model == dataMOD$Model[1] & data$Code == code,]
-                    dataMOD = dplyr::rename(dataMOD,
-                                            Date="Date",
-                                            Q_obs="H_obs",
-                                            Q_sim="H_sim")
 
-                    title = paste0("(", letters[j],
-                                   ") Hauteur annuelle ",
-                                   "*unit*")
-                    subtitle = paste0("     \\textbf{", code, "}")
+
                     
-                    medQJ = panel_spaghetti(
-                        dataMOD,
-                        Colors,
-                        title=title,
-                        subtitle=subtitle,
-                        unit="m",
-                        alpha=0.85,
-                        isSqrt=FALSE,
-                        missRect=FALSE,
-                        isBack=FALSE,
-                        isTitle=TRUE,
-                        date_labels="%Y",
-                        breaks="5 years",
-                        minor_breaks="1 years",
-                        Xlabel="",
-                        limits_ymin=NA,
-                        isBackObsAbove=TRUE,
-                        lwObs=0.6,
-                        lwObs_back=1,
-                        lwSim=0.4,
-                        lwSim_back=0.7,
-                        grid=TRUE,
-                        ratio_title=1.5/15,
-                        margin_title=
-                            margin(t=0, r=7, b=0, l=0, "mm"),
-                        margin_spag=
-                            margin(t=0, r=6, b=0, l=0, "mm"),
-                        first=FALSE,
-                        last=TRUE)
+                    
+                    print("bbb")
+                    print(data)
+                    print(dataMOD)
+                    # if (nrow(dataMOD) == 0) {
+                        # medQJ = void()
+                    # } else {
+                    
+                        dataMOD = dplyr::rename(dataMOD,
+                                                Date="Date",
+                                                Q_obs="H_obs",
+                                                Q_sim="H_sim")
+
+                        title = paste0("(", letters[j],
+                                       ") Hauteur annuelle ",
+                                       "*unit*")
+                        subtitle = paste0("     \\textbf{", code, "}")
+                        
+                        medQJ = panel_spaghetti(
+                            dataMOD,
+                            Colors,
+                            title=title,
+                            subtitle=subtitle,
+                            unit="m",
+                            alpha=0.85,
+                            isSqrt=FALSE,
+                            missRect=FALSE,
+                            isBack=FALSE,
+                            isTitle=TRUE,
+                            date_labels="%Y",
+                            breaks="5 years",
+                            minor_breaks="1 years",
+                            Xlabel="",
+                            limits_ymin=NA,
+                            isBackObsAbove=TRUE,
+                            lwObs=0.6,
+                            lwObs_back=1,
+                            lwSim=0.4,
+                            lwSim_back=0.7,
+                            grid=TRUE,
+                            ratio_title=1.5/15,
+                            margin_title=
+                                margin(t=0, r=7, b=0, l=0, "mm"),
+                            margin_spag=
+                                margin(t=0, r=6, b=0, l=0, "mm"),
+                            first=FALSE,
+                            last=TRUE)
+                    # }
                     
                 } else {
                     medQJ = panel_spaghetti(

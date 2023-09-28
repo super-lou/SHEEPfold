@@ -83,8 +83,7 @@ sheet_criteria_map = function (dataEXind,
     if (!is_warning) {
         Unit = metaEXind$unit
         Unit[!grepl("jour de l", Unit) &
-             !grepl("bool", Unit) &
-             !grepl("m", Unit)] = "sans unité"
+             !grepl("bool", Unit)] = "sans unité"
         Unit[grepl("jour de l", Unit)] = "en mois"
         
         UnitTeX = convert2TeX(Unit, size="small", bold=FALSE)

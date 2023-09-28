@@ -24,6 +24,7 @@ sheet_correlation_matrix = function (dataEX, metaEX,
                                      ModelGroup=NULL,
                                      Colors=NULL,
                                      subtitle=NULL,
+                                     criteria_selection=NULL,
                                      icon_path="", logo_path="",
                                      df_page=NULL,
                                      figdir='',
@@ -111,10 +112,6 @@ sheet_correlation_matrix = function (dataEX, metaEX,
                               margin=unit(c(t=0, r=0, b=0, l=0), "mm"),
                               hjust=0, vjust=1)
 
-
-
-
-        
         herd = add_sheep(herd,
                          sheep=title,
                          id="title",
@@ -122,9 +119,11 @@ sheet_correlation_matrix = function (dataEX, metaEX,
                          verbose=verbose)
         
         cm = panel_correlation_matrix(dataEX_model,
-                                       metaEX,
-                                       icon_path=icon_path,
-                                       margin=cm_margin)
+                                      metaEX,
+                                      icon_path=icon_path,
+                                      criteria_selection=
+                                          criteria_selection,
+                                      margin=cm_margin)
         herd = add_sheep(herd,
                          sheep=cm,
                          id="cm",

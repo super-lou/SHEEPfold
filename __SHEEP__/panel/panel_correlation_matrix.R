@@ -22,6 +22,7 @@
 panel_correlation_matrix = function (dataEX,
                                      metaEX,
                                      icon_path,
+                                     criteria_selection=NULL,
                                      level=0.1,
                                      margin=margin(t=0, r=0,
                                                    b=0, l=0,
@@ -258,6 +259,16 @@ panel_correlation_matrix = function (dataEX,
     cm = cm +
         annotate("point", x=XP, y=YP,
                  shape=4, size=XPSIZE, color="white")
+
+
+    if (!is.null(criteria_selection)) {
+        Var_selected = apply(sapply(criteria_selection, grepl, x=Var),
+                             1, any)
+        Var_color = rep(IPCCgrey60, nVar) 
+        Var_color[Var_selected] = IPCCgrey40
+    } else {
+        Var_color = rep(IPCCgrey60, nVar) 
+    }
     
     cm = cm +
         annotate("text",
@@ -265,7 +276,7 @@ panel_correlation_matrix = function (dataEX,
                  y=(nVar-1):0*ech + 0.5*ech,
                  hjust=1, vjust=0.5,
                  label=TeX(VarTeX), size=size_T1,
-                 color=IPCCgrey40) +
+                 color=Var_color) +
         
         annotate("text",
                  x=0:(nVar-1)*ech + 0.5*ech,
@@ -273,7 +284,7 @@ panel_correlation_matrix = function (dataEX,
                  hjust=1, vjust=0.5,
                  angle=90,
                  label=TeX(VarTeX), size=size_T1,
-                 color=IPCCgrey40)
+                 color=Var_color)
 
     PX = get_alphabet_in_px(style="bold")
 
@@ -366,7 +377,7 @@ panel_correlation_matrix = function (dataEX,
                      hjust=0, vjust=0.675,
                      angle=90,
                      size=size_T1,
-                     color=IPCCgrey40)
+                     color=Var_color[i])
     }
 
     dy = dy + dy_L1 + dy_I1 + dy_T1 + maxSpace*ech_T1 + dy_L2_min
