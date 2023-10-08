@@ -111,7 +111,7 @@ panel_criteria_map = function (dataEXind_model_var,
     print(var)
 
     ## center
-    if (grepl("(Biais)|(^Q)|(^moyQ)|(^V)|(^BF)|(^med[{]v)|(^med[{]t)|(^med[{]debut)|(^med[{]centre)|(^med[{]fin)|(^med[{]dt)", var)) {
+    if (grepl("(Biais)|(^Q)|(^moyQ)|(^V)|(^BF)|(^med[{]v)|(^med[{]t)|(^med[{]debut)|(^med[{]centre)|(^med[{]fin)|(^med[{]dt)|([_]ratio$)", var)) {
         center = 0
     }
     if (grepl("(Rc)|(^epsilon)|(^alpha)|(^a)|(STD)", var)) {
@@ -119,7 +119,7 @@ panel_criteria_map = function (dataEXind_model_var,
     }
 
     ## lim
-    if (grepl("(KGE)|(NSE)|(r)", var)) {
+    if (grepl("(KGE)|(NSE)|(^r$)", var)) {
         lim = c(0.5, 1)
     } else if (grepl("^Biais$", var)) {
         lim = c(-0.2, 0.2)
@@ -131,8 +131,11 @@ panel_criteria_map = function (dataEXind_model_var,
         lim = c(-0.8, 0.8)
     } else if (grepl("^med[{]t", var)) {
         lim = c(-1, 1)
+        print("aaaaa")
     } else if (grepl("(^epsilon)|(^alpha)|(^a)", var)) {
         lim = c(0.5, 2)
+    } else if (grepl("([_]ratio$)", var)) {
+        remove_warning_lim = TRUE
     } else if (!grepl("(RAT)|(HYP)", var)) {
         lim = c(center-1, center+1)
     }
@@ -225,7 +228,7 @@ panel_criteria_map = function (dataEXind_model_var,
             reverse_palette = FALSE
         }
         
-        if (grepl("(KGE)|(NSE)|(r)", var)) {
+        if (grepl("(KGE)|(NSE)|(^r$)", var)) {
             Palette_level = c(5, 4, 3, 2, 1)
             bin = c(-Inf, 0, 0.25, 0.5, 0.75, 1)
             upBin = c(0, 0.25, 0.5, 0.75, 1)
@@ -238,7 +241,7 @@ panel_criteria_map = function (dataEXind_model_var,
                 reverse = FALSE
                 name = "ground_8"
             }
-            if (grepl("(Rc)|(^epsilon)|(^med[{]t)|(^med[{]debut)|(^med[{]centre)|(^med[{]fin)|(^med[{]dt)|(STD)", var)) {
+            if (grepl("(Rc)|(^epsilon)|(^med[{]t)|(^med[{]debut)|(^med[{]centre)|(^med[{]fin)|(^med[{]dt)|(STD)|([_]ratio$)", var)) {
                 reverse = TRUE
                 name = "rainbow_8"
             }
@@ -492,7 +495,7 @@ panel_criteria_map = function (dataEXind_model_var,
                      verbose=verbose)
     
     
-    if (grepl("KGE|(NSE)|(r)", var) & !is_warning) {
+    if (grepl("KGE|(NSE)|(^r$)", var) & !is_warning) {
         label = bin
         text_size = 3
         on_circle = FALSE

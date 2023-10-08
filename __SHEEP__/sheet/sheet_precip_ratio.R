@@ -58,7 +58,7 @@ sheet_precip_ratio = function (dataEX,
         if (model2 == "SAFRAN") {
             model2 = "SMASH"
         }
-        
+
         color_model1 = Colors[names(Colors) == name_model1]
         color_model2 = Colors[names(Colors) == name_model2]
 
@@ -188,13 +188,11 @@ sheet_precip_ratio = function (dataEX,
             scale_x_continuous(expand=c(0, 0)) +
             scale_y_continuous(expand=c(0, 0))
 
-        
         herd = add_sheep(herd,
                          sheep=graph,
                          id="graph",
                          height=graph_height,
                          verbose=verbose)
-
 
         res = return_to_sheepfold(herd,
                                   page_margin=page_margin,
