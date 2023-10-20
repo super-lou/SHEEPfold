@@ -27,7 +27,7 @@ sheet_regime_map = function (meta,
                              is_foot=TRUE,
                              # is_secteur=FALSE,
                              figdir="",
-                             df_page=NULL,
+                             Pages=NULL,
                              Shapefiles=NULL,
                              verbose=FALSE) {
 
@@ -111,16 +111,16 @@ sheet_regime_map = function (meta,
                      verbose=verbose)
     
     footName = "Carte des régimes hydrologiques observés"
-    if (is.null(df_page)) {
+    if (is.null(Pages)) {
         n_page = i
     } else {
-        if (nrow(df_page) == 0) {
+        if (nrow(Pages) == 0) {
             n_page = 1
         } else {
-            n_page = df_page$n[nrow(df_page)] + 1
+            n_page = Pages$n[nrow(Pages)] + 1
         }
-        df_page = bind_rows(
-            df_page,
+        Pages = bind_rows(
+            Pages,
             tibble(section=footName,
                    subsection=NULL,
                    n=n_page))
@@ -161,5 +161,5 @@ sheet_regime_map = function (meta,
                     height=paper_size[2], units='cm',
                     dpi=300,
                     device=cairo_pdf)
-    return (df_page)
+    return (Pages)
 }

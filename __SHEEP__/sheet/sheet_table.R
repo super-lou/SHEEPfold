@@ -34,7 +34,7 @@ sheet_table = function (list_df2plot, meta, trend_period,
                         logo_path=NULL,
                         outdirTmp_pdf='',
                         outdirTmp_png='',
-                        df_page=NULL) {
+                        Pages=NULL) {
 
     # Number of variable/plot
     nVar = length(list_df2plot)
@@ -1336,10 +1336,10 @@ sheet_table = function (list_df2plot, meta, trend_period,
                     footName = paste('tableau récapitulatif de ',
                                      type, sep='')
                     
-                    if (is.null(df_page)) {
+                    if (is.null(Pages)) {
                         n_page = n_loop
                     } else {
-                        n_page = df_page$n[nrow(df_page)] + iMat
+                        n_page = Pages$n[nrow(Pages)] + iMat
                     }
                     
                     foot = panel_foot(footName, n_page,
@@ -1410,19 +1410,19 @@ sheet_table = function (list_df2plot, meta, trend_period,
                        units='cm', dpi=400)
             }
 
-            if (!is.null(df_page)) {
+            if (!is.null(Pages)) {
                 section = paste0('Tableau récapitulatif de ',
                                  type)
                 subsection = title
-                n_page = df_page$n[nrow(df_page)] + 1
-                # N_page = df_page$n[nrow(df_page)] + nMat
-                df_page = bind_rows(
-                    df_page,
+                n_page = Pages$n[nrow(Pages)] + 1
+                # N_page = Pages$n[nrow(Pages)] + nMat
+                Pages = bind_rows(
+                    Pages,
                     tibble(section=section,
                            subsection=subsection,
                            n=n_page))
             }
         }           
     }
-    return (df_page)
+    return (Pages)
 }

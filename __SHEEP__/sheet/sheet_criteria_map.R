@@ -20,9 +20,10 @@
 # If not, see <https://www.gnu.org/licenses/>.
 
 
-sheet_criteria_map = function (dataEXind,
-                               metaEXind,
+sheet_criteria_map = function (dataEX_criteria,
+                               metaEX_criteria,
                                meta,
+                               prob=0.1,
                                ModelSelection=NULL,
                                Colors=refCOL,
                                subtitle=NULL,
@@ -35,7 +36,7 @@ sheet_criteria_map = function (dataEXind,
                                model_by_shape=FALSE,
                                remove_warning_lim=FALSE,
                                figdir="",
-                               df_page=NULL,
+                               Pages=NULL,
                                Shapefiles=NULL,
                                verbose=FALSE) {
 
@@ -60,7 +61,7 @@ sheet_criteria_map = function (dataEXind,
 
 
     if (is.null(ModelSelection)) {
-        Model = levels(factor(dataEXind$Model))
+        Model = levels(factor(dataEX_criteria$Model))
         Model = as.list(Model)
         names(Model) = Model
     } else {
@@ -73,24 +74,27 @@ sheet_criteria_map = function (dataEXind,
     }
     
     Code = levels(factor(data$Code))
-    CodeALL = levels(factor(dataEXind$Code))
+    CodeALL = levels(factor(dataEX_criteria$Code))
     nCode = length(Code)
 
-    Var = metaEXind$var
+    Var = metaEX_criteria$var
     VarTeX = convert2TeX(Var)
     nVar = length(Var)
 
-    if (!is_warning) {
-        Unit = metaEXind$unit
-        Unit[!grepl("jour de l", Unit) &
-             !grepl("bool", Unit)] = "sans unité"
-        Unit[grepl("jour de l", Unit)] = "en mois"
+    # if (!is_warning) {
+    #     Unit = metaEX_criteria$unit
+    #     Unit[!grepl("jour de l", Unit) &
+    #          !grepl("bool", Unit)] = "sans unité"
+    #     Unit[grepl("jour de l", Unit)] = "en mois"
         
-        UnitTeX = convert2TeX(Unit, size="small", bold=FALSE)
-    } else {
-        UnitTeX = rep("\\small{proportion en %}", nVar)
-    }
-
+    #     UnitTeX = convert2TeX(Unit, size="small", bold=FALSE)
+    # } else {
+    #     UnitTeX = rep("\\small{proportion en %}", nVar)
+    # }
+    Unit = metaEX_criteria$unit
+    UnitTeX = convert2TeX(Unit, size="small", bold=FALSE)
+    PX = get_alphabet_in_px()
+    
     for (i in 1:nModel) {
         model = Model[[i]]
         model_names = names(Model)[i]
@@ -124,7 +128,6 @@ sheet_criteria_map = function (dataEXind,
             
             herd = bring_grass(verbose=verbose)
             herd = plan_of_herd(herd, plan, verbose=verbose)
-
             
             title = ggplot() + theme_void() +
                 theme(plot.margin=margin(t=0, r=0, b=0, l=0, "cm"))
@@ -149,7 +152,9 @@ sheet_criteria_map = function (dataEXind,
                     y3 = 0.84
                 }
             }
-
+            y4 = y3-0.07
+            newline = 0.04
+            
             title = title +
                 annotate("text",
                          x=0,
@@ -178,6 +183,24 @@ sheet_criteria_map = function (dataEXind,
                                           " ", UnitTeX[j])),
                          size=4, hjust=0, vjust=1,
                          color=IPCCgrey40)
+
+            
+            glose = metaEX_criteria$glose[metaEX_criteria$var == var]
+            glose = guess_newline(glose, px=20, PX=PX)
+            glose = unlist(strsplit(glose, "\n"))
+
+            for (k in 1:length(glose)) {
+                title = title +
+                    annotate("text",
+                             x=0,
+                             y=y4-(k-1)*newline,
+                             label=glose[k],
+                             size=2.5, hjust=0, vjust=1,
+                             color=IPCCgrey40)
+            }
+
+            
+            
             title = title +
                 scale_x_continuous(limits=c(0, 1),
                                    expand=c(0, 0)) +
@@ -189,27 +212,28 @@ sheet_criteria_map = function (dataEXind,
                              id="title",
                              verbose=verbose)
 
-            dataEXind_var =
-                dplyr::select(dataEXind, c("Model", "Code", var))
+            dataEX_criteria_var =
+                dplyr::select(dataEX_criteria, c("Model", "Code", var))
 
-            dataEXind_model_var =
-                dataEXind_var[dataEXind_var$Model %in% model,]
+            dataEX_criteria_model_var =
+                dataEX_criteria_var[dataEX_criteria_var$Model %in% model,]
 
             if (one_colorbar) {
-                min_var = quantile(dataEXind_var[[var]],
-                                   0.1, na.rm=TRUE)
-                max_var = quantile(dataEXind_var[[var]],
-                                   0.9, na.rm=TRUE)
+                min_var = quantile(dataEX_criteria_var[[var]],
+                                   prob, na.rm=TRUE)
+                max_var = quantile(dataEX_criteria_var[[var]],
+                                   1-prob, na.rm=TRUE)
             } else {
                 min_var = NULL
                 max_var = NULL
             }
             
-            map = panel_criteria_map(dataEXind_model_var,
-                                     metaEXind,
+            map = panel_criteria_map(dataEX_criteria_model_var,
+                                     metaEX_criteria,
                                      meta,
                                      min_var,
                                      max_var,
+                                     prob=prob,
                                      is_secteur=is_secteur,
                                      is_warning=is_warning,
                                      model_by_shape=model_by_shape,
@@ -225,21 +249,21 @@ sheet_criteria_map = function (dataEXind,
                              verbose=verbose)
 
             footName = "Carte des critères d'évaluation"
-            if (is.null(df_page)) {
+            if (is.null(Pages)) {
                 n_page = i
             } else {
-                if (nrow(df_page) == 0) {
+                if (nrow(Pages) == 0) {
                     n_page = 1
                 } else {
-                    n_page = df_page$n[nrow(df_page)] + 1
+                    n_page = Pages$n[nrow(Pages)] + 1
                 }
                 if (is.null(ModelSelection)) {
                     subsection = model
                 } else {
                     subsection = var
                 }
-                df_page = bind_rows(
-                    df_page,
+                Pages = bind_rows(
+                    Pages,
                     tibble(section=footName,
                            subsection=subsection,
                            n=n_page))
@@ -283,5 +307,5 @@ sheet_criteria_map = function (dataEXind,
                             device=cairo_pdf)
         }
     }
-    return (df_page)
+    return (Pages)
 }

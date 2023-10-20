@@ -30,6 +30,7 @@ panel_colorbar_circle = function (bin,
                                   text_size=2,
                                   text_fontface="bold",
                                   label=NULL,
+                                  ncharLim=4,
                                   stroke=NULL,
                                   color=NULL,
                                   shape=21,
@@ -48,7 +49,7 @@ panel_colorbar_circle = function (bin,
 
 
     if (is.null(label)) {
-        Label = round_label(bin, direction="V", ncharLim=4)
+        Label = round_label(bin, direction="V", ncharLim=ncharLim)
     } else {
         Label = label
     }

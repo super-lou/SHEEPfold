@@ -23,13 +23,13 @@
 
 sheet_diagnostic_couche = function (data,
                                     meta,
-                                    dataEXind,
-                                    metaEXind,
-                                    dataEXserie,
+                                    dataEX_criteria,
+                                    metaEX_criteria,
+                                    dataEX_serie,
                                     Colors,
                                     icon_path="",
                                     logo_path="",
-                                    df_page=NULL,
+                                    Pages=NULL,
                                     Shapefiles=NULL,
                                     figdir="",
                                     verbose=FALSE) {
@@ -50,10 +50,10 @@ sheet_diagnostic_couche = function (data,
         "info", "void", "medQJ_075", "medQJ_0", "criteria", "foot"),
         ncol=2)
 
-    Model = levels(factor(dataEXind$Model))
+    Model = levels(factor(dataEX_criteria$Model))
     nModel = length(Model)
     
-    Code = levels(factor(dataEXind$Code))
+    Code = levels(factor(dataEX_criteria$Code))
     nCode = length(Code)
 
     Couche = levels(factor(unlist(meta$Couche)))
@@ -74,19 +74,19 @@ sheet_diagnostic_couche = function (data,
                          round(i/nCouche*100, 1), "% done"))
         }
         
-        dataEXind_couche = dataEXind[dataEXind$Code %in% Code_couche,]
+        dataEX_criteria_couche = dataEX_criteria[dataEX_criteria$Code %in% Code_couche,]
         
-        dataEXserie_couche = list()
-        for (j in 1:length(dataEXserie)) {
-            dataEXserie_couche = append(
-                dataEXserie_couche,
-                list(dataEXserie[[j]][dataEXserie[[j]]$Code %in%
+        dataEX_serie_couche = list()
+        for (j in 1:length(dataEX_serie)) {
+            dataEX_serie_couche = append(
+                dataEX_serie_couche,
+                list(dataEX_serie[[j]][dataEX_serie[[j]]$Code %in%
                                       Code_couche,]))
         }
-        names(dataEXserie_couche) = names(dataEXserie)
+        names(dataEX_serie_couche) = names(dataEX_serie)
         
         medREF =
-            dplyr::summarise(dplyr::group_by(dataEXind_couche,
+            dplyr::summarise(dplyr::group_by(dataEX_criteria_couche,
                                              Code),
                              value=median(get("NSEbiais"),
                                           na.rm=TRUE),
@@ -146,13 +146,13 @@ sheet_diagnostic_couche = function (data,
                 medQJ = void()
                 
             } else {
-                dataEXserie_code = list()
-                for (k in 1:length(dataEXserie)) {
-                    dataEXserie_code = append(
-                        dataEXserie_code,
-                        list(dataEXserie[[k]][dataEXserie[[k]]$Code == code,]))
+                dataEX_serie_code = list()
+                for (k in 1:length(dataEX_serie)) {
+                    dataEX_serie_code = append(
+                        dataEX_serie_code,
+                        list(dataEX_serie[[k]][dataEX_serie[[k]]$Code == code,]))
                 }
-                names(dataEXserie_code) = names(dataEXserie)
+                names(dataEX_serie_code) = names(dataEX_serie)
 
                 title = paste0("(", letters[j],
                                ") Hauteur journalière médiane interannuelle ",
@@ -164,7 +164,7 @@ sheet_diagnostic_couche = function (data,
                     margin_add = margin(t=0, r=3.5, b=0, l=0, "mm")
                 }
                 
-                dataMOD = dataEXserie_code[["medQJC5"]]
+                dataMOD = dataEX_serie_code[["medQJC5"]]
 
                 print("aaa")
                 print(dataMOD)
@@ -279,8 +279,8 @@ sheet_diagnostic_couche = function (data,
         Warnings = "Les piézomètres choisis pour illustrer les résultats à l'échelle de l'entité illustrent la variabilité des performances obtenues (piézomètres associés aux maximum, quantile 75 % et 25 %, et minimum de la médiane multi-modèle des NSE<i>biais</i>)."
         
         criteria = panel_diagnostic_criteria(
-            dataEXind,
-            metaEXind,
+            dataEX_criteria,
+            metaEX_criteria,
             meta,
             Colors,
             groupCode=Code_couche,
@@ -312,16 +312,16 @@ sheet_diagnostic_couche = function (data,
 
 
         footName = "Fiche de diagnostic piézomètres"
-        if (is.null(df_page)) {
+        if (is.null(Pages)) {
             n_page = i
         } else {
-            if (nrow(df_page) == 0) {
+            if (nrow(Pages) == 0) {
                 n_page = 1
             } else {
-                n_page = df_page$n[nrow(df_page)] + 1
+                n_page = Pages$n[nrow(Pages)] + 1
             }
-            df_page = bind_rows(
-                df_page,
+            Pages = bind_rows(
+                Pages,
                 tibble(section=footName,
                        subsection=couche_disp,
                        n=n_page))
@@ -357,5 +357,5 @@ sheet_diagnostic_couche = function (data,
                         dpi=300,
                         device=cairo_pdf)
     }
-    return (df_page)
+    return (Pages)
 }

@@ -31,7 +31,7 @@ sheet_stationnarity_short = function (meta, data,
                                       Shapefiles=NULL,
                                       figdir="",
                                       paper_size=c(21, 18),
-                                      df_page=NULL,
+                                      Pages=NULL,
                                       verbose=FALSE) {
 
     page_margin = c(t=0.5, r=0.5, b=0.5, l=0.5)
@@ -140,7 +140,7 @@ sheet_stationnarity_short = function (meta, data,
                         device=cairo_pdf)
     }
     
-    return (df_page)
+    return (Pages)
 }
 
 
@@ -190,13 +190,13 @@ sheet_stationnarity_short = function (meta, data,
 #                     } else {
 #                         footName = 'fiche station'
 #                     }
-#                     if (is.null(df_page)) {
+#                     if (is.null(Pages)) {
 #                         n_page = k + page_code - 1
 #                     } else {
-#                         if (nrow(df_page) == 0 | pdf_chunk == 'by_code') {
+#                         if (nrow(Pages) == 0 | pdf_chunk == 'by_code') {
 #                             n_page = page_code
 #                         } else {
-#                             n_page = df_page$n[nrow(df_page)] + page_code
+#                             n_page = Pages$n[nrow(Pages)] + page_code
 #                         }
 #                     }
 #                     foot = panel_foot(footName, n_page,
@@ -372,16 +372,16 @@ sheet_stationnarity_short = function (meta, data,
 
 #         print("")
 
-#         if (!is.null(df_page)) {
+#         if (!is.null(Pages)) {
 #             section = 'Fiche station'
 #             subsection = code
-#             if (nrow(df_page) == 0 | pdf_chunk == 'by_code') {
+#             if (nrow(Pages) == 0 | pdf_chunk == 'by_code') {
 #                 n_page = page_code
 #             } else {
-#                 n_page = df_page$n[nrow(df_page)] + 1
+#                 n_page = Pages$n[nrow(Pages)] + 1
 #             }
-#             df_page = bind_rows(
-#                 df_page,
+#             Pages = bind_rows(
+#                 Pages,
 #                 tibble(section=section,
 #                        subsection=subsection,
 #                        n=n_page))

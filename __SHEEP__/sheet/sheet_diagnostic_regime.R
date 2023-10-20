@@ -21,14 +21,14 @@
 
 
 sheet_diagnostic_regime = function (meta,
-                                    dataEXind,
-                                    metaEXind,
-                                    dataEXserie,
+                                    dataEX_criteria,
+                                    metaEX_criteria,
+                                    dataEX_serie,
                                     Colors,
                                     icon_path="",
                                     Warnings=NULL,
                                     logo_path="",
-                                    df_page=NULL,
+                                    Pages=NULL,
                                     Shapefiles=NULL,
                                     figdir="",
                                     verbose=FALSE) {
@@ -52,42 +52,42 @@ sheet_diagnostic_regime = function (meta,
         ncol=2)
     WIP = FALSE
 
-    Model = levels(factor(dataEXind$Model))
+    Model = levels(factor(dataEX_criteria$Model))
     nModel = length(Model)
     
-    Code = levels(factor(dataEXind$Code))
+    Code = levels(factor(dataEX_criteria$Code))
     nCode = length(Code)
 
-    # dataEXserieQM_obs =
-    #     dplyr::summarise(dplyr::group_by(dataEXserie$QM, Code, Date),
+    # dataEX_serieQM_obs =
+    #     dplyr::summarise(dplyr::group_by(dataEX_serie$QM, Code, Date),
     #                      QM=select_good(QM_obs),
     #                      .groups="drop")
 
-    # dataEXseriePA_med = dplyr::summarise(dplyr::group_by(dataEXserie$PA,
+    # dataEX_seriePA_med = dplyr::summarise(dplyr::group_by(dataEX_serie$PA,
     #                                                      Code, Date),
     #                                      PAs=median(PAs_obs, na.rm=TRUE),
     #                                      PAl=median(PAl_obs, na.rm=TRUE),
     #                                      PA=median(PA_obs, na.rm=TRUE),
     #                                      .groups="drop")
 
-    # regimeHydro = find_regimeHydro(dataEXserieQM_obs, lim_number=NULL,
-    #                                dataEXseriePA_med)
+    # regimeHydro = find_regimeHydro(dataEX_serieQM_obs, lim_number=NULL,
+    #                                dataEX_seriePA_med)
 
 
-    dataEXserieQM_obs =
-        dplyr::summarise(dplyr::group_by(dataEXserie$QM,
+    dataEX_serieQM_obs =
+        dplyr::summarise(dplyr::group_by(dataEX_serie$QM,
                                          Code, Date),
                          QM=select_good(QM_obs),
                          .groups="drop")
-    dataEXseriePA_ratio =
-        dplyr::summarise(dplyr::group_by(dataEXserie$PA_ratio,
+    dataEX_seriePA_ratio =
+        dplyr::summarise(dplyr::group_by(dataEX_serie$PA_ratio,
                                          Code),
                          Ps_ratio=median(Ps_ratio_obs, na.rm=TRUE),
                          Pl_ratio=median(Pl_ratio_obs, na.rm=TRUE),
                          .groups="drop")
-    regimeHydro = find_regimeHydro(dataEXserieQM_obs,
+    regimeHydro = find_regimeHydro(dataEX_serieQM_obs,
                                    lim_number=NULL,
-                                   dataEXseriePA_ratio)
+                                   dataEX_seriePA_ratio)
     
 
     Regime = split(regimeHydro$detail, factor(regimeHydro$typology_2))
@@ -114,22 +114,22 @@ sheet_diagnostic_regime = function (meta,
         }
 
         Code_regime = regimeHydro$Code[regimeHydro$typology_2 == regime]
-        dataEXind_regime = dataEXind[dataEXind$Code %in% Code_regime,]
+        dataEX_criteria_regime = dataEX_criteria[dataEX_criteria$Code %in% Code_regime,]
         
-        dataEXserie_regime = list()
-        for (j in 1:length(dataEXserie)) {
-            dataEXserie_regime = append(
-                dataEXserie_regime,
-                list(dataEXserie[[j]][dataEXserie[[j]]$Code %in% Code_regime,]))
+        dataEX_serie_regime = list()
+        for (j in 1:length(dataEX_serie)) {
+            dataEX_serie_regime = append(
+                dataEX_serie_regime,
+                list(dataEX_serie[[j]][dataEX_serie[[j]]$Code %in% Code_regime,]))
         }
-        names(dataEXserie_regime) = names(dataEXserie)
+        names(dataEX_serie_regime) = names(dataEX_serie)
 
         herd = bring_grass(verbose=verbose)
         herd = plan_of_herd(herd, plan,
                          verbose=verbose)
 
         medKGEracine =
-            dplyr::summarise(dplyr::group_by(dataEXind_regime,
+            dplyr::summarise(dplyr::group_by(dataEX_criteria_regime,
                                              Code),
                              value=median(KGEracine,
                                           na.rm=TRUE),
@@ -158,27 +158,27 @@ sheet_diagnostic_regime = function (meta,
             Code_detail =
                 regimeHydro$Code[regimeHydro$typology_2 == regime &
                                  regimeHydro$detail == detail]
-            dataEXserieQM_obs_detail =
-                dataEXserieQM_obs[dataEXserieQM_obs$Code %in%
+            dataEX_serieQM_obs_detail =
+                dataEX_serieQM_obs[dataEX_serieQM_obs$Code %in%
                                   Code_detail,]
 
-            dataEXserieQM_obs_detail =
+            dataEX_serieQM_obs_detail =
                 dplyr::mutate(dplyr::group_by(
-                                         dataEXserieQM_obs_detail,
+                                         dataEX_serieQM_obs_detail,
                                          Code),
                               QM=QM/sum(QM, na.rm=TRUE))
 
-            dataEXserieQM_obs_detail =
-                dplyr::ungroup(dataEXserieQM_obs_detail)
+            dataEX_serieQM_obs_detail =
+                dplyr::ungroup(dataEX_serieQM_obs_detail)
             
-            dataEXserieQM_obs_detail_med =
+            dataEX_serieQM_obs_detail_med =
                 dplyr::summarise(dplyr::group_by(
-                                            dataEXserieQM_obs_detail,
+                                            dataEX_serieQM_obs_detail,
                                             Date),
                                  QM=median(QM, na.rm=TRUE),
                                  .groups="drop")
             QM_code = append(QM_code,
-                             list(dataEXserieQM_obs_detail_med$QM))
+                             list(dataEX_serieQM_obs_detail_med$QM))
             names(QM_code)[length(QM_code)] = detail
         }
 
@@ -210,14 +210,14 @@ sheet_diagnostic_regime = function (meta,
                 medQJ = void()
                 
             } else {
-                dataEXserie_code = list()
-                for (k in 1:length(dataEXserie)) {
-                    dataEXserie_code = append(
-                        dataEXserie_code,
-                        list(dataEXserie[[k]][dataEXserie[[k]]$Code ==
+                dataEX_serie_code = list()
+                for (k in 1:length(dataEX_serie)) {
+                    dataEX_serie_code = append(
+                        dataEX_serie_code,
+                        list(dataEX_serie[[k]][dataEX_serie[[k]]$Code ==
                                               code,]))
                 }
-                names(dataEXserie_code) = names(dataEXserie)
+                names(dataEX_serie_code) = names(dataEX_serie)
 
                 title = paste0("(", letters[j],
                                ") Débit journalier médian interannuel ",
@@ -229,7 +229,7 @@ sheet_diagnostic_regime = function (meta,
                     margin_add = margin(t=0, r=3.5, b=0, l=0, "mm")
                 }
                 
-                dataMOD = dataEXserie_code[["medQJC5"]]
+                dataMOD = dataEX_serie_code[["medQJC5"]]
                 dataMOD = dplyr::rename(dataMOD,
                                         Date="Date",
                                         Q_obs="medQJC5_obs",
@@ -283,8 +283,8 @@ sheet_diagnostic_regime = function (meta,
         Warnings = "Les stations choisies pour illustrer les résultats aux régimes identiques illustrent la variabilité des performances obtenues sur les hydrogrammes des débits journaliers médians (stations associées aux maximum, quantile 75 % et 25 %, et minimum de la médiane multi-modèle des KGE\u221A)."
         
         criteria = panel_diagnostic_criteria(
-            dataEXind,
-            metaEXind,
+            dataEX_criteria,
+            metaEX_criteria,
             meta,
             Colors,
             groupCode=Code_regime,
@@ -315,16 +315,16 @@ sheet_diagnostic_regime = function (meta,
 
 
         footName = 'Fiche de diagnostic par régime'
-        if (is.null(df_page)) {
+        if (is.null(Pages)) {
             n_page = i
         } else {
-            if (nrow(df_page) == 0) {
+            if (nrow(Pages) == 0) {
                 n_page = 1
             } else {
-                n_page = df_page$n[nrow(df_page)] + 1
+                n_page = Pages$n[nrow(Pages)] + 1
             }
-            df_page = bind_rows(
-                df_page,
+            Pages = bind_rows(
+                Pages,
                 tibble(section=footName,
                        subsection=regime,
                        n=n_page))
@@ -361,5 +361,5 @@ sheet_diagnostic_regime = function (meta,
                         device=cairo_pdf)
     }
     
-    return (df_page)
+    return (Pages)
 }

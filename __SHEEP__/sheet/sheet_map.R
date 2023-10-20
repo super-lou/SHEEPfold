@@ -30,7 +30,7 @@ sheet_map = function (list_df2plot, meta, shapefile_list,
                       mapType='trend', margin=NULL, showSea=TRUE,  
                       foot_note=FALSE, foot_height=0,
                       logo_path=NULL, zone_to_show='France', mode="",
-                      df_page=NULL, outdirTmp_pdf='',
+                      Pages=NULL, outdirTmp_pdf='',
                       outdirTmp_png='', verbose=TRUE) {
     
     # Extract shapefiles
@@ -1074,7 +1074,7 @@ peu altérés par les activités humaines."
                                              unit="mm"))
             }
 
-            if (!is.null(df_page)) {
+            if (!is.null(Pages)) {
                 if (mapType == 'trend') {
                     section = 'Carte des tendances observées'
                     subsection = var
@@ -1086,10 +1086,10 @@ peu altérés par les activités humaines."
                     subsection = NA
                 }
                 
-                n_page = df_page$n[nrow(df_page)] + 1
-                # N_page = df_page$N[nrow(df_page)] + 1
-                df_page = bind_rows(
-                    df_page,
+                n_page = Pages$n[nrow(Pages)] + 1
+                # N_page = Pages$N[nrow(Pages)] + 1
+                Pages = bind_rows(
+                    Pages,
                     tibble(section=section,
                            subsection=subsection,
                            n=n_page))
@@ -1105,7 +1105,7 @@ peu altérés par les activités humaines."
                     footName = 'carte des régimes hydrologiques'
                 }
                 
-                if (is.null(df_page) | nrow(df_page) == 0) {
+                if (is.null(Pages) | nrow(Pages) == 0) {
                     n_page = i
                 }
 
@@ -1177,7 +1177,7 @@ peu altérés par les activités humaines."
     # If there is no specified station code to highlight
     # (mini map)
     if (!(mapType %in% c('mini', "minimal"))) {
-        return (df_page)
+        return (Pages)
         # Returns the map object
     } else {
         return (map)

@@ -22,14 +22,14 @@
 
 sheet_diagnostic_station = function (data,
                                      meta,
-                                     dataEXind,
-                                     metaEXind,
+                                     dataEX_criteria,
+                                     metaEX_criteria,
                                      dataEXserie,
                                      Colors,
                                      icon_path="",
                                      Warnings=NULL,
                                      logo_path="",
-                                     df_page=NULL,
+                                     Pages=NULL,
                                      Shapefiles=NULL,
                                      figdir="",
                                      verbose=FALSE) {
@@ -86,11 +86,11 @@ sheet_diagnostic_station = function (data,
                                    lim_number=NULL,
                                    dataEXseriePA_ratio)
 
-    Model = levels(factor(dataEXind$Model))
+    Model = levels(factor(dataEX_criteria$Model))
     nModel = length(Model)
                    
     Code = levels(factor(data$Code))
-    CodeALL = levels(factor(dataEXind$Code))
+    CodeALL = levels(factor(dataEX_criteria$Code))
     nCode = length(Code)
 
     for (i in 1:nCode) {
@@ -105,7 +105,7 @@ sheet_diagnostic_station = function (data,
         data_code =
             dplyr::filter(data_code,
                           Model %in%
-                          dataEXind$Model[dataEXind$Code == code])
+                          dataEX_criteria$Model[dataEX_criteria$Code == code])
         
         
         data_obs_code = data_obs[data_obs$Code == code,]
@@ -321,8 +321,8 @@ sheet_diagnostic_station = function (data,
         Code_region = CodeALL[substr(CodeALL, 1, 1) == substr(code, 1, 1)]
 
         criteria = panel_diagnostic_criteria(
-            dataEXind,
-            metaEXind,
+            dataEX_criteria,
+            metaEX_criteria,
             meta,
             Colors,
             codeLight=code,
@@ -350,16 +350,16 @@ sheet_diagnostic_station = function (data,
         # print(herd)
 
         footName = 'Fiche de diagnostic station'
-        if (is.null(df_page)) {
+        if (is.null(Pages)) {
             n_page = i
         } else {
-            if (nrow(df_page) == 0) {
+            if (nrow(Pages) == 0) {
                 n_page = 1
             } else {
-                n_page = df_page$n[nrow(df_page)] + 1
+                n_page = Pages$n[nrow(Pages)] + 1
             }
-            df_page = bind_rows(
-                df_page,
+            Pages = bind_rows(
+                Pages,
                 tibble(section=footName,
                        subsection=code,
                        n=n_page))
@@ -398,5 +398,5 @@ sheet_diagnostic_station = function (data,
                         dpi=300,
                         device=cairo_pdf)
     }
-    return (df_page)
+    return (Pages)
 }

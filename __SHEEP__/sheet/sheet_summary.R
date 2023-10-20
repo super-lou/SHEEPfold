@@ -23,7 +23,7 @@
 ### 4.1. Summary _____________________________________________________
 #' @title Summary panel
 #' @export
-sheet_summary = function (df_page, title="title", subtitle="subtitle", logo_path=NULL, figdir="") {
+sheet_summary = function (Pages, title="title", subtitle="subtitle", logo_path=NULL, figdir="") {
 
 
     if (is.null(title)) {
@@ -38,7 +38,7 @@ sheet_summary = function (df_page, title="title", subtitle="subtitle", logo_path
     text_title = paste0("<b>", title, "</b>")
     text_subtitle = subtitle
 
-    Sec_name = rle(df_page$section)$values
+    Sec_name = rle(Pages$section)$values
     nSec = length(Sec_name)
     
     text_sum1 = ''
@@ -50,8 +50,8 @@ sheet_summary = function (df_page, title="title", subtitle="subtitle", logo_path
     nline_max = 58
     for (idS in 1:nSec) {
         sec_name = Sec_name[idS]
-        subSec_name = rle(df_page$subsection[df_page$section == sec_name])$values
-        n_page = df_page$n[df_page$section == sec_name][1]
+        subSec_name = rle(Pages$subsection[Pages$section == sec_name])$values
+        n_page = Pages$n[Pages$section == sec_name][1]
 
         line = paste("<b>", idS, ". ", sec_name, "</b>", "<br>", sep='')
         page = paste("<b>p.", n_page, "</b><br>", sep='')
@@ -70,8 +70,8 @@ sheet_summary = function (df_page, title="title", subtitle="subtitle", logo_path
         for (idSS in 1:nSSec) {
             subsec_name = subSec_name[idSS]
             if (!is.na(subsec_name)) {
-                n_page = df_page$n[df_page$section == sec_name &
-                                   df_page$subsection == subsec_name][1]
+                n_page = Pages$n[Pages$section == sec_name &
+                                   Pages$subsection == subsec_name][1]
 
                 line = paste("<b>", idS, ".", idSS, ".</b> ",
                              subsec_name, "<br>", sep='')

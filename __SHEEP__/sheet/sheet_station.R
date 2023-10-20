@@ -35,7 +35,7 @@ sheet_station = function (list_df2plot, meta, trend_period,
                             paper_size, shapefile_list, logo_path,
                             zone_to_show, show_colorEvent,
                             outdirTmp_pdf, outdirTmp_png,
-                            df_page=NULL, pdf_chunk="all") {
+                            Pages=NULL, pdf_chunk="all") {
     
     if (!is.null(time_header)) {
         time_header = dplyr::rename(time_header,
@@ -382,13 +382,13 @@ sheet_station = function (list_df2plot, meta, trend_period,
                     } else {
                         footName = 'fiche station'
                     }
-                    if (is.null(df_page)) {
+                    if (is.null(Pages)) {
                         n_page = k + page_code - 1
                     } else {
-                        if (nrow(df_page) == 0 | pdf_chunk == 'by_code') {
+                        if (nrow(Pages) == 0 | pdf_chunk == 'by_code') {
                             n_page = page_code
                         } else {
-                            n_page = df_page$n[nrow(df_page)] + page_code
+                            n_page = Pages$n[nrow(Pages)] + page_code
                         }
                     }
                     foot = panel_foot(footName, n_page,
@@ -564,20 +564,20 @@ sheet_station = function (list_df2plot, meta, trend_period,
 
         print("")
 
-        if (!is.null(df_page)) {
+        if (!is.null(Pages)) {
             section = 'Fiche station'
             subsection = code
-            if (nrow(df_page) == 0 | pdf_chunk == 'by_code') {
+            if (nrow(Pages) == 0 | pdf_chunk == 'by_code') {
                 n_page = page_code
             } else {
-                n_page = df_page$n[nrow(df_page)] + 1
+                n_page = Pages$n[nrow(Pages)] + 1
             }
-            df_page = bind_rows(
-                df_page,
+            Pages = bind_rows(
+                Pages,
                 tibble(section=section,
                        subsection=subsection,
                        n=n_page))
         }   
     }
-    return (df_page)
+    return (Pages)
 }

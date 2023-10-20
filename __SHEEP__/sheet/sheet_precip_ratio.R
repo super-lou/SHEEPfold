@@ -25,7 +25,7 @@ sheet_precip_ratio = function (dataEX,
                                Colors=refCOL,
                                refCOL=refCOL,
                                figdir="",
-                               df_page=NULL,
+                               Pages=NULL,
                                verbose=FALSE) {
 
     paper_size = c(11, 11)
@@ -216,5 +216,5 @@ sheet_precip_ratio = function (dataEX,
                         dpi=300,
                         device=cairo_pdf)
     }
-    return (df_page)
+    return (Pages)
 }

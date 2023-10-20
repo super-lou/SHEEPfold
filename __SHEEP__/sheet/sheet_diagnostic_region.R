@@ -21,14 +21,14 @@
 
 
 sheet_diagnostic_region = function (meta,
-                                    dataEXind,
-                                    metaEXind,
+                                    dataEX_criteria,
+                                    metaEX_criteria,
                                     dataEXserie,
                                     Colors,
                                     icon_path="",
                                     Warnings=NULL,
                                     logo_path="",
-                                    df_page=NULL,
+                                    Pages=NULL,
                                     Shapefiles=NULL,
                                     figdir="",
                                     verbose=FALSE) {
@@ -50,10 +50,10 @@ sheet_diagnostic_region = function (meta,
         ncol=2)
     
 
-    Model = levels(factor(dataEXind$Model))
+    Model = levels(factor(dataEX_criteria$Model))
     nModel = length(Model)
     
-    Code = levels(factor(dataEXind$Code))
+    Code = levels(factor(dataEX_criteria$Code))
     nCode = length(Code)
 
     Region = levels(factor(substr(Code, 1, 1)))
@@ -74,7 +74,7 @@ sheet_diagnostic_region = function (meta,
                          "   ", round(i/nRegion*100, 1), "% done"))
         }
         
-        dataEXind_region = dataEXind[dataEXind$Code %in% Code_region,]
+        dataEX_criteria_region = dataEX_criteria[dataEX_criteria$Code %in% Code_region,]
         
         dataEXserie_region = list()
         for (j in 1:length(dataEXserie)) {
@@ -85,7 +85,7 @@ sheet_diagnostic_region = function (meta,
         names(dataEXserie_region) = names(dataEXserie)
         
         medKGEracine =
-            dplyr::summarise(dplyr::group_by(dataEXind_region,
+            dplyr::summarise(dplyr::group_by(dataEX_criteria_region,
                                              Code),
                              value=median(KGEracine,
                                           na.rm=TRUE),
@@ -203,8 +203,8 @@ sheet_diagnostic_region = function (meta,
         Warnings = "Les stations choisies pour illustrer les résultats à l'échelle régionale illustrent la variabilité des performances obtenues sur les hydrogrammes des débits journaliers médians (stations associées aux maximum, quantile 75 % et 25 %, et minimum de la médiane multi-modèle des KGE\u221A)."
         
         criteria = panel_diagnostic_criteria(
-            dataEXind,
-            metaEXind,
+            dataEX_criteria,
+            metaEX_criteria,
             meta,
             Colors,
             groupCode=Code_region,
@@ -235,16 +235,16 @@ sheet_diagnostic_region = function (meta,
 
 
         footName = 'Fiche de diagnostic région'
-        if (is.null(df_page)) {
+        if (is.null(Pages)) {
             n_page = i
         } else {
-            if (nrow(df_page) == 0) {
+            if (nrow(Pages) == 0) {
                 n_page = 1
             } else {
-                n_page = df_page$n[nrow(df_page)] + 1
+                n_page = Pages$n[nrow(Pages)] + 1
             }
-            df_page = bind_rows(
-                df_page,
+            Pages = bind_rows(
+                Pages,
                 tibble(section=footName,
                        subsection=region_disp,
                        n=n_page))
@@ -283,5 +283,5 @@ sheet_diagnostic_region = function (meta,
                         dpi=300,
                         device=cairo_pdf)
     }
-    return (df_page)
+    return (Pages)
 }

@@ -19,8 +19,8 @@
 # along with dataSheep R package.
 # If not, see <https://www.gnu.org/licenses/>.
 
-panel_diagnostic_criteria = function (dataEXind,
-                                      metaEXind,
+panel_diagnostic_criteria = function (dataEX_criteria,
+                                      metaEX_criteria,
                                       meta,
                                       Colors,
                                       codeLight=NULL,
@@ -221,14 +221,14 @@ panel_diagnostic_criteria = function (dataEXind,
         return (X)
     }
 
-    logicalCol = names(dataEXind)[sapply(dataEXind, class) == "logical"]
-    dataEXind = dataEXind[!(names(dataEXind) %in% logicalCol)]
-    metaEXind = metaEXind[!(metaEXind$var %in% logicalCol),]
+    logicalCol = names(dataEX_criteria)[sapply(dataEX_criteria, class) == "logical"]
+    dataEX_criteria = dataEX_criteria[!(names(dataEX_criteria) %in% logicalCol)]
+    metaEX_criteria = metaEX_criteria[!(metaEX_criteria$var %in% logicalCol),]
     
-    Topic = strsplit(metaEXind$topic, "[|]")
+    Topic = strsplit(metaEX_criteria$topic, "[|]")
     Topic = lapply(Topic, complete)
     mainTopicVAR = sapply(Topic, '[[', 2)
-    names(mainTopicVAR) = metaEXind$var
+    names(mainTopicVAR) = metaEX_criteria$var
     lenMainTopic = rle(mainTopicVAR)$lengths
     nMainTopic = length(lenMainTopic)
     startMainTopic =
@@ -242,22 +242,22 @@ panel_diagnostic_criteria = function (dataEXind,
         svgparser::read_svg)
     names(mainTopic_icon) = mainTopic
 
-    vars2keep = names(dataEXind)
+    vars2keep = names(dataEX_criteria)
     vars2keep = vars2keep[!grepl("([_]obs)|([_]sim)", vars2keep)]
 
-    dataEXind = dplyr::mutate(dataEXind,
+    dataEX_criteria = dplyr::mutate(dataEX_criteria,
                               dplyr::across(where(is.logical),
                                             as.numeric),
                               .keep="all")
 
-    dataEXind = dplyr::select(dataEXind, vars2keep)
+    dataEX_criteria = dplyr::select(dataEX_criteria, vars2keep)
 
     CodeIN = c(codeLight, groupCode)
     
-    Model = levels(factor(dataEXind$Model[dataEXind$Code %in% CodeIN]))
+    Model = levels(factor(dataEX_criteria$Model[dataEX_criteria$Code %in% CodeIN]))
     if (!is.null(codeLight)) {
         Model_codeLight =
-            levels(factor(dataEXind$Model[dataEXind$Code %in%
+            levels(factor(dataEX_criteria$Model[dataEX_criteria$Code %in%
                                           codeLight]))
     } else {
         Model_codeLight = Model
@@ -265,21 +265,21 @@ panel_diagnostic_criteria = function (dataEXind,
 
     nModel = length(Model)
     
-    dataEXind_tmp = dataEXind
-    dataEXind_tmp = dplyr::select(dataEXind_tmp, -c(Code, Model))
+    dataEX_criteria_tmp = dataEX_criteria
+    dataEX_criteria_tmp = dplyr::select(dataEX_criteria_tmp, -c(Code, Model))
 
-    matchVar = match(names(dataEXind_tmp), metaEXind$var)
+    matchVar = match(names(dataEX_criteria_tmp), metaEX_criteria$var)
     matchVar = matchVar[!is.na(matchVar)]
 
-    dataEXind_tmp = dataEXind_tmp[matchVar]
+    dataEX_criteria_tmp = dataEX_criteria_tmp[matchVar]
 
-    nameCol = names(dataEXind_tmp)
+    nameCol = names(dataEX_criteria_tmp)
     Var = nameCol
     nVar = length(Var)
 
     VarTeX = convert2TeX(Var, is_it_small=TRUE)
         
-    Code = levels(factor(dataEXind$Code))    
+    Code = levels(factor(dataEX_criteria$Code))    
     perfect_tick_save = ""
     major_tick_save = Inf
     # major_tick_next = Inf
@@ -574,12 +574,12 @@ panel_diagnostic_criteria = function (dataEXind,
 
         for (j in 1:nModel) {
             model = Model[j]
-            dataEXind_model = dataEXind[dataEXind$Model == model,]
-            dataEXind_model_group =
-                dataEXind_model[dataEXind_model$Code %in% groupCode,]
+            dataEX_criteria_model = dataEX_criteria[dataEX_criteria$Model == model,]
+            dataEX_criteria_model_group =
+                dataEX_criteria_model[dataEX_criteria_model$Code %in% groupCode,]
 
-            if (nrow(dataEXind_model_group) != 0) {
-                Q = (quantile(dataEXind_model_group[[var]],
+            if (nrow(dataEX_criteria_model_group) != 0) {
+                Q = (quantile(dataEX_criteria_model_group[[var]],
                               c(min(Probs), 1-min(Probs)),
                               na.rm=TRUE)+shift)*norm
                 
@@ -600,13 +600,13 @@ panel_diagnostic_criteria = function (dataEXind,
 
         for (j in 1:nModel) {
             model = Model[j]
-            dataEXind_model = dataEXind[dataEXind$Model == model,]
-            dataEXind_model_group =
-                dataEXind_model[dataEXind_model$Code %in% groupCode,]
+            dataEX_criteria_model = dataEX_criteria[dataEX_criteria$Model == model,]
+            dataEX_criteria_model_group =
+                dataEX_criteria_model[dataEX_criteria_model$Code %in% groupCode,]
             
-            if (nrow(dataEXind_model_group) != 0) {
+            if (nrow(dataEX_criteria_model_group) != 0) {
                 for (k in 1:NP) {
-                    Q = (quantile(dataEXind_model_group[[var]],
+                    Q = (quantile(dataEX_criteria_model_group[[var]],
                                   c(Probs[k], 1-Probs[k]),
                                   na.rm=TRUE)+shift)*norm
                     
@@ -632,18 +632,18 @@ panel_diagnostic_criteria = function (dataEXind,
         
         for (j in 1:nModel) {
             model = Model[j]
-            dataEXind_model = dataEXind[dataEXind$Model == model,]
+            dataEX_criteria_model = dataEX_criteria[dataEX_criteria$Model == model,]
 
             if (!is.null(codeLight)) {
-                dataEXind_model_code =
-                    dataEXind_model[dataEXind_model$Code ==
+                dataEX_criteria_model_code =
+                    dataEX_criteria_model[dataEX_criteria_model$Code ==
                                     codeLight,]
-                value = dataEXind_model_code[[var]]
+                value = dataEX_criteria_model_code[[var]]
             } else {
-                dataEXind_model_group =
-                    dataEXind_model[dataEXind_model$Code %in%
+                dataEX_criteria_model_group =
+                    dataEX_criteria_model[dataEX_criteria_model$Code %in%
                                     groupCode,]
-                value = median(dataEXind_model_group[[var]],
+                value = median(dataEX_criteria_model_group[[var]],
                                na.rm=TRUE)
             }
 
@@ -701,18 +701,18 @@ panel_diagnostic_criteria = function (dataEXind,
         
         for (j in 1:nModel) {
             model = Model[j]
-            dataEXind_model = dataEXind[dataEXind$Model == model,]
+            dataEX_criteria_model = dataEX_criteria[dataEX_criteria$Model == model,]
 
             if (!is.null(codeLight)) {
-                dataEXind_model_code =
-                    dataEXind_model[dataEXind_model$Code ==
+                dataEX_criteria_model_code =
+                    dataEX_criteria_model[dataEX_criteria_model$Code ==
                                     codeLight,]
-                value = dataEXind_model_code[[var]]
+                value = dataEX_criteria_model_code[[var]]
             } else {
-                dataEXind_model_group =
-                    dataEXind_model[dataEXind_model$Code %in%
+                dataEX_criteria_model_group =
+                    dataEX_criteria_model[dataEX_criteria_model$Code %in%
                                     groupCode,]
-                value = median(dataEXind_model_group[[var]],
+                value = median(dataEX_criteria_model_group[[var]],
                                na.rm=TRUE)
             }
 
@@ -774,18 +774,18 @@ panel_diagnostic_criteria = function (dataEXind,
 
         for (j in 1:nModel) {
             model = Model[j]
-            dataEXind_model = dataEXind[dataEXind$Model == model,]
+            dataEX_criteria_model = dataEX_criteria[dataEX_criteria$Model == model,]
 
             if (!is.null(codeLight)) {
-                dataEXind_model_code =
-                    dataEXind_model[dataEXind_model$Code ==
+                dataEX_criteria_model_code =
+                    dataEX_criteria_model[dataEX_criteria_model$Code ==
                                     codeLight,]
-                value = dataEXind_model_code[[var]]
+                value = dataEX_criteria_model_code[[var]]
             } else {
-                dataEXind_model_group =
-                    dataEXind_model[dataEXind_model$Code %in%
+                dataEX_criteria_model_group =
+                    dataEX_criteria_model[dataEX_criteria_model$Code %in%
                                     groupCode,]
-                value = median(dataEXind_model_group[[var]],
+                value = median(dataEX_criteria_model_group[[var]],
                                na.rm=TRUE)
             }
 

@@ -26,7 +26,7 @@ sheet_correlation_matrix = function (dataEX, metaEX,
                                      subtitle=NULL,
                                      criteria_selection=NULL,
                                      icon_path="", logo_path="",
-                                     df_page=NULL,
+                                     Pages=NULL,
                                      figdir='',
                                      verbose=FALSE) {
 
@@ -194,16 +194,16 @@ sheet_correlation_matrix = function (dataEX, metaEX,
                          verbose=verbose)
 
         footName = paste0('Matrice de corrélation : ', Model2Disp)
-        if (is.null(df_page)) {
+        if (is.null(Pages)) {
             n_page = i
         } else {
-            if (nrow(df_page) == 0) {
+            if (nrow(Pages) == 0) {
                 n_page = 1
             } else {
-                n_page = df_page$n[nrow(df_page)] + 1
+                n_page = Pages$n[nrow(Pages)] + 1
             }
-            df_page = bind_rows(
-                df_page,
+            Pages = bind_rows(
+                Pages,
                 dplyr::tibble(section="Matrice de corrélation",
                               subsection=Model2Disp,
                               n=n_page))
@@ -244,5 +244,5 @@ sheet_correlation_matrix = function (dataEX, metaEX,
                         dpi=300,
                         device=cairo_pdf)
     }
-    return (df_page)
+    return (Pages)
 }
