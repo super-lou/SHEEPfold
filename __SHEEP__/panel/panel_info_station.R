@@ -59,7 +59,7 @@ panel_info_station = function(data_code,
     }
 
     # Gets the metadata about the station
-    meta_code = meta[meta$Code == codeLight,]
+    meta_code = meta[meta$Code == codeLight,]    
 
     if ('title' %in% to_do | 'all' %in% to_do) {
         # Converts all texts to graphical object in the right position
@@ -204,9 +204,6 @@ panel_info_station = function(data_code,
                      id="map",
                      height=1,
                      verbose=verbose)    
-
-
-    print(herd)
     
     return (herd)
 }  
