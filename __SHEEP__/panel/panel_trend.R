@@ -34,6 +34,8 @@ panel_trend = function (var,
                         breaks="10 years",
                         minor_breaks="2 years",
                         date_labels="%Y",
+                        margin_trend=
+                            margin(t=0, r=0, b=0, l=0, "mm"),
                         first=FALSE, last=FALSE) {
     
 
@@ -243,8 +245,8 @@ panel_trend = function (var,
     p = p +
         geom_point(aes(x=dataEX_code_var$Date,
                        y=dataEX_code_var[[varEX[1]]]),
-                   shape=19, color='grey50', alpha=1,
-                   stroke=0, size=1)
+                   shape=19, color=IPCCgrey23, alpha=1,
+                   stroke=0, size=1.2)
 
     
     ### Missing data ###
@@ -331,9 +333,6 @@ panel_trend = function (var,
         }
         ymaxR = y + gpct(5, codeX, min_lim=ymin_lim)
 
-
-        print(Palette)
-        
         if (trendEX_code_var_period$H) {
             res = compute_colorBin(trendEX_code_var_period$trend_min,
                                    trendEX_code_var_period$trend_max,
@@ -396,8 +395,6 @@ panel_trend = function (var,
         leg_trend = bind_rows(leg_trend, leg_trendtmp)  
     }
 
-    print("a")
-    
     if (length(linetype) < nPeriod) {
         linetype = rep(linetype, times=nPeriod)
     }
@@ -489,16 +486,13 @@ panel_trend = function (var,
         }
     }
 
-    print("b")
 
     for (j in 1:nPeriod) {
-        print("aa")
         plot_trend_per = plot_trend[plot_trend$period == j,]
         if (is_date) {
             plot_trend_per$ord = plot_trend_per$ord +
                 as.Date("1970-01-01")
         }
-        print("bb")
         
         p = p + 
             annotate("line",
@@ -511,7 +505,12 @@ panel_trend = function (var,
     }
 
     for (j in 1:nPeriod) {
-        plot_trend_per = plot_trend[plot_trend$period == j,]        
+        plot_trend_per = plot_trend[plot_trend$period == j,]
+        if (is_date) {
+            plot_trend_per$ord = plot_trend_per$ord +
+                as.Date("1970-01-01")
+        }
+        
         p = p + 
             annotate("line",
                      x=plot_trend_per$abs,
@@ -522,9 +521,6 @@ panel_trend = function (var,
                      lineend="round")
     }
 
-    print("cc")
-    print(samplePeriod)
-
     if (!is.null(samplePeriod)) {
         hPx = gpct(0, codeDate, shift=TRUE)
         hPy = gpct(50, codeX, min_lim=ymin_lim, shift=TRUE)
@@ -534,30 +530,27 @@ panel_trend = function (var,
                 "$^{$",
                 "\\small{",
                 format(as.Date(paste0("1972-",
-                                      samplePeriod[1])), "%d %B"),
+                                      samplePeriod[1])), "%d %b"),
                 " / ",
                 format(as.Date(paste0("1972-",
-                                      samplePeriod[2])), "%d %B"),
+                                      samplePeriod[2])), "%d %b"),
                 "}}")
         } else {
             if (nchar(samplePeriod) > 5) {
-                hPlabel = samplePeriod
-            } else {
-                hPlabel = paste0(
-                    "$^{$",
-                    "\\small{",
-                    format(as.Date(paste0("1972-",
-                                          samplePeriod)), "%d %B"),
-                    " / ",
-                    format(as.Date(paste0("1972-",
-                                          samplePeriod))-1, "%d %B"),
-                    "}}")
+                samplePeriod = format(dataEX_code_var$Date[1], "%m-%d")
             }
+            hPlabel = paste0(
+                "$^{$",
+                "\\small{",
+                format(as.Date(paste0("1972-",
+                                      samplePeriod)), "%d %b"),
+                " / ",
+                format(as.Date(paste0("1972-",
+                                      samplePeriod))-1, "%d %b"),
+                "}}")
         }
     }
 
-    print("c")
-    
     varF = gsub("etiage", "étiage", var)  
     if (grepl("[_]", varF)) {
         varF = gsub("[_]", "$_{$", varF)
@@ -565,8 +558,12 @@ panel_trend = function (var,
     }
     unitF = gsub(" ", "\\\\,", unit)
     unitF = gsub("°", "\\textbf{^\\degree}", unitF, fixed=TRUE)
-    ylabel = paste0("\\textbf{", varF, "}", "\\;", "\\[$", unitF, "$\\]")
-
+    if (!grepl("[[:digit:]]", unit)) {
+        ylabel = paste0("\\textbf{", varF, "}", "\\,", "\\small{\\[", unitF, "\\]}")
+    } else {
+        ylabel = paste0("\\textbf{", varF, "}", "\\,", "\\small{\\[$", unitF, "$\\]}")
+    }
+    
     if (!is.null(samplePeriod)) {
         yTeXlabel = bquote(atop(.(TeX(ylabel)[[1]]),.(TeX(hPlabel)[[1]])))
     } else {
@@ -620,8 +617,6 @@ panel_trend = function (var,
                        by=minor_breaks)
         return (res)
     }
-    
-    print("d")
     
     p = p +
         scale_x_date(
@@ -680,8 +675,6 @@ panel_trend = function (var,
         }
     }
 
-    print("e")
-
     if (nPeriod > 1) {
         tt = 2.5
         t = 2
@@ -693,49 +686,25 @@ panel_trend = function (var,
         tb = 0
         b = 0
     }
-    
-    # if (last == "all") {
-    #     pLastTRUE = p
-    #     pLastFALSE = p
-    #     if (first) {
-    #         pLastFALSE = pLastFALSE +
-    #             theme(plot.margin=margin(t=tt, r=0, b=tb, l=0,
-    #                                      unit="mm"))
-    #         pLastTRUE = pLastTRUE +
-    #             theme(plot.margin=margin(t=tt, r=0, b=0, l=0,
-    #                                      unit="mm"))
-    #     } else {
-    #         pLastFALSE = pLastFALSE + 
-    #             theme(plot.margin=margin(t=t, r=0, b=b, l=0,
-    #                                      unit="mm"),
-    #                   axis.text.x=element_blank())
-    #         pLastTRUE = pLastTRUE +
-    #             theme(plot.margin=margin(t=t, r=0, b=0, l=0,
-    #                                      unit="mm"))
-    #     }
 
-    #     res = list(lastTRUE=pLastTRUE, lastFALSE=pLastFALSE)
-    #     return(res)
-        
-    # } else {
     if (first & !last) {
         p = p +
             theme(plot.margin=margin(t=tt, r=0, b=tb, l=0,
-                                     unit="mm"))
+                                     unit="mm") + margin_trend)
     } else if (!first & last) {
         p = p + 
             theme(plot.margin=margin(t=t, r=0, b=0, l=0,
-                                     unit="mm"))
+                                     unit="mm") + margin_trend)
     } else if (first & last) {
         p = p + 
             theme(plot.margin=margin(t=tt, r=0, b=0, l=0,
-                                     unit="mm"))
+                                     unit="mm") + margin_trend)
     } else if (!first & !last) {
         p = p + 
             theme(plot.margin=margin(t=t, r=0, b=b, l=0,
-                                     unit="mm"),
+                                     unit="mm") + margin_trend,
                   axis.text.x=element_blank())
     }
+    
     return (p)
-    # }
 } 

@@ -29,8 +29,10 @@ panel_spaghetti = function (data_code, Colors=NULL,
                             alpha=0.7,
                             isSqrt=FALSE, missRect=FALSE,
                             isBack=TRUE,
-                            isTitle=TRUE,
+                            isTitleAbove=TRUE,
                             isLegend=FALSE,
+                            obsLegend="Observations",
+                            addModelLegend=FALSE,
                             sizeYticks=9,
                             date_labels="%Y",
                             breaks="10 years",
@@ -59,80 +61,120 @@ panel_spaghetti = function (data_code, Colors=NULL,
     unitTeX = gsub(" ", "\\\\,", unit)
     
     titleTeX = convert2TeX(title, bold=FALSE)
-    if (grepl("[*]unit[*]", titleTeX)) {
-        titleTeX = gsub("[*]unit[*]",
-                     paste0("($", unitTeX, "$)"),
-                     titleTeX)
+
+    if (isTitleAbove) {
+        if (grepl("[*]unit[*]", titleTeX)) {
+            titleTeX = gsub("[*]unit[*]",
+                            paste0("($", unitTeX, "$)"),
+                            titleTeX)
+        } else {
+            titleTeX = paste0(titleTeX, "\\,", "($", unitTeX, "$)")
+        }
+        
     } else {
-        titleTeX = paste0(titleTeX, "\\,", "($", unitTeX, "$)")
+        if (grepl("[*]unit[*]", titleTeX)) {
+            titleTeX = gsub("[*]unit[*]",
+                            paste0("[$", unitTeX, "$]"),
+                            titleTeX)
+        } else {
+            titleTeX = paste0("\\textbf{", titleTeX, "}", "\\,", "\\small{\\[$", unitTeX, "$\\]}")
+        }
     }
 
     
     if (!is.null(subtitle)) {
         subtitleTeX = convert2TeX(subtitle, bold=FALSE)
     }
-    
-    title = ggplot() + theme_void() +
-        theme(plot.margin=margin_title)
 
-    title = title +
-        annotate("text",
-                 x=0,
-                 y=1,
-                 label=TeX(titleTeX),
-                 size=3, hjust=0, vjust=1,
-                 color=IPCCgrey25)
+    if (isTitleAbove | isLegend) {
+        title = ggplot() + theme_void() +
+            theme(plot.margin=margin_title)
 
-    if (!is.null(subtitle)) {
-        title = title +
-            annotate("text",
-                     x=0,
-                     y=0,
-                     label=TeX(subtitleTeX),
-                     size=3, hjust=0, vjust=0,
-                     color=IPCCgrey25)
-    }
-
-    if (isLegend) {
-        title = title +
-            annotate("line",
-                     x=c(0.25, 0.27),
-                     y=rep(0.25, 2),
-                     color=IPCCgrey23,
-                     linewidth=0.7,
-                     lineend="round") +
-            annotate("text",
-                     x=0.277,
-                     y=0.5,
-                     label="Observations",
-                     size=2.5, hjust=0, vjust=1,
-                     color=IPCCgrey50)
-        
-        if (missRect) {
+        if (isTitleAbove) {
+            dx_title = 0.25
             title = title +
-                annotate("rect",
-                         xmin=0.37, 
-                         ymin=0, 
-                         xmax=0.375, 
-                         ymax=0.55,
-                         linetype=0,
-                         fill=INRAElightcyan,
-                         alpha=0.4) +
                 annotate("text",
-                         x=0.38,
+                         x=0,
+                         y=1,
+                         label=TeX(titleTeX),
+                         size=3, hjust=0, vjust=1,
+                         color=IPCCgrey25)
+
+            if (!is.null(subtitle)) {
+                title = title +
+                    annotate("text",
+                             x=0,
+                             y=0,
+                             label=TeX(subtitleTeX),
+                             size=3, hjust=0, vjust=0,
+                             color=IPCCgrey25)
+            }
+        } else {
+            dx_title = 0.05
+        }
+
+        if (isLegend) {
+            dx_obs = 0.12
+            title = title +
+                annotate("line",
+                         x=c(dx_title,
+                             dx_title+0.02),
+                         y=rep(0.25, 2),
+                         color=IPCCgrey23,
+                         linewidth=0.7,
+                         lineend="round") +
+                annotate("text",
+                         x=dx_title+0.027,
                          y=0.5,
-                         label="Lacune",
+                         label=obsLegend,
                          size=2.5, hjust=0, vjust=1,
                          color=IPCCgrey50)
+
+            if (addModelLegend & length(Colors) == 1) {
+                dx_model = 0.14
+                title = title +
+                    annotate("line",
+                             x=c(dx_title+dx_obs,
+                                 dx_title+dx_obs+0.02),
+                             y=rep(0.25, 2),
+                             color=Colors,
+                             linewidth=0.7,
+                             lineend="round") +
+                    annotate("text",
+                             x=dx_title+dx_obs+0.027,
+                             y=0.5,
+                             label=names(Colors),
+                             size=2.5, hjust=0, vjust=1,
+                             color=IPCCgrey50)
+            } else {
+                dx_model = 0
+            }
+            
+            if (missRect) {
+                title = title +
+                    annotate("rect",
+                             xmin=dx_title+dx_obs+dx_model, 
+                             ymin=0, 
+                             xmax=dx_title+dx_obs+dx_model+0.005, 
+                             ymax=0.55,
+                             linetype=0,
+                             fill=INRAElightcyan,
+                             alpha=0.4) +
+                    annotate("text",
+                             x=dx_title+dx_obs+dx_model+0.01,
+                             y=0.5,
+                             label="Lacunes",
+                             size=2.5, hjust=0, vjust=1,
+                             color=IPCCgrey50)
+            }
         }
+
+        title = title +
+            scale_x_continuous(limits=c(0, 1),
+                               expand=c(0, 0)) +
+            scale_y_continuous(limits=c(0, 1),
+                               expand=c(0, 0))
     }
-
-    title = title +
-        scale_x_continuous(limits=c(0, 1),
-                           expand=c(0, 0)) +
-        scale_y_continuous(limits=c(0, 1),
-                           expand=c(0, 0))
-
     
    
     isDate = inherits(data_code$Date, 'Date')
@@ -181,10 +223,15 @@ panel_spaghetti = function (data_code, Colors=NULL,
 
     # Open new plot
     spag = ggplot() + coord_cartesian(clip="off") + 
-        theme_IPCC(isBack, isLabelX=!is.null(Xlabel)) +
-        # theme_WIP() + 
+        theme_IPCC(isBack,
+                   isLabelX=!is.null(Xlabel),
+                   isLabelY=!isTitleAbove) +
         theme(panel.border=element_blank(),
               axis.text.y=element_text(size=sizeYticks))
+
+    if (!isTitleAbove) {
+        spag = spag + ylab(TeX(titleTeX))
+    }
     
 
     ### Grid ###
@@ -229,21 +276,10 @@ panel_spaghetti = function (data_code, Colors=NULL,
 
     # zeroline
     if (isZeroLine) {
-        # if (!is.na(limits_ymin)) {
-        # spag = spag +
-        #     ggplot2::annotate("line",
-        #                       x=limits,
-        #                       y=c(limits_ymin,
-        #                           limits_ymin),
-        #                       color=IPCCgrey60,
-        #                       size=0.5,
-        #                       lineend="round")
-        # } else {
         spag = spag + 
             theme(axis.line.x=element_line(color=IPCCgrey60,
                                            size=0.5,
                                            lineend="round"))
-        # }
     }
     
     ### Data ###
@@ -375,43 +411,6 @@ panel_spaghetti = function (data_code, Colors=NULL,
     }
 
     if (isNormLaw) {
-        
-        # spag = spag +
-        #     annotation_custom(
-        #         ggplotGrob(ggplot() + theme_void() +
-        #                    annotate("segment",
-        #                             x=0.72, xend=0.77,
-        #                             y=-1.45, yend=-1.45,
-        #                             color=IPCCgrey50,
-        #                             linewidth=0.3,
-        #                             arrow=arrow(length=unit(1, "mm")),
-        #                             lineend="round") +
-        #                    annotate("text",
-        #                             x=0.78, y=-1.45,
-        #                             label="  basses eaux",
-        #                             color=IPCCgrey50,
-        #                             size=2.7,
-        #                             vjust=0.51, hjust=0) +
-        #                    annotate("segment",
-        #                             x=0.28, xend=0.23,
-        #                             y=-1.45, yend=-1.45,
-        #                             color=IPCCgrey50,
-        #                             linewidth=0.3,
-        #                             arrow=arrow(length=unit(1, "mm")),
-        #                             lineend="round") +
-        #                    annotate("text",
-        #                             x=0.22, y=-1.45,
-        #                             label="hautes eaux  ",
-        #                             color=IPCCgrey50,
-        #                             size=2.7,
-        #                             vjust=0.51, hjust=1) +
-        #                    scale_x_continuous(limits=c(0, 1),
-        #                                       expand=c(0, 0)) +
-        #                    scale_y_continuous(limits=c(-2, 2),
-        #                                       expand=c(0, 0))),
-        #         xmin=-Inf, xmax=Inf,
-        #         ymin=-3, ymax=3)
-
         low_major = c(1e-3, 1e-2, 1e-1, 0.5)
         up_major = rev(1-low_major)
         major_breaks = c(low_major, up_major)
@@ -516,34 +515,45 @@ panel_spaghetti = function (data_code, Colors=NULL,
     }
 
 
-    if (isTitle) {
-        height_title = ratio_title
+    if (isTitleAbove | isLegend) {
+        plan = matrix(c("title",
+                        "spag"),
+                      nrow=2, 
+                      byrow=TRUE)
+
+        herd = bring_grass(verbose=verbose)
+        herd = plan_of_herd(herd, plan,
+                            verbose=verbose)
+        
+        herd = add_sheep(herd,
+                         sheep=title,
+                         id="title",
+                         height=ratio_title,
+                         verbose=verbose)
+        herd = add_sheep(herd,
+                         sheep=spag,
+                         id="spag",
+                         height=1,
+                         verbose=verbose)
+        
     } else {
-        height_title = 0
+        plan = matrix("spag",
+                      nrow=1, 
+                      byrow=TRUE)
+
+        herd = bring_grass(verbose=verbose)
+        herd = plan_of_herd(herd, plan,
+                            verbose=verbose)
+        herd = add_sheep(herd,
+                         sheep=spag,
+                         id="spag",
+                         height=1,
+                         verbose=verbose)
     }
 
-    plan = matrix(c("title",
-                    "spag"),
-                  nrow=2, 
-                  byrow=TRUE)
+
     
-    herd = bring_grass(verbose=verbose)
-    herd = plan_of_herd(herd, plan,
-                        verbose=verbose)
-    
-    herd = add_sheep(herd,
-                     sheep=title,
-                     id="title",
-                     height=height_title,
-                     verbose=verbose)
-    herd = add_sheep(herd,
-                     sheep=spag,
-                     id="spag",
-                     height=1,
-                     verbose=verbose)
-    
-    # herd = shear_sheeps(herd,
-    #                     verbose=verbose)
+
     
     return (herd)
 } 

@@ -43,13 +43,12 @@ sheet_stationnarity_station = function (data,
     foot_height = 1.25
     var_height = (29.7 - 0.5*2 - info_height - chronicle_height - foot_height) / nVar
     
-    var_width = 21
+    var_width = 21 - 0.5*2 
     
     plan = matrix(c(
         "info", "chronicle", Var, "foot"
     ), ncol=1)
 
-    
     regimeHydro =
         find_regimeHydro(
             dplyr::rename(dplyr::select(dataEX_serie$QM,
@@ -81,7 +80,7 @@ sheet_stationnarity_station = function (data,
         herd = bring_grass(verbose=verbose)
         herd = plan_of_herd(herd, plan,
                             verbose=verbose)
-        
+
         info = panel_info_station(
             data_code,
             dataEX_serie_code$QM$QM_obs,
@@ -98,48 +97,56 @@ sheet_stationnarity_station = function (data,
                          height=info_height,
                          verbose=verbose)
 
-        chronicle = panel_spaghetti(data_code,
-                                    title="(a) Débit journalier",
+        data_code_chronicle = dplyr::rename(data_code, Q_sim=Q_nat)
+        data_code_chronicle$Model = "Naturalisé"
+        Colors = IPCCgold
+        names(Colors) = "Naturalisé"
+        
+        limits = c(min(data_code$Date), max(data_code$Date))
+        
+        chronicle = panel_spaghetti(data_code_chronicle,
+                                    Colors=Colors,
+                                    title="Q",
                                     unit="m^{3}.s^{-1}",
-                                    alpha=0.35,
+                                    alpha=1,
                                     isSqrt=TRUE,
                                     missRect=TRUE,
                                     isBack=FALSE,
-                                    isTitle=TRUE,
+                                    isTitleAbove=FALSE,
                                     isLegend=TRUE,
+                                    obsLegend="Observé",
+                                    addModelLegend=TRUE,
                                     sizeYticks=6,
                                     date_labels="%Y",
                                     breaks="5 years",
                                     minor_breaks="1 years",
                                     limits_ymin=0,
+                                    isZeroLine=TRUE,
                                     isBackObsAbove=FALSE,
-                                    lwObs=0.2,
-                                    lwObs_back=0.4,
-                                    lwSim=0.4,
-                                    lwSim_back=0.7,
+                                    lwObs=0.3,
+                                    lwObs_back=0.7,
+                                    lwSim=0.5,
+                                    lwSim_back=0.9,
                                     grid=TRUE,
                                     ratio_title=1/4,
                                     margin_title=
-                                        margin(t=2, r=0, b=0, l=0, "mm"),
+                                        margin(t=2, r=0, b=0, l=20, "mm"),
                                     margin_spag=
                                         margin(t=0, r=0, b=0, l=0, "mm"),
                                     first=FALSE,
-                                    last=FALSE)
+                                    last=TRUE)
         herd = add_sheep(herd,
                          sheep=chronicle,
                          id="chronicle",
-                         label="align",
                          height=chronicle_height,
                          verbose=verbose)
+        herd$sheep$label[herd$sheep$id == "chronicle.spag"] = "align"
 
         for (j in 1:nVar) {
             var = Var[j]
             print(paste0("Time panel for ", var))
 
-            if (j == 1) {
-                first = TRUE
-                last = FALSE
-            } else if (j == nVar) {
+            if (j == nVar) {
                 first = FALSE
                 last = TRUE
             } else {
@@ -160,12 +167,14 @@ sheet_stationnarity_station = function (data,
                                 period_trend_show=period_trend_show,
                                 linetype='solid',
                                 missRect=FALSE,
-                                axis_xlim=NULL,
+                                axis_xlim=limits,
                                 grid=FALSE,
                                 ymin_lim=NULL,
-                                breaks="10 years",
-                                minor_breaks="2 years",
+                                breaks="5 years",
+                                minor_breaks="1 years",
                                 date_labels="%Y",
+                                margin_trend=
+                                    margin(t=1, r=0, b=0, l=0, "mm"),
                                 first=first, last=last)
             
             herd = add_sheep(herd,
