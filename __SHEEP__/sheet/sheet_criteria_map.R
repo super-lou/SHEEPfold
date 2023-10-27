@@ -41,13 +41,17 @@ sheet_criteria_map = function (dataEX_criteria,
                                verbose=FALSE) {
 
     paper_size = c(15, 15)
-    page_margin = c(t=0.5, r=0.5, b=0.25, l=0.5)
+
+    page_margin = c(t=0.25, r=0.5, b=0.25, l=0.5)
+    
     if (is_foot) {
         foot_height = 1.25
     } else {
         foot_height = 0
     }
-    map_height = 15 - 0.5 - 0.25 - foot_height
+    
+    map_height =
+        paper_size[1] - page_margin["t"] - page_margin["b"] - foot_height
     
     if (is_foot) {
         plan = matrix(c("title", "map", "foot",
@@ -188,7 +192,7 @@ sheet_criteria_map = function (dataEX_criteria,
             glose = metaEX_criteria$glose[metaEX_criteria$var == var]
             glose = guess_newline(glose, px=20, PX=PX)
             glose = unlist(strsplit(glose, "\n"))
-
+            
             for (k in 1:length(glose)) {
                 title = title +
                     annotate("text",
@@ -227,6 +231,12 @@ sheet_criteria_map = function (dataEX_criteria,
                 min_var = NULL
                 max_var = NULL
             }
+
+            if (is.null(subtitle)) {
+                margin_map = margin(t=5, r=0, b=0, l=0, "mm")
+            } else {
+                margin_map = margin(t=10, r=0, b=0, l=0, "mm")
+            }
             
             map = panel_criteria_map(dataEX_criteria_model_var,
                                      metaEX_criteria,
@@ -239,7 +249,7 @@ sheet_criteria_map = function (dataEX_criteria,
                                      model_by_shape=model_by_shape,
                                      remove_warning_lim=remove_warning_lim,
                                      Shapefiles=Shapefiles,
-                                     margin(t=0, r=0, b=0, l=0, "cm"),
+                                     margin_map,
                                      verbose=verbose)
             
             herd = add_sheep(herd,

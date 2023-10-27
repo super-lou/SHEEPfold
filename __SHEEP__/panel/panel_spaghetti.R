@@ -199,7 +199,7 @@ panel_spaghetti = function (data_code, Colors=NULL,
         
         data_code_obs =
             dplyr::summarise(dplyr::group_by(data_code, Date),
-                             Q=select_good(Q_obs),
+                             Q=median(Q_obs, na.rm=TRUE),
                              .groups="drop")
 
         maxQ_obs = max(data_code_obs$Q, na.rm=TRUE)

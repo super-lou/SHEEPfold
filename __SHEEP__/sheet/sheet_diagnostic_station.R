@@ -24,7 +24,7 @@ sheet_diagnostic_station = function (data,
                                      meta,
                                      dataEX_criteria,
                                      metaEX_criteria,
-                                     dataEXserie,
+                                     dataEX_serie,
                                      Colors,
                                      icon_path="",
                                      Warnings=NULL,
@@ -53,38 +53,66 @@ sheet_diagnostic_station = function (data,
         ncol=2)
 
     
-    data_obs =
-        dplyr::summarise(dplyr::group_by(data, Code, Date),
-                         Q=select_good(Q_obs),
-                         .groups="drop")
-    # dataEXserieQM_obs =
-    #     dplyr::summarise(dplyr::group_by(dataEXserie$QM, Code, Date),
+
+    # dataEX_serieQM_obs =
+    #     dplyr::summarise(dplyr::group_by(dataEX_serie$QM, Code, Date),
     #                      QM=select_good(QM_obs),
     #                      .groups="drop")
 
-    # dataEXseriePA_med = dplyr::summarise(dplyr::group_by(dataEXserie$PA,
+    # dataEX_seriePA_med = dplyr::summarise(dplyr::group_by(dataEX_serie$PA,
     #                                                      Code, Date),
     #                                      PAs=median(PAs_obs, na.rm=TRUE),
     #                                      PAl=median(PAl_obs, na.rm=TRUE),
     #                                      PA=median(PA_obs, na.rm=TRUE),
     #                                      .groups="drop")
 
-    # regimeHydro = find_regimeHydro(dataEXserieQM_obs, lim_number=2, dataEXseriePA_med)
+    # regimeHydro = find_regimeHydro(dataEX_serieQM_obs, lim_number=2, dataEX_seriePA_med)
 
-    dataEXserieQM_obs =
-        dplyr::summarise(dplyr::group_by(dataEXserie$QM,
+    # dataEX_serieQM_obs =
+    #     dplyr::summarise(dplyr::group_by(dataEX_serie$QM,
+    #                                      Code, Date),
+    #                      QM=select_good(QM_obs),
+    #                      .groups="drop")
+    # dataEX_seriePA_ratio =
+    #     dplyr::summarise(dplyr::group_by(dataEX_serie$PA_ratio,
+    #                                      Code),
+    #                      Ps_ratio=median(Ps_ratio_obs, na.rm=TRUE),
+    #                      Pl_ratio=median(Pl_ratio_obs, na.rm=TRUE),
+    #                      .groups="drop")
+    # regimeHydro = find_regimeHydro(dataEX_serieQM_obs,
+    #                                lim_number=NULL,
+    #                                dataEX_seriePA_ratio)
+
+    data_obs =
+        dplyr::summarise(dplyr::group_by(data, Code, Date),
+                         Q=median(Q_obs, na.rm=TRUE),
+                         .groups="drop")
+
+    dataEX_serieQM_obs =
+        dplyr::summarise(dplyr::group_by(dataEX_serie$QM,
                                          Code, Date),
-                         QM=select_good(QM_obs),
+                         QM=median(QM_obs, na.rm=TRUE),
                          .groups="drop")
-    dataEXseriePA_ratio =
-        dplyr::summarise(dplyr::group_by(dataEXserie$PA_ratio,
-                                         Code),
-                         Ps_ratio=median(Ps_ratio_obs, na.rm=TRUE),
-                         Pl_ratio=median(Pl_ratio_obs, na.rm=TRUE),
-                         .groups="drop")
-    regimeHydro = find_regimeHydro(dataEXserieQM_obs,
+    
+    dataEX_serieR_ratio =
+        dplyr::full_join(dataEX_serie$Rl_ratio,
+                         dataEX_serie$Rs_ratio,
+                         by=c("Code", "Model"))
+    dataEX_serieR_ratio =
+        dplyr::summarise(
+                   dplyr::group_by(dataEX_serieR_ratio,
+                                   Code),
+                   Rs_ratio=median(Rs_ratio_obs,
+                                   na.rm=TRUE),
+                   Rl_ratio=median(Rl_ratio_obs,
+                                   na.rm=TRUE),
+                   .groups="drop")
+    
+    regimeHydro = find_regimeHydro(dataEX_serieQM_obs,
                                    lim_number=NULL,
-                                   dataEXseriePA_ratio)
+                                   dataEX_serieR_ratio)
+
+    
 
     Model = levels(factor(dataEX_criteria$Model))
     nModel = length(Model)
@@ -109,16 +137,16 @@ sheet_diagnostic_station = function (data,
         
         
         data_obs_code = data_obs[data_obs$Code == code,]
-        dataEXserieQM_obs_code =
-            dataEXserieQM_obs[dataEXserieQM_obs$Code == code,]
+        dataEX_serieQM_obs_code =
+            dataEX_serieQM_obs[dataEX_serieQM_obs$Code == code,]
 
-        dataEXserie_code = list()
-        for (j in 1:length(dataEXserie)) {
-            dataEXserie_code = append(
-                dataEXserie_code,
-                list(dataEXserie[[j]][dataEXserie[[j]]$Code == code,]))
+        dataEX_serie_code = list()
+        for (j in 1:length(dataEX_serie)) {
+            dataEX_serie_code = append(
+                dataEX_serie_code,
+                list(dataEX_serie[[j]][dataEX_serie[[j]]$Code == code,]))
         }
-        names(dataEXserie_code) = names(dataEXserie)
+        names(dataEX_serie_code) = names(dataEX_serie)
         
         herd = bring_grass(verbose=verbose)
         herd = plan_of_herd(herd, plan,
@@ -126,7 +154,7 @@ sheet_diagnostic_station = function (data,
         
         info = panel_info_station(
             data_obs_code,
-            dataEXserieQM_obs_code$QM,
+            dataEX_serieQM_obs_code$QM,
             regimeLight=regimeHydro$detail[regimeHydro$Code == code],
             meta=meta,
             Shapefiles=Shapefiles,
@@ -181,9 +209,9 @@ sheet_diagnostic_station = function (data,
         # print("chronicle")
         # print(herd)
 
-        # print(dataEXserie_code)
+        # print(dataEX_serie_code)
         
-        dataMOD = dataEXserie_code[["QA"]]
+        dataMOD = dataEX_serie_code[["QA"]]
         dataMOD = dplyr::rename(dataMOD,
                                 Q_obs="QA_obs",
                                 Q_sim="QA_sim")
@@ -227,11 +255,17 @@ sheet_diagnostic_station = function (data,
         herd$sheep$label[herd$sheep$id == "chronicle.spag"] = "align"
         herd$sheep$label[herd$sheep$id == "QA.spag"] = "align"
 
-        dataMOD = dataEXserie_code[["medQJC5"]]
+        dataMOD = dataEX_serie_code[["medQJC5"]]
+        dataMOD =
+            dplyr::mutate(dplyr::group_by(dataMOD,
+                                          Model, Code),
+                          n=1:dplyr::n())
+        dataMOD = filter(dataMOD, n <= 365)
         dataMOD = dplyr::rename(dataMOD,
                                 Date="Date",
                                 Q_obs="medQJC5_obs",
                                 Q_sim="medQJC5_sim")
+        
         medQJ = panel_spaghetti(dataMOD,
                                 Colors,
                                 title="(c) Débit journalier médian interannuel",
@@ -274,7 +308,7 @@ sheet_diagnostic_station = function (data,
         # print("medQJ")
         # print(herd)
 
-        dataMOD = dataEXserie_code[["CDC"]]
+        dataMOD = dataEX_serie_code[["CDC"]]
         dataMOD = dplyr::rename(dataMOD,
                                 Date="CDC_p",
                                 Q_obs="CDC_Q_obs",

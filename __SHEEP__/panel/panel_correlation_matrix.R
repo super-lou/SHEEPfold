@@ -19,6 +19,13 @@
 # along with dataSheep R package.
 # If not, see <https://www.gnu.org/licenses/>.
 
+
+calc_ttest_p_value = function(vec_a, vec_b){
+  t.test(vec_a, vec_b, conf.level=0.9)$p.value
+}
+
+
+
 panel_correlation_matrix = function (dataEX,
                                      metaEX,
                                      icon_path,
@@ -114,7 +121,7 @@ panel_correlation_matrix = function (dataEX,
         matchVar = matchVar[!is.na(matchVar)]
         
         dataEX_model = dataEX_model[matchVar]
-
+        
         nameCol = names(dataEX_model)
         Var = nameCol
         nVar = ncol(dataEX_model)
@@ -122,29 +129,61 @@ panel_correlation_matrix = function (dataEX,
         nCol = ncol(dataEX_model)
         col2rm = c()
         for (i in 1:nCol) {
-            if (sum(!is.na(dataEX_model[[i]])) < 3) {
+            dataEX_model[[i]][is.nan(dataEX_model[[i]])] = NA
+            if (sum(!is.na(dataEX_model[[i]])) < 2) {
                 col2rm = c(col2rm, names(dataEX_model)[i])
             }
         }
+        
         if (!is.null(col2rm)) {
             dataEX_model = dplyr::select(dataEX_model, -col2rm)
             nameCol = names(dataEX_model)
         }
-        
-        dataEX_model = as.matrix(dataEX_model)
-        colnames(dataEX_model) = nameCol
-        rownames(dataEX_model) = nameRow
 
+
+        # dataEX_model = as.matrix(dataEX_model)
+        
+        CORRmat_tmp = 
+            as.matrix(
+                dplyr::select(
+                           corrr::correlate(dataEX_model,
+                                            method="spearman",
+                                            use="pairwise.complete.obs",
+                                            diagonal=1),
+                           -"term"))
+        name = colnames(CORRmat_tmp)
+        rownames(CORRmat_tmp) = name
+
+        Pmat_tmp =
+            as.matrix(
+                dplyr::select(
+                           corrr::colpair_map(dataEX_model,
+                                              calc_ttest_p_value),
+                           -"term"))
+        name = colnames(Pmat_tmp)
+        rownames(Pmat_tmp) = name
+
+        # rownames(Pmat_tmp) = colnames(Pmat_tmp)
+
+        # colnames(dataEX_model) = nameCol
+        # rownames(dataEX_model) = nameRow
+        
         CORRmat = c(CORRmat,
-                    c(cor(dataEX_model,
-                          method="spearman",
-                          use="pairwise.complete.obs")))
+                    CORRmat_tmp)
         Pmat = c(Pmat,
-                 c(corrplot::cor.mtest(
-                                 dataEX_model,
-                                 conf.level=1-level,
-                                 method="spearman",
-                                 use="pairwise.complete.obs")$p))
+                 Pmat_tmp)
+
+
+        # CORRmat = c(CORRmat,
+        #             c(cor(dataEX_model,
+        #                   method="spearman",
+        #                   use="pairwise.complete.obs")))
+        # Pmat = c(Pmat,
+        #          c(corrplot::cor.mtest(
+        #                          dataEX_model,
+        #                          conf.level=1-level,
+        #                          method="spearman",
+        #                          use="pairwise.complete.obs")$p))
     }
     
     CORRmat = array(CORRmat, c(nVar, nVar, nModel))
@@ -167,12 +206,17 @@ panel_correlation_matrix = function (dataEX,
             CORRmat_model = rbind(CORRmat_model[1:(id-1),],
                                   rep(NA, nVarCORR),
                                   CORRmat_model[id:nrow(CORRmat_model),])
-            rownames(CORRmat_model)[id] = missVar
+            # print(CORRmat_model)
+            # print(id)
+            # print(missVar)
+            # print(rownames(CORRmat_model)[id])
+            # rownames(CORRmat_model)[id] = missVar
+            # print("ok")
+            
             Pmat_model = rbind(Pmat_model[1:(id-1),],
                                rep(NA, nVarCORR),
                                Pmat_model[id:nrow(Pmat_model),])
-            rownames(Pmat_model)[id] = missVar
-            
+            # rownames(Pmat_model)[id] = missVar
         }
         
         for (i in 1:nCol2add) {
@@ -181,11 +225,11 @@ panel_correlation_matrix = function (dataEX,
             CORRmat_model = cbind(CORRmat_model[, 1:(id-1)],
                                   rep(NA, nVarCORR+nCol2add),
                                   CORRmat_model[, id:ncol(CORRmat_model)])
-            colnames(CORRmat_model)[id] = missVar
+            # colnames(CORRmat_model)[id] = missVar
             Pmat_model = cbind(Pmat_model[, 1:(id-1)],
                                rep(NA, nVarCORR+nCol2add),
                                Pmat_model[, id:ncol(Pmat_model)])
-            colnames(Pmat_model)[id] = missVar
+            # colnames(Pmat_model)[id] = missVar
         }
     }
 

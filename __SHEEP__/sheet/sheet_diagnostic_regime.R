@@ -74,20 +74,39 @@ sheet_diagnostic_regime = function (meta,
     #                                dataEX_seriePA_med)
 
 
+
+    # dataEX_seriePA_ratio =
+        # dplyr::summarise(dplyr::group_by(dataEX_serie$PA_ratio,
+                                         # Code),
+                         # Rs_ratio=median(Rs_ratio_obs, na.rm=TRUE),
+                         # Rl_ratio=median(Rl_ratio_obs, na.rm=TRUE),
+                         # .groups="drop")
+
+
     dataEX_serieQM_obs =
         dplyr::summarise(dplyr::group_by(dataEX_serie$QM,
                                          Code, Date),
-                         QM=select_good(QM_obs),
+                         QM=median(QM_obs,
+                                   na.rm=TRUE),
                          .groups="drop")
-    dataEX_seriePA_ratio =
-        dplyr::summarise(dplyr::group_by(dataEX_serie$PA_ratio,
-                                         Code),
-                         Ps_ratio=median(Ps_ratio_obs, na.rm=TRUE),
-                         Pl_ratio=median(Pl_ratio_obs, na.rm=TRUE),
-                         .groups="drop")
+    
+    dataEXserieR_ratio =
+        dplyr::full_join(dataEX_serie$Rl_ratio,
+                         dataEX_serie$Rs_ratio,
+                         by=c("Code", "Model"))
+    dataEXserieR_ratio =
+        dplyr::summarise(
+                   dplyr::group_by(dataEXserieR_ratio,
+                                   Code),
+                   Rs_ratio=median(Rs_ratio_obs,
+                                   na.rm=TRUE),
+                   Rl_ratio=median(Rl_ratio_obs,
+                                   na.rm=TRUE),
+                   .groups="drop")
+    
     regimeHydro = find_regimeHydro(dataEX_serieQM_obs,
                                    lim_number=NULL,
-                                   dataEX_seriePA_ratio)
+                                   dataEXserieR_ratio)
     
 
     Regime = split(regimeHydro$detail, factor(regimeHydro$typology_2))
@@ -160,8 +179,10 @@ sheet_diagnostic_regime = function (meta,
                                  regimeHydro$detail == detail]
             dataEX_serieQM_obs_detail =
                 dataEX_serieQM_obs[dataEX_serieQM_obs$Code %in%
-                                  Code_detail,]
+                                   Code_detail,]
 
+            dataEX_serieQM_obs_detail$Date = lubridate::month(dataEX_serieQM_obs_detail$Date)
+            
             dataEX_serieQM_obs_detail =
                 dplyr::mutate(dplyr::group_by(
                                          dataEX_serieQM_obs_detail,
@@ -177,6 +198,7 @@ sheet_diagnostic_regime = function (meta,
                                             Date),
                                  QM=median(QM, na.rm=TRUE),
                                  .groups="drop")
+
             QM_code = append(QM_code,
                              list(dataEX_serieQM_obs_detail_med$QM))
             names(QM_code)[length(QM_code)] = detail
@@ -186,7 +208,7 @@ sheet_diagnostic_regime = function (meta,
                              pattern="[[:digit:]]+")
         orderQM = order(as.numeric(unlist(orderQM)))
         QM_code = QM_code[orderQM]
-        
+
         info = panel_info_regime(QM_code,
                                  regimeLight=regime,
                                  meta=meta,
@@ -230,6 +252,11 @@ sheet_diagnostic_regime = function (meta,
                 }
                 
                 dataMOD = dataEX_serie_code[["medQJC5"]]
+                dataMOD =
+                    dplyr::mutate(dplyr::group_by(dataMOD,
+                                                  Model, Code),
+                                  n=1:dplyr::n())
+                dataMOD = filter(dataMOD, n <= 365)
                 dataMOD = dplyr::rename(dataMOD,
                                         Date="Date",
                                         Q_obs="medQJC5_obs",

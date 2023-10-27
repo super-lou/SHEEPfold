@@ -23,7 +23,7 @@
 sheet_diagnostic_region = function (meta,
                                     dataEX_criteria,
                                     metaEX_criteria,
-                                    dataEXserie,
+                                    dataEX_serie,
                                     Colors,
                                     icon_path="",
                                     Warnings=NULL,
@@ -76,13 +76,13 @@ sheet_diagnostic_region = function (meta,
         
         dataEX_criteria_region = dataEX_criteria[dataEX_criteria$Code %in% Code_region,]
         
-        dataEXserie_region = list()
-        for (j in 1:length(dataEXserie)) {
-            dataEXserie_region = append(
-                dataEXserie_region,
-                list(dataEXserie[[j]][dataEXserie[[j]]$Code %in% Code_region,]))
+        dataEX_serie_region = list()
+        for (j in 1:length(dataEX_serie)) {
+            dataEX_serie_region = append(
+                dataEX_serie_region,
+                list(dataEX_serie[[j]][dataEX_serie[[j]]$Code %in% Code_region,]))
         }
-        names(dataEXserie_region) = names(dataEXserie)
+        names(dataEX_serie_region) = names(dataEX_serie)
         
         medKGEracine =
             dplyr::summarise(dplyr::group_by(dataEX_criteria_region,
@@ -132,13 +132,13 @@ sheet_diagnostic_region = function (meta,
                 medQJ = void()
                 
             } else {
-                dataEXserie_code = list()
-                for (k in 1:length(dataEXserie)) {
-                    dataEXserie_code = append(
-                        dataEXserie_code,
-                        list(dataEXserie[[k]][dataEXserie[[k]]$Code == code,]))
+                dataEX_serie_code = list()
+                for (k in 1:length(dataEX_serie)) {
+                    dataEX_serie_code = append(
+                        dataEX_serie_code,
+                        list(dataEX_serie[[k]][dataEX_serie[[k]]$Code == code,]))
                 }
-                names(dataEXserie_code) = names(dataEXserie)
+                names(dataEX_serie_code) = names(dataEX_serie)
 
                 title = paste0("(", letters[j],
                                ") Débit journalier médian interannuel ",
@@ -150,7 +150,12 @@ sheet_diagnostic_region = function (meta,
                     margin_add = margin(t=0, r=3.5, b=0, l=0, "mm")
                 }
                 
-                dataMOD = dataEXserie_code[["medQJC5"]]
+                dataMOD = dataEX_serie_code[["medQJC5"]]
+                dataMOD =
+                    dplyr::mutate(dplyr::group_by(dataMOD,
+                                                  Model, Code),
+                                  n=1:dplyr::n())
+                dataMOD = filter(dataMOD, n <= 365)
                 dataMOD = dplyr::rename(dataMOD,
                                         Date="Date",
                                         Q_obs="medQJC5_obs",

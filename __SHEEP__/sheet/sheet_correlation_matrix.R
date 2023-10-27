@@ -91,7 +91,7 @@ sheet_correlation_matrix = function (dataEX, metaEX,
         var_plotted = c()
         
         dataEX_model = dataEX[dataEX$Model %in% Model,]
-        
+
         if (is.null(Colors) | !(Model2Disp %in% names(Colors))) {
             model_color = refCOL
         } else {

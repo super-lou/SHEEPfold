@@ -283,7 +283,10 @@ panel_criteria_map = function (dataEX_criteria_model_var,
             # print(bin)
             # print("")
 
-
+            # print(bin)
+            # print(length(bin))
+            # print(length(Palette))
+            # print("")
             
             
             
@@ -536,7 +539,7 @@ panel_criteria_map = function (dataEX_criteria_model_var,
         ###########################################
         on_circle = TRUE
         d_space = -0.05
-        margin = margin(t=3.5, r=0, b=5.1, l=3.9, "cm")
+        margin = margin(t=3.7, r=0, b=4.9, l=3.9, "cm")
 
     } else {
         label = NULL
