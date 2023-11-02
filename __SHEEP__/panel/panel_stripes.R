@@ -28,6 +28,7 @@ panel_stripes = function (Value, Date,
                           palette_center=TRUE,
                           palette_q_extrem=0,
                           is_x_axis=FALSE,
+                          x_limits=NULL,
                           x_size=NULL,
                           x_color=NULL,
                           x_hjust=NULL,
@@ -107,7 +108,8 @@ panel_stripes = function (Value, Date,
                           color=NA)
 
     stripes = stripes +
-        ggplot2::scale_x_date(breaks=x_breaks,
+        ggplot2::scale_x_date(limits=x_limits,
+                              breaks=x_breaks,
                               date_breaks=x_date_breaks,
                               date_labels=x_label_format,
                               expand=x_expand) +

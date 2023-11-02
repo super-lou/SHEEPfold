@@ -22,31 +22,50 @@
 
 sheet_stripes = function (dataEX_serie,
                           metaEX_serie,
+                          meta,
                           Projections,
                           prob=0.01,
+                          palette_name="ground_8",
+                          palette_reverse=FALSE,
                           period_reference=c(as.Date("1976-01-01"),
                                              as.Date("2005-12-31")),
+                          icon_path=NULL,
                           figdir="",
                           Pages=NULL,
                           verbose=FALSE) {
 
     period_reference = as.Date(period_reference)
     
-    paper_size = c(25, 10)
+    paper_size = c(25, 16)
     page_margin = c(t=0.25, r=0.25, b=0.25, l=0.25)
 
     title_height = 1
+    legend_height = 6
 
+    variable_width = 7
+    palette_width = 3.5
+    legend_width = 14
+    
     climateChain = unique(Projections$climateChain)
-    nClimateChain = length(climateChain) 
+    climateChain = climateChain[climateChain != "SAFRAN"]
+    nClimateChain = length(climateChain)
 
     stripes_height =
-        paper_size[1] - page_margin["t"] - page_margin["b"] - title_height
+        paper_size[1] - page_margin["t"] - page_margin["b"] - title_height - legend_height
     stripes_height = stripes_height / nClimateChain
 
     plan = matrix(c("title",
-                    climateChain),
-                  ncol=1)
+                    climateChain,
+                    "variable",
+                    
+                    "title",
+                    climateChain,
+                    "palette",
+
+                    "title",
+                    climateChain,
+                    "legend"),
+                  ncol=3)
 
     
     Code = levels(factor(dataEX_serie[[1]]$Code))
@@ -58,8 +77,13 @@ sheet_stripes = function (dataEX_serie,
     
     Unit = metaEX_serie$unit
     UnitTeX = convert2TeX(Unit, size="small", bold=FALSE)
-    # PX = get_alphabet_in_px()
+    PX = get_alphabet_in_px()
 
+
+    icon = lapply(
+        file.path(icon_path, paste0(climateChain, ".svg")),
+        svgparser::read_svg)
+    
     
     for (i in 1:nVar) {
         var = Var[i]
@@ -71,12 +95,40 @@ sheet_stripes = function (dataEX_serie,
             as.Date(paste0(lubridate::year(dataEX_var$Date),
                            "-01-01"))
 
+        dataEX_var_SAFRAN = dplyr::filter(dataEX_var,
+                                          climateChain == "SAFRAN")
+
+        dataEX_var_SAFRAN =
+            dplyr::reframe(dplyr::group_by(dataEX_var_SAFRAN,
+                                           Model, Code,
+                                           Date,
+                                           !!!rlang::data_syms(var)),
+                           climateChain=!!climateChain)
+        dataEX_var_SAFRAN$Chain =
+            paste0(dataEX_var_SAFRAN$climateChain,
+                   "|", dataEX_var_SAFRAN$Model)
+        
+        dataEX_var = dplyr::filter(dataEX_var,
+                                   climateChain != "SAFRAN" &
+                                   max(dataEX_var_SAFRAN$Date,
+                                       na.rm=TRUE) < Date)
+
+        dataEX_var = dplyr::bind_rows(dataEX_var, dataEX_var_SAFRAN)
+
+        DateEX_var = dplyr::summarise(dplyr::group_by(dataEX_var,
+                                                      climateChain),
+                                      minDate=min(Date),
+                                      maxDate=max(Date))
+        minDate = min(DateEX_var$minDate)
+        maxDate = max(DateEX_var$maxDate)
+        
         dataEX_var_mean =
             dplyr::filter(dplyr::group_by(dataEX_var, Code, Chain),
                           period_reference[1] <= Date &
                           Date <= period_reference[2])
         dataEX_var_mean =
-            dplyr::summarise(dplyr::group_by(dataEX_var_mean, Code, Chain),
+            dplyr::summarise(dplyr::group_by(dataEX_var_mean,
+                                             Code, Chain),
                              !!paste0("mean", var):=mean(get(var),
                                                          na.rm=TRUE),
                              .groups="drop")
@@ -101,38 +153,33 @@ sheet_stripes = function (dataEX_serie,
         
         for (j in 1:nCode) {
             code = Code[j]
+            Nom = meta$Nom[meta$Code == code]
+            
+            print(code)
+            print(Nom)
+            
             dataEX_var_med_code =
                 dataEX_var_med[dataEX_var_med$Code == code,]
-
             
             herd = bring_grass(verbose=verbose)
             herd = plan_of_herd(herd, plan, verbose=verbose)
             
             title = ggplot() + theme_void() +
-                theme(plot.margin=margin(t=0, r=0, b=0, l=0, "cm"))
-
-            river = code
+                theme(plot.margin=margin(t=0, r=0, b=0, l=1, "mm"))
             
-            label = paste0("<b style='font-size:10pt;
-                                 color:", IPCCgrey25, "'>",
-                           river, "</b> ", nbsp(1),
-                           "<span style='font-size:6pt;
-                                 color:", IPCCgrey60, "'>",
-                           code, nbsp(2),
-                           # gsub("[|]", "_", chain), "_",
-                           # "MULTI</span>", nbsp(2),
-                           "<span style='font-size:6pt;
-                                 color:", IPCCgrey60, "'>",
-                           var,
-                           "</span>")
+            label = paste0("<b style='font-size:12pt;
+                                 color:", IPCCgrey20, "'>",
+                           Nom, "</b> ", nbsp(1),
+                           "<span style='font-size:8pt;
+                                 color:", IPCCgrey40, "'>",
+                           code)
             
             title = title +
                 ggtext::geom_richtext(
                             aes(x=0,
-                                y=1,
+                                y=0.1,
                                 label=label),
-                            hjust=0, vjust=1,
-                            # color=IPCCgrey25,
+                            hjust=0, vjust=0,
                             fill=NA, label.color=NA,
                             label.padding=grid::unit(rep(0, 4),
                                                      "pt"))
@@ -152,6 +199,7 @@ sheet_stripes = function (dataEX_serie,
                 
             for (k in 1:nClimateChain) {
                 cchain = climateChain[k]
+
                 dataEX_var_med_code_cchain =
                     dataEX_var_med_code[
                         dataEX_var_med_code$climateChain ==
@@ -168,12 +216,13 @@ sheet_stripes = function (dataEX_serie,
                     dataEX_var_med_code_cchain$Date,
                     min_value=min_value,
                     max_value=max_value,
-                    palette_name="ground_8",
-                    palette_reverse=FALSE,
+                    palette_name=palette_name,
+                    palette_reverse=palette_reverse,
                     palette_center=0,
                     palette_q_extrem=prob,
                     is_x_axis=is_x_axis,
-                    x_size=8,
+                    x_limits=c(minDate, maxDate),
+                    x_size=10,
                     x_color=IPCCgrey25,
                     x_hjust=NULL,
                     x_vjust=0,
@@ -194,6 +243,126 @@ sheet_stripes = function (dataEX_serie,
                                  verbose=verbose)
             }
 
+
+            legend = ggplot() + theme_void() +
+                theme(plot.margin=margin(t=5, r=0, b=5, l=0, "mm"))
+
+            size_icon = 1
+            dx_text = 0.2
+            nIcon = length(icon)
+
+            for (ii in 1:nIcon) {
+                id = nIcon-ii+1
+                
+                legend = legend +
+                    annotation_custom(icon[[id]],
+                                      xmin=1 - size_icon/2,
+                                      xmax=1 + size_icon/2,
+                                      ymin=ii - size_icon/2,
+                                      ymax=ii + size_icon/2) +
+                    annotate("text",
+                             x=1+dx_text,
+                             y=ii,
+                             label=Projections$storyLines[Projections$climateChain ==
+                                                          climateChain[id]],
+                             vjust=0.5,
+                             hjust=0,
+                             color=IPCCgrey40,
+                             size=3.3)
+            }
+                
+            legend = legend +
+                scale_x_continuous(limits=c(0, 10),
+                                   expand=c(0, 0)) +
+                scale_y_continuous(limits=c(0, nIcon+1),
+                                   expand=c(0, 0))
+            
+            herd = add_sheep(herd,
+                             sheep=legend,
+                             id="legend",
+                             height=legend_height,
+                             width=legend_width,
+                             verbose=verbose)
+
+
+            Palette = get_IPCC_Palette(palette_name,
+                                       reverse=palette_reverse)
+            colorStep = length(Palette)
+            res = compute_colorBin(min_value, max_value,
+                                   colorStep,
+                                   center=0,
+                                   include=FALSE,
+                                   round=TRUE)
+
+            palette = panel_colorbar_circle(
+                res$bin,
+                Palette,
+                size_circle=3.3,
+                d_line=0.2,
+                linewidth=0.35,
+                d_space=0.15,
+                d_text=0.6,
+                text_size=3,
+                label=NULL,
+                ncharLim=4,
+                colorText=IPCCgrey50,
+                colorLine=IPCCgrey50,
+                on_circle=FALSE,
+                margin=margin(t=-0.4, r=1, b=0.4, l=1, "cm"))
+
+            herd = add_sheep(herd,
+                             sheep=palette,
+                             id="palette",
+                             height=legend_height,
+                             width=palette_width,
+                             verbose=verbose)
+
+
+            newline = 0.1
+            
+            variable = ggplot() + theme_void() +
+                theme(plot.margin=margin(t=0, r=0, b=0, l=5, "mm"))
+
+            variable = variable +
+                annotate("text",
+                         x=0,
+                         y=0.85,
+                         label=TeX(paste0(VarTeX[i],
+                                          " ", UnitTeX[i])),
+                         size=5, hjust=0, vjust=1,
+                         color=IPCCgrey40)
+            
+            glose = metaEX_serie$glose[metaEX_serie$var == var]
+            glose = guess_newline(glose, px=20, PX=PX)
+            glose = unlist(strsplit(glose, "\n"))
+            
+            for (ii in 1:length(glose)) {
+                variable = variable +
+                    annotate("text",
+                             x=0,
+                             y=0.7-(ii-1)*newline,
+                             label=glose[ii],
+                             size=3, hjust=0, vjust=1,
+                             color=IPCCgrey40)
+            }
+                
+            variable = variable +
+                scale_x_continuous(limits=c(0, 1),
+                                   expand=c(0, 0)) +
+                scale_y_continuous(limits=c(0, 1),
+                                   expand=c(0, 0))
+            
+            herd = add_sheep(herd,
+                             sheep=variable,
+                             id="variable",
+                             height=legend_height,
+                             width=variable_width,
+                             verbose=verbose)
+
+
+
+
+            
                 
             res = return_to_sheepfold(herd,
                                       page_margin=page_margin,
@@ -204,7 +373,7 @@ sheet_stripes = function (dataEX_serie,
             plot = res$plot
             paper_size = res$paper_size
 
-            filename = paste0("stripes_", river, "_", var, ".pdf")
+            filename = paste0("stripes_", Nom, "_", var, ".pdf")
             
             if (!(file.exists(figdir))) {
                 dir.create(figdir, recursive=TRUE)
