@@ -238,11 +238,12 @@ panel_correlation_matrix = function (dataEX,
     res = compute_colorBin(-1, 1,
                            colorStep=6,
                            center=0,
-                           include=TRUE)
+                           include=TRUE,
+                           round=FALSE)
     bin = res$bin
     upBin = res$upBin
     lowBin = res$lowBin
-    
+
     Colors = get_colors(CORRmat_model,
                         upBin=upBin,
                         lowBin=lowBin,

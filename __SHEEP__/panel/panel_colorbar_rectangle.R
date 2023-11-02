@@ -24,6 +24,7 @@ panel_colorbar = function (min, max, palette_name,
                            colorStep=256, include=FALSE,
                            label=NULL, asFrac=FALSE,
                            reverse=FALSE,
+                           round=TRUE,
                            size_color=1,
                            dx_color=0.5,
                            dy_color=0.5,
@@ -34,7 +35,8 @@ panel_colorbar = function (min, max, palette_name,
     res = compute_colorBin(min, max,
                            colorStep=colorStep,
                            center=0,
-                           include=include)
+                           include=include,
+                           round=round)
     bin = res$bin
     upBin = res$upBin
     lowBin = res$lowBin
