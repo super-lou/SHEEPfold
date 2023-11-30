@@ -1,0 +1,235 @@
+# Copyright 2022 Louis Héraut (louis.heraut@inrae.fr)*1,
+#                Éric Sauquet (eric.sauquet@inrae.fr)*1
+#
+# *1   INRAE, France
+#
+# This file is part of dataSheep R package.
+#
+# dataSheep R package is free software: you can redistribute it and/or
+# modify it under the terms of the GNU General Public License as
+# published by the Free Software Foundation, either version 3 of the
+# License, or (at your option) any later version.
+#
+# dataSheep R package is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+# General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with dataSheep R package.
+# If not, see <https://www.gnu.org/licenses/>.
+
+
+sheet_stationnarity_map = function (trendEX,
+                                    metaEX_serie,
+                                    meta,
+                                    suffix_color_signif=
+                                        c("obs"=IPCCgrey40,
+                                          "nat"=IPCCbrique),
+                                    suffix_color_not_signif=
+                                        c("obs"=IPCCgrey80,
+                                          "nat"=IPCCgold),
+                                    icon_path="",
+                                    logo_path="",
+                                    is_foot=TRUE,
+                                    is_secteur=FALSE,
+                                    zoom=NULL,
+                                    figdir="",
+                                    Pages=NULL,
+                                    Shapefiles=NULL,
+                                    verbose=FALSE) {
+
+    paper_size = c(15, 15)
+
+    page_margin = c(t=0.5, r=0.5, b=0.5, l=0.5)
+    
+    if (is_foot) {
+        foot_height = 1.25
+    } else {
+        foot_height = 0
+    }
+    
+    map_height =
+        paper_size[1] - page_margin["t"] - page_margin["b"] - foot_height
+    
+    if (is_foot) {
+        plan = matrix(c("title", "map",
+                        "map", "map",
+                        "foot", "foot"),
+                      nrow=3, byrow=TRUE)
+    } else {
+        plan = matrix(c(
+            "title", "map",
+            # "map", "map",
+                        "map", "map"),
+                      nrow=2, byrow=TRUE)
+    }
+
+
+    
+    Code = levels(factor(data$Code))
+    nCode = length(Code)
+
+    Var = metaEX_serie$var
+    VarTeX = convert2TeX(Var)
+    nVar = length(Var)
+
+    Unit = metaEX_serie$unit
+    UnitTeX = convert2TeX(Unit, size="small", bold=FALSE)
+    PX = get_alphabet_in_px()
+    
+    for (i in 1:nVar) {
+
+        var = Var[i]
+        
+        herd = bring_grass(verbose=verbose)
+        herd = plan_of_herd(herd, plan, verbose=verbose)
+        
+        title = ggplot() + theme_void() +
+            theme(plot.margin=margin(t=0, r=0, b=0, l=0, "cm"))
+
+        if (is_foot) {
+            y1 = 0.98
+            y3 = 0.885
+        } else {
+            y1 = 0.98
+            y3 = 0.9
+        }
+        y4 = y3-0.08
+        newline = 0.04
+
+        x_off = 0.03
+        
+        title = title +
+            annotate("text",
+                     x=x_off,
+                     y=y1,
+                     label=TeX(paste0("\\textbf{", VarTeX[i], "}")),
+                     size=7, hjust=0, vjust=1,
+                     color=INRAEcyan)
+
+        title = title +
+            annotate("text",
+                     x=x_off,
+                     y=y3,
+                     label=TeX(paste0("Tendance en %\\.an$^{-1}$")),
+                     size=4, hjust=0, vjust=1,
+                     color=INRAEcyan)
+
+        
+        glose = metaEX_serie$glose[metaEX_serie$var == var]
+        glose = guess_newline(glose, px=20, PX=PX)
+        glose = unlist(strsplit(glose, "\n"))
+        
+        for (k in 1:length(glose)) {
+            title = title +
+                annotate("text",
+                         x=x_off+0.005,
+                         y=y4-(k-1)*newline,
+                         label=glose[k],
+                         size=2.5, hjust=0, vjust=1,
+                         color=INRAEcyan)
+        }
+
+        
+        title = title +
+            scale_x_continuous(limits=c(0, 1),
+                               expand=c(0, 0)) +
+            scale_y_continuous(limits=c(0, 1),
+                               expand=c(0, 0))
+        
+        herd = add_sheep(herd,
+                         sheep=title,
+                         id="title",
+                         verbose=verbose)
+
+        trendEX_var = trendEX[grepl(var, trendEX$var),]
+        metaEX_var = metaEX_serie[metaEX_serie$var == var,]
+
+        map = panel_stationnarity_map(trendEX_var,
+                                      metaEX_var,
+                                      meta,
+                                      suffix_color_signif=
+                                          suffix_color_signif,
+                                      suffix_color_not_signif=
+                                          suffix_color_not_signif,
+                                      is_secteur=is_secteur,
+                                      zoom=zoom,
+                                      x_echelle_pct=10,
+                                      y_echelle_pct=1,
+                                      echelle=c(0, 20, 50, 100), 
+                                      Shapefiles=Shapefiles,
+                                      margin_map=margin(t=15, r=20,
+                                                        b=0, l=0, "mm"),
+                                      margin_shape=margin(t=-0.1, r=1.5,
+                                                          b=0.5, l=0.5, "cm"),
+                                      margin_fill=margin(t=-0.2, r=0.4,
+                                                         b=2.6, l=5.6, "cm"),
+                                      verbose=verbose)
+        
+        herd = add_sheep(herd,
+                         sheep=map,
+                         id="map",
+                         height=map_height,
+                         verbose=verbose)
+
+        footName = "Carte de stationnarité"
+        if (is.null(Pages)) {
+            n_page = i
+        } else {
+            if (nrow(Pages) == 0) {
+                n_page = 1
+            } else {
+                n_page = Pages$n[nrow(Pages)] + 1
+            }
+            if (is.null(ModelSelection)) {
+                subsection = model
+            } else {
+                subsection = var
+            }
+            Pages = bind_rows(
+                Pages,
+                tibble(section=footName,
+                       subsection=subsection,
+                       n=n_page))
+        }
+
+        if (is_foot) {
+            foot = panel_foot(footName, n_page,
+                              foot_height, logo_path)
+            herd = add_sheep(herd,
+                             sheep=foot,
+                             id="foot",
+                             height=foot_height,
+                             verbose=verbose)
+        }
+        
+
+        res = return_to_sheepfold(herd,
+                                  page_margin=page_margin,
+                                  paper_size=paper_size,
+                                  hjust=0, vjust=1,
+                                  verbose=verbose)
+        
+        plot = res$plot
+        paper_size = res$paper_size
+
+        if (is_secteur) {
+            filename = paste0("map_stationnarity_", var, "_secteur.pdf")
+        } else {
+            filename = paste0("map_stationnarity_", var, ".pdf")
+        }
+        
+        if (!(file.exists(figdir))) {
+            dir.create(figdir, recursive=TRUE)
+        }
+        ggplot2::ggsave(plot=plot,
+                        path=figdir,
+                        filename=filename,
+                        width=paper_size[1],
+                        height=paper_size[2], units='cm',
+                        dpi=300,
+                        device=cairo_pdf)
+    }
+    return (Pages)
+}
