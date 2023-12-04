@@ -27,8 +27,6 @@
 panel_stationnarity_map = function (trendEX_var,
                                     metaEX_var,
                                     meta,
-                                    suffix_color_signif=NULL,
-                                    suffix_color_not_signif=NULL,
                                     min_var=NULL,
                                     max_var=NULL,
                                     prob=0.1,
@@ -173,14 +171,11 @@ panel_stationnarity_map = function (trendEX_var,
                            1-prob, na.rm=TRUE)
     }
 
-    print(min_var)
-    print(max_var)
     res = compute_colorBin(min_var,
                            max_var,
                            colorStep=length(Palette),
                            center=0,
                            include=FALSE)
-    print(res)
     bin = res$bin
     upBin = res$upBin
     lowBin = res$lowBin
@@ -192,11 +187,16 @@ panel_stationnarity_map = function (trendEX_var,
 
     palette_match = match(trendEX_var$fill, Palette)
     palette_matchNoNA = palette_match[!is.na(palette_match)]
+
+    trendEX_var$H[is.na(trendEX_var$H)] = FALSE
     trendEX_var$level = Palette_level[palette_match]
-    
-    trendEX_var$color = "grey30"
-    trendEX_var$stroke = 0.5
-    
+    trendEX_var$level[!trendEX_var$H] = trendEX_var$level[!trendEX_var$H]/10
+
+    trendEX_var$stroke = 0.6
+    trendEX_var$color = IPCCgrey40
+    trendEX_var$color[!trendEX_var$H] = IPCCgrey67
+    trendEX_var$size = 4
+    trendEX_var$size[!trendEX_var$H] = 3
     trendEX_var$shape = 21
     trendEX_var$shape[trendEX_var$H & trendEX_var$a > 0] = 24
     trendEX_var$shape[trendEX_var$H & trendEX_var$a < 0] = 25
@@ -204,7 +204,6 @@ panel_stationnarity_map = function (trendEX_var,
     trendEX_var$color[is.na(trendEX_var$fill)] = NA
     # trendEX_var$color[is.na(trendEX_var$fill)] = "grey75"
     # trendEX_var$level[is.na(trendEX_var$fill)] = 0
-    
     
     level = as.numeric(levels(factor(trendEX_var$level)))
 
@@ -264,7 +263,7 @@ panel_stationnarity_map = function (trendEX_var,
                            color=trendEX_var_tmp$color,
                            fill=trendEX_var_tmp$fill,
                            shape=trendEX_var_tmp$shape,
-                           size=3,
+                           size=trendEX_var_tmp$size,
                            stroke=trendEX_var_tmp$stroke)
         }
     }
@@ -274,67 +273,67 @@ panel_stationnarity_map = function (trendEX_var,
                  expand=FALSE)
 
 
-    plan = matrix(c("map", "map",
-                    "map", "cb",
-                    "map", "ca"),
-                  nrow=3, byrow=TRUE)
+    # plan = matrix(c("map", "fill",
+                    # "map", "fill",
+                    # "map", "shape"),
+                  # nrow=2, byrow=TRUE)
 
-    herd = bring_grass(verbose=verbose)
-    herd = plan_of_herd(herd, plan, verbose=verbose)
+    # herd = bring_grass(verbose=verbose)
+    # herd = plan_of_herd(herd, plan, verbose=verbose)
 
-    herd = add_sheep(herd,
-                     sheep=map,
-                     id="map",
-                     height=0.7,
-                     verbose=verbose)
+    # herd = add_sheep(herd,
+                     # sheep=map,
+                     # id="map",
+                     # height=0.7,
+                     # verbose=verbose)
 
-    ca = panel_colorbar_circle(c(0, 0.5, 1),
-                               c("transparent",
-                                 "transparent",
-                                 "transparent"),
-                               size_circle=2.2,
-                               d_line=0.1,
-                               linewidth=0.35,
-                               d_space=0,
-                               d_text=0.5,
-                               text_size=2.8,
-                               stroke=c(0.5, 0.5, 0.5),
-                               color=c("grey30",
-                                       "grey30",
-                                       "grey30"),
-                               label=c("Baisse significative à 10%",
-                                       "Non significatif à 10%",
-                                       "Hausse significative à 10%"),
-                               shape=c(25, 21, 24),
-                               on_circle=TRUE,
-                               margin=margin_shape)
-    herd = add_sheep(herd,
-                     sheep=ca,
-                     id="ca",
-                     height=0.2,
-                     verbose=verbose)
+    # shape = panel_colorbar_circle(c(0, 0.5, 1),
+                               # c("transparent",
+                                 # "transparent",
+                                 # "transparent"),
+                               # size_circle=2.2,
+                               # d_line=0.1,
+                               # linewidth=0.35,
+                               # d_space=0,
+                               # d_text=0.5,
+                               # text_size=2.8,
+                               # stroke=c(0.5, 0.5, 0.5),
+                               # color=c("grey30",
+                                       # "grey30",
+                                       # "grey30"),
+                               # label=c("Baisse significative à 10%",
+                                       # "Non significatif à 10%",
+                                       # "Hausse significative à 10%"),
+                               # shape=c(25, 21, 24),
+                               # on_circle=TRUE,
+                               # margin=margin_shape)
+    # herd = add_sheep(herd,
+                     # sheep=contour(),
+                     # id="shape",
+                     # height=0.2,
+                     # verbose=verbose)
     
-    cb = panel_colorbar_circle(bin*100,
-                               Palette,
-                               size_circle=3.3,
-                               d_line=0.2,
-                               linewidth=0.35,
-                               d_space=0.15,
-                               d_text=0.5,
-                               text_size=3,
-                               label=NULL,
-                               ncharLim=4,
-                               colorText=IPCCgrey50,
-                               colorLine=IPCCgrey50,
-                               on_circle=FALSE,
-                               margin=margin_fill)
+    # fill = panel_colorbar_circle(bin*100,
+                               # Palette,
+                               # size_circle=3.3,
+                               # d_line=0.2,
+                               # linewidth=0.35,
+                               # d_space=0.15,
+                               # d_text=0.5,
+                               # text_size=3,
+                               # label=NULL,
+                               # ncharLim=4,
+                               # colorText=IPCCgrey50,
+                               # colorLine=IPCCgrey50,
+                               # on_circle=FALSE,
+                               # margin=margin_fill)
     
-    herd = add_sheep(herd,
-                     sheep=cb,
-                     id="cb",
-                     height=1,
-                     verbose=verbose)
+    # herd = add_sheep(herd,
+                     # sheep=contour(),
+                     # id="fill",
+                     # height=1,
+                     # verbose=verbose)
 
-    return (herd)
+    return (map)
 }
 

@@ -23,12 +23,8 @@
 sheet_stationnarity_map = function (trendEX,
                                     metaEX_serie,
                                     meta,
-                                    suffix_color_signif=
-                                        c("obs"=IPCCgrey40,
-                                          "nat"=IPCCbrique),
-                                    suffix_color_not_signif=
-                                        c("obs"=IPCCgrey80,
-                                          "nat"=IPCCgold),
+                                    prob=0.1,
+                                    suffix_names=NULL,
                                     icon_path="",
                                     logo_path="",
                                     is_foot=TRUE,
@@ -48,9 +44,13 @@ sheet_stationnarity_map = function (trendEX,
     } else {
         foot_height = 0
     }
-    
+
+    title_height = 2
     map_height =
-        paper_size[1] - page_margin["t"] - page_margin["b"] - foot_height
+        paper_size[1] - page_margin["t"] - page_margin["b"] - title_height - foot_height
+    fill_width = 2
+    map_width =
+        paper_size[2] - page_margin["l"] - page_margin["r"] - fill_width
     
     if (is_foot) {
         plan = matrix(c("title", "map",
@@ -58,15 +58,12 @@ sheet_stationnarity_map = function (trendEX,
                         "foot", "foot"),
                       nrow=3, byrow=TRUE)
     } else {
-        plan = matrix(c(
-            "title", "map",
-            # "map", "map",
-                        "map", "map"),
-                      nrow=2, byrow=TRUE)
+        plan = matrix(c("title", "title",
+                        "map", "fill",
+                        "map", "shape"),
+                      nrow=3, byrow=TRUE)
     }
 
-
-    
     Code = levels(factor(data$Code))
     nCode = length(Code)
 
@@ -79,157 +76,269 @@ sheet_stationnarity_map = function (trendEX,
     PX = get_alphabet_in_px()
     
     for (i in 1:nVar) {
-
         var = Var[i]
-        
-        herd = bring_grass(verbose=verbose)
-        herd = plan_of_herd(herd, plan, verbose=verbose)
-        
-        title = ggplot() + theme_void() +
-            theme(plot.margin=margin(t=0, r=0, b=0, l=0, "cm"))
-
-        if (is_foot) {
-            y1 = 0.98
-            y3 = 0.885
-        } else {
-            y1 = 0.98
-            y3 = 0.9
-        }
-        y4 = y3-0.08
-        newline = 0.04
-
-        x_off = 0.03
-        
-        title = title +
-            annotate("text",
-                     x=x_off,
-                     y=y1,
-                     label=TeX(paste0("\\textbf{", VarTeX[i], "}")),
-                     size=7, hjust=0, vjust=1,
-                     color=INRAEcyan)
-
-        title = title +
-            annotate("text",
-                     x=x_off,
-                     y=y3,
-                     label=TeX(paste0("Tendance en %\\.an$^{-1}$")),
-                     size=4, hjust=0, vjust=1,
-                     color=INRAEcyan)
-
-        
-        glose = metaEX_serie$glose[metaEX_serie$var == var]
-        glose = guess_newline(glose, px=20, PX=PX)
-        glose = unlist(strsplit(glose, "\n"))
-        
-        for (k in 1:length(glose)) {
-            title = title +
-                annotate("text",
-                         x=x_off+0.005,
-                         y=y4-(k-1)*newline,
-                         label=glose[k],
-                         size=2.5, hjust=0, vjust=1,
-                         color=INRAEcyan)
-        }
-
-        
-        title = title +
-            scale_x_continuous(limits=c(0, 1),
-                               expand=c(0, 0)) +
-            scale_y_continuous(limits=c(0, 1),
-                               expand=c(0, 0))
-        
-        herd = add_sheep(herd,
-                         sheep=title,
-                         id="title",
-                         verbose=verbose)
 
         trendEX_var = trendEX[grepl(var, trendEX$var),]
         metaEX_var = metaEX_serie[metaEX_serie$var == var,]
 
-        map = panel_stationnarity_map(trendEX_var,
-                                      metaEX_var,
-                                      meta,
-                                      suffix_color_signif=
-                                          suffix_color_signif,
-                                      suffix_color_not_signif=
-                                          suffix_color_not_signif,
-                                      is_secteur=is_secteur,
-                                      zoom=zoom,
-                                      x_echelle_pct=10,
-                                      y_echelle_pct=1,
-                                      echelle=c(0, 20, 50, 100), 
-                                      Shapefiles=Shapefiles,
-                                      margin_map=margin(t=15, r=20,
-                                                        b=0, l=0, "mm"),
-                                      margin_shape=margin(t=-0.1, r=1.5,
-                                                          b=0.5, l=0.5, "cm"),
-                                      margin_fill=margin(t=-0.2, r=0.4,
-                                                         b=2.6, l=5.6, "cm"),
-                                      verbose=verbose)
+        prob = 0.1
+        Palette = unlist(strsplit(metaEX_var$palette[metaEX_var$var == var], " "))
+        min_var = quantile(trendEX_var$trend,
+                           prob, na.rm=TRUE)
+        max_var = quantile(trendEX_var$trend,
+                           1-prob, na.rm=TRUE)
         
-        herd = add_sheep(herd,
-                         sheep=map,
-                         id="map",
-                         height=map_height,
-                         verbose=verbose)
-
-        footName = "Carte de stationnarité"
-        if (is.null(Pages)) {
-            n_page = i
+        if (is.null(suffix_names)) {
+            nSuffix = 1
         } else {
-            if (nrow(Pages) == 0) {
-                n_page = 1
-            } else {
-                n_page = Pages$n[nrow(Pages)] + 1
-            }
-            if (is.null(ModelSelection)) {
-                subsection = model
-            } else {
-                subsection = var
-            }
-            Pages = bind_rows(
-                Pages,
-                tibble(section=footName,
-                       subsection=subsection,
-                       n=n_page))
+            nSuffix = length(suffix_names)
         }
+        
+        for (j in 1:nSuffix) {
+            suffix = names(suffix_names)[j]
+            suffix_name = suffix_names[j]
 
-        if (is_foot) {
-            foot = panel_foot(footName, n_page,
-                              foot_height, logo_path)
+            if (is.null(suffix_names)) {
+                var_suffix = var
+            } else {
+                var_suffix = paste0(var, "_", suffix) 
+            }
+            
+            herd = bring_grass(verbose=verbose)
+            herd = plan_of_herd(herd, plan, verbose=verbose)
+            
+            title = ggplot() + theme_void() +
+                theme(plot.margin=margin(t=0, r=0, b=0, l=0, "cm"))
+
+            if (is_foot) {
+                # y1 = 0.98
+                # y3 = 0.885
+            } else {
+                y1 = 0.98
+                y3 = 0.66
+            }
+            y4 = y3-0.25
+            newline = 0.12
+
+            x_off = 0
+            
+            title = title +
+                annotate("text",
+                         x=x_off,
+                         y=y1,
+                         label=TeX(paste0("\\textbf{", VarTeX[i], "}")),
+                         size=7, hjust=0, vjust=1,
+                         color=INRAEcyan)
+
+            if (is.null(suffix_names)) {
+                label = TeX(paste0("Tendances en %\\.an$^{-1}$"))
+            } else {
+                label = TeX(paste0("Tendances sur les \\textbf{", suffix_name, "} en %\\.an$^{-1}$"))
+            }
+            title = title +
+                annotate("text",
+                         x=x_off,
+                         y=y3,
+                         label=label,
+                         size=4, hjust=0, vjust=1,
+                         color=INRAEcyan)
+
+            
+            glose = metaEX_var$glose
+            glose = guess_newline(glose, px=50, PX=PX)
+            glose = unlist(strsplit(glose, "\n"))
+            
+            for (k in 1:length(glose)) {
+                title = title +
+                    annotate("text",
+                             x=x_off+0.005,
+                             y=y4-(k-1)*newline,
+                             label=glose[k],
+                             size=2.5, hjust=0, vjust=1,
+                             color=INRAEcyan)
+            }
+            
+            title = title +
+                scale_x_continuous(limits=c(0, 1),
+                                   expand=c(0, 0)) +
+                scale_y_continuous(limits=c(0, 1),
+                                   expand=c(0, 0))
+            
             herd = add_sheep(herd,
-                             sheep=foot,
-                             id="foot",
-                             height=foot_height,
+                             sheep=title,
+                             id="title",
+                             height=title_height,
                              verbose=verbose)
-        }
-        
 
-        res = return_to_sheepfold(herd,
-                                  page_margin=page_margin,
-                                  paper_size=paper_size,
-                                  hjust=0, vjust=1,
-                                  verbose=verbose)
-        
-        plot = res$plot
-        paper_size = res$paper_size
+            trendEX_var_suffix = trendEX[trendEX$var == var_suffix,]
+            
+            map = panel_stationnarity_map(trendEX_var_suffix,
+                                          metaEX_var,
+                                          meta,
+                                          min_var=min_var,
+                                          max_var=max_var,
+                                          prob=prob,
+                                          is_secteur=is_secteur,
+                                          zoom=zoom,
+                                          x_echelle_pct=10,
+                                          y_echelle_pct=1,
+                                          echelle=c(0, 20, 50, 100), 
+                                          Shapefiles=Shapefiles,
+                                          margin_map=margin(t=-9, r=0,
+                                                            b=0, l=0, "mm"),
+                                          # margin_shape=margin(t=0, r=1.5,
+                                          # b=0, l=0.5, "cm"),
+                                          # margin_fill=margin(t=1.4, r=0.3,
+                                          # b=4.6, l=9.2, "cm"),
+                                          verbose=verbose)
+            
+            herd = add_sheep(herd,
+                             sheep=map,
+                             id="map",
+                             height=map_height,
+                             width=map_width,
+                             verbose=verbose)
 
-        if (is_secteur) {
-            filename = paste0("map_stationnarity_", var, "_secteur.pdf")
-        } else {
-            filename = paste0("map_stationnarity_", var, ".pdf")
+
+            # border = panel_colorbar_circle(c(0, 1),
+            #                                c("transparent",
+            #                                  "transparent"),
+            #                                size_circle=2.2,
+            #                                d_line=0.1,
+            #                                linewidth=0.35,
+            #                                d_space=0,
+            #                                d_text=0.5,
+            #                                text_size=2.8,
+            #                                stroke=c(1, 1),
+            #                                color=c(IPCCgrey40,
+            #                                        IPCCgold),
+            #                                label=c("débits observés",
+            #                                        "débits naturalisés"),
+            #                                shape=c(21, 21),
+            #                                on_circle=TRUE,
+            #                                margin=margin(t=0.2, r=0,
+            #                                              b=0.5, l=-5, "cm"))
+            # herd = add_sheep(herd,
+            #                  sheep=border,
+            #                  id="border",
+            #                  verbose=verbose)
+
+
+            res = compute_colorBin(min_var,
+                                   max_var,
+                                   colorStep=length(Palette),
+                                   center=0,
+                                   include=FALSE)
+            bin = res$bin
+            
+            fill = panel_colorbar_circle(bin*100,
+                                         Palette,
+                                         size_circle=3.3,
+                                         d_line=0.2,
+                                         linewidth=0.35,
+                                         d_space=0.15,
+                                         d_text=0.5,
+                                         text_size=3,
+                                         label=NULL,
+                                         ncharLim=4,
+                                         colorText=IPCCgrey50,
+                                         colorLine=IPCCgrey50,
+                                         on_circle=FALSE,
+                                         margin=margin(t=-0.5, r=0,
+                                                       b=-0.7, l=0.5, "cm"))
+            herd = add_sheep(herd,
+                             sheep=fill,
+                             id="fill",
+                             width=fill_width,
+                             verbose=verbose)
+
+
+            shape = panel_colorbar_circle(c(0, 0.5, 1),
+                                          c("transparent",
+                                            "transparent",
+                                            "transparent"),
+                                          size_circle=2.2,
+                                          d_line=0.1,
+                                          linewidth=0.35,
+                                          d_space=0,
+                                          d_text=0.5,
+                                          text_size=2.6,
+                                          stroke=c(0.5, 0.5, 0.5),
+                                          color=c(IPCCgrey40,
+                                                  IPCCgrey40,
+                                                  IPCCgrey40),
+                                          label=c("Baisse significative à 10 %",
+                                                  "Non significatif à 10 %",
+                                                  "Hausse significative à 10 %"),
+                                          shape=c(25, 21, 24),
+                                          on_circle=TRUE,
+                                          margin=margin(t=2.5, r=0,
+                                                        b=2, l=-2.2, "cm"))
+            herd = add_sheep(herd,
+                             sheep=shape,
+                             id="shape",
+                             verbose=verbose)
+
+            
+
+            footName = "Carte de stationnarité"
+            if (is.null(Pages)) {
+                n_page = i
+            } else {
+                if (nrow(Pages) == 0) {
+                    n_page = 1
+                } else {
+                    n_page = Pages$n[nrow(Pages)] + 1
+                }
+                if (is.null(ModelSelection)) {
+                    subsection = model
+                } else {
+                    subsection = var
+                }
+                Pages = bind_rows(
+                    Pages,
+                    tibble(section=footName,
+                           subsection=subsection,
+                           n=n_page))
+            }
+
+            if (is_foot) {
+                foot = panel_foot(footName, n_page,
+                                  foot_height, logo_path)
+                herd = add_sheep(herd,
+                                 sheep=foot,
+                                 id="foot",
+                                 height=foot_height,
+                                 verbose=verbose)
+            }
+            
+
+            res = return_to_sheepfold(herd,
+                                      page_margin=page_margin,
+                                      paper_size=paper_size,
+                                      hjust=0, vjust=1,
+                                      verbose=verbose)
+            
+            plot = res$plot
+            paper_size = res$paper_size
+
+            if (is_secteur) {
+                filename = paste0("map_stationnarity_", var_suffix, "_secteur.pdf")
+            } else {
+                filename = paste0("map_stationnarity_", var_suffix, ".pdf")
+            }
+            
+            if (!(file.exists(figdir))) {
+                dir.create(figdir, recursive=TRUE)
+            }
+            ggplot2::ggsave(plot=plot,
+                            path=figdir,
+                            filename=filename,
+                            width=paper_size[1],
+                            height=paper_size[2], units='cm',
+                            dpi=300,
+                            device=cairo_pdf)
         }
-        
-        if (!(file.exists(figdir))) {
-            dir.create(figdir, recursive=TRUE)
-        }
-        ggplot2::ggsave(plot=plot,
-                        path=figdir,
-                        filename=filename,
-                        width=paper_size[1],
-                        height=paper_size[2], units='cm',
-                        dpi=300,
-                        device=cairo_pdf)
     }
     return (Pages)
 }

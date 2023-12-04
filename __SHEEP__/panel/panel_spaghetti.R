@@ -32,6 +32,7 @@ panel_spaghetti = function (data_code, Colors=NULL,
                             isTitleAbove=TRUE,
                             isLegend=FALSE,
                             obsLegend="Observations",
+                            simLegend="Simulations",
                             addModelLegend=FALSE,
                             sizeYticks=9,
                             date_labels="%Y",
@@ -147,7 +148,22 @@ panel_spaghetti = function (data_code, Colors=NULL,
                              size=2.5, hjust=0, vjust=1,
                              color=IPCCgrey50)
             } else {
-                dx_model = 0
+                dx_model = 0.11
+                title = title +
+                    annotate("line",
+                             x=c(dx_title+dx_obs,
+                                 dx_title+dx_obs+0.02),
+                             y=rep(0.25, 2),
+                             color=IPCCgrey67,
+                             linewidth=0.7,
+                             alpha=alpha,
+                             lineend="round") +
+                    annotate("text",
+                             x=dx_title+dx_obs+0.027,
+                             y=0.5,
+                             label=simLegend,
+                             size=2.5, hjust=0, vjust=1,
+                             color=IPCCgrey50)
             }
             
             if (missRect) {
