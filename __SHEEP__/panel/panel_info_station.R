@@ -29,7 +29,8 @@ panel_info_station = function(data_code,
                               Shapefiles=NULL,
                               codeLight=NULL,
                               to_do='all',
-                              zone_to_show='France') {
+                              zone_to_show='France',
+                              verbose=FALSE) {
     
     # If there is a data serie for the given code
     if (!is.null(QM_code)) {
@@ -40,7 +41,8 @@ panel_info_station = function(data_code,
                                margin_title=margin(t=0, r=0, b=0, l=14,
                                                    unit="mm"),
                                margin_hyd=margin(t=1, r=0, b=0, l=5,
-                                                 unit="mm"))
+                                                 unit="mm"),
+                               verbose=verbose)
     # Otherwise
     } else {
         # Puts it blank

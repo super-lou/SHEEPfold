@@ -160,7 +160,8 @@ sheet_diagnostic_station = function (data,
             Shapefiles=Shapefiles,
             codeLight=code,
             to_do='all',
-            zone_to_show='France')
+            zone_to_show='France',
+            verbose=verbose)
         # info = contour()
         herd = add_sheep(herd,
                          sheep=info,
@@ -197,7 +198,8 @@ sheet_diagnostic_station = function (data,
                                     margin_spag=
                                         margin(t=0, r=0, b=0, l=0, "mm"),
                                     first=FALSE,
-                                    last=FALSE)
+                                    last=FALSE,
+                                    verbose=verbose)
         # chronicle = contour()
         herd = add_sheep(herd,
                          sheep=chronicle,
@@ -244,7 +246,8 @@ sheet_diagnostic_station = function (data,
             margin_spag=
                 margin(t=0, r=0, b=2, l=0, "mm"),
             first=FALSE,
-            last=TRUE)
+            last=TRUE,
+            verbose=verbose)
         # QA = contour()
         herd = add_sheep(herd,
                          sheep=QA,
@@ -294,7 +297,8 @@ sheet_diagnostic_station = function (data,
                                 margin_spag=
                                     margin(t=0, r=6, b=0, l=0, "mm"),
                                 first=FALSE,
-                                last=TRUE)
+                                last=TRUE,
+                                verbose=verbose)
         # medQJ = contour()
 
         print(herd)
@@ -341,7 +345,8 @@ sheet_diagnostic_station = function (data,
                               margin_spag=
                                   margin(t=0, r=0, b=0, l=3.5, "mm"),
                               first=FALSE,
-                              last=TRUE)
+                              last=TRUE,
+                              verbose=verbose)
         # CDC = contour()
         herd = add_sheep(herd,
                          sheep=CDC,
@@ -373,7 +378,8 @@ sheet_diagnostic_station = function (data,
             group_name="dans la région",
             text2px_lim=70,
             margin_add=
-                margin(t=0, r=0, b=0, l=0, "cm"))
+                margin(t=0, r=0, b=0, l=0, "cm"),
+            verbose=verbose)
         # criteria = contour()
         herd = add_sheep(herd,
                          sheep=criteria,

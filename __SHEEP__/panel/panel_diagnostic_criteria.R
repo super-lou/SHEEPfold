@@ -39,7 +39,8 @@ panel_diagnostic_criteria = function (dataEX_criteria,
                                       text2px_lim=50,
                                       margin_add=margin(t=0, r=0,
                                                         b=0, l=0,
-                                                        "mm")) {
+                                                        "mm"),
+                                      verbose=FALSE) {
 
     Alpha = sort(c(Alpha, alpha_marker))
     alpha_marker = max(Alpha)

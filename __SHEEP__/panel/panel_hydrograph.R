@@ -29,7 +29,8 @@ panel_hydrograph = function (QM_code, regimeLight, period=NULL,
                              margin_title=margin(t=0, r=0,
                                                  b=0, l=0, unit="mm"),
                              margin_hyd=margin(t=0, r=0,
-                                               b=0, l=0, unit="mm")) {
+                                               b=0, l=0, unit="mm"),
+                             verbose=FALSE) {
 
 
     title = ggplot() + theme_void() +
