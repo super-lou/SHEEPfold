@@ -42,9 +42,9 @@ sheet_map = function (list_df2plot, meta, shapefile_list,
 
     # Number of variable/plot
     if (is.null(list_df2plot)) {
-        nVar = 1
+        nVariable = 1
     } else {
-        nVar = length(list_df2plot)
+        nVariable = length(list_df2plot)
     }
     
     # Get all different stations code
@@ -60,7 +60,7 @@ sheet_map = function (list_df2plot, meta, shapefile_list,
         # Extracts the min and the max of the mean trend
         # for all the station
         res = get_valueExtremes(list_df2plot, Code, nPeriod_trend,
-                                nVar, nCode, valueType="trend",
+                                nVariable, nCode, valueType="trend",
                                 colorForce=colorForce,
                                 minQprob=exQprob, maxQprob=1-exQprob)
         minTrendX = res$min
@@ -75,7 +75,7 @@ sheet_map = function (list_df2plot, meta, shapefile_list,
         nPeriod_mean = length(mean_period)
 
         res = get_valueExtremes(list_df2plot, Code,
-                                nPeriod_mean, nVar, nCode,
+                                nPeriod_mean, nVariable, nCode,
                                 valueType="break",
                                 minQprob=exQprob, maxQprob=1-exQprob)
         minBreakX = res$min
@@ -109,7 +109,7 @@ sheet_map = function (list_df2plot, meta, shapefile_list,
 
     for (j in 1:nMap) {
         # For all variable
-        for (i in 1:nVar) {
+        for (i in 1:nVariable) {
             # If there is a specified station code to highlight (mini map)
             # and there has already been one loop
             condition = (i > 1 | j > 1 ) & (mapType == 'mini' | mapType == 'regime')
@@ -119,7 +119,7 @@ sheet_map = function (list_df2plot, meta, shapefile_list,
             }
             
             # Extracts the variable of the plot
-            var = list_df2plot[[i]]$var
+            variable = list_df2plot[[i]]$variable
             # Extracts the type of variable of the plot
             type = list_df2plot[[i]]$type
             unit = list_df2plot[[i]]$unit
@@ -128,9 +128,9 @@ sheet_map = function (list_df2plot, meta, shapefile_list,
             
             # Creates a name for the map
             if (mapType == 'trend') {
-                outname = paste('map_', var, sep='')
+                outname = paste('map_', variable, sep='')
             } else if (mapType == 'mean') {
-                outname = paste('map_d', var, sep='')
+                outname = paste('map_d', variable, sep='')
             } else if (mapType == 'regime') {
                 outname = paste('map_regime', sep='')
             }
@@ -145,9 +145,9 @@ sheet_map = function (list_df2plot, meta, shapefile_list,
                 }
 
                 # Prints the name of the map
-                print(paste('Map of ', mapName, ' for : ', var,
+                print(paste('Map of ', mapName, ' for : ', variable,
                             "   (",
-                            round(i/nVar*100, 0),
+                            round(i/nVariable*100, 0),
                             " %)", 
                             sep=''))
             }
@@ -418,8 +418,8 @@ sheet_map = function (list_df2plot, meta, shapefile_list,
 
                     # Extracts the corresponding data for the period
                     data_code_per =
-                        data_code[data_code$Date >= Start 
-                                     & data_code$Date <= End,]
+                        data_code[data_code$date >= Start 
+                                     & data_code$date <= End,]
                     # Same for trend
                     trend_code_per = 
                         trend_code[trend_code$start == Start 
@@ -635,7 +635,7 @@ sheet_map = function (list_df2plot, meta, shapefile_list,
                               size=0.6, color=refCOL) +
                     # Writes title
                     geom_shadowtext(data=tibble(x=0, y=Ytitle,
-                                                label=var),
+                                                label=variable),
                                     aes(x=x, y=y, label=label),
                                     fontface="bold",
                                     color=refCOL,
@@ -1077,10 +1077,10 @@ peu altérés par les activités humaines."
             if (!is.null(Pages)) {
                 if (mapType == 'trend') {
                     section = 'Carte des tendances observées'
-                    subsection = var
+                    subsection = variable
                 } else if (mapType == 'mean') {
                     section = 'Carte des écarts observés'
-                    subsection = var
+                    subsection = variable
                 } else if (mapType == 'regime') {
                     section = 'Carte des régimes hydrologiques'
                     subsection = NA

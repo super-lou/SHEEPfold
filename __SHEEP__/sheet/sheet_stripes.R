@@ -71,9 +71,9 @@ sheet_stripes = function (dataEX_serie,
     Code = levels(factor(dataEX_serie[[1]]$Code))
     nCode = length(Code)
 
-    Var = names(dataEX_serie)
-    VarTeX = convert2TeX(Var)
-    nVar = length(Var)
+    Variable = names(dataEX_serie)
+    VariableTeX = convert2TeX(Variable)
+    nVariable = length(Variable)
     
     Unit = metaEX_serie$unit
     UnitTeX = convert2TeX(Unit, size="small", bold=FALSE)
@@ -85,81 +85,81 @@ sheet_stripes = function (dataEX_serie,
         svgparser::read_svg)
     
     
-    for (i in 1:nVar) {
-        var = Var[i]
-        dataEX_var = dataEX_serie[[i]]
+    for (i in 1:nVariable) {
+        variable = Variable[i]
+        dataEX_variable = dataEX_serie[[i]]
 
-        names(dataEX_var)[grepl(var, names(dataEX_var))] = var
+        names(dataEX_variable)[grepl(variable, names(dataEX_variable))] = variable
 
-        dataEX_var$Date =
-            as.Date(paste0(lubridate::year(dataEX_var$Date),
+        dataEX_variable$date =
+            as.Date(paste0(lubridate::year(dataEX_variable$date),
                            "-01-01"))
 
-        dataEX_var_SAFRAN = dplyr::filter(dataEX_var,
+        dataEX_variable_SAFRAN = dplyr::filter(dataEX_variable,
                                           climateChain == "SAFRAN")
 
-        dataEX_var_SAFRAN =
-            dplyr::reframe(dplyr::group_by(dataEX_var_SAFRAN,
-                                           Model, Code,
-                                           Date,
-                                           !!!rlang::data_syms(var)),
+        dataEX_variable_SAFRAN =
+            dplyr::reframe(dplyr::group_by(dataEX_variable_SAFRAN,
+                                           HM, Code,
+                                           date,
+                                           !!!rlang::data_syms(variable)),
                            climateChain=!!climateChain)
-        dataEX_var_SAFRAN$Chain =
-            paste0(dataEX_var_SAFRAN$climateChain,
-                   "|", dataEX_var_SAFRAN$Model)
+        dataEX_variable_SAFRAN$Chain =
+            paste0(dataEX_variable_SAFRAN$climateChain,
+                   "|", dataEX_variable_SAFRAN$HM)
         
-        dataEX_var = dplyr::filter(dataEX_var,
+        dataEX_variable = dplyr::filter(dataEX_variable,
                                    climateChain != "SAFRAN" &
-                                   max(dataEX_var_SAFRAN$Date,
-                                       na.rm=TRUE) < Date)
+                                   max(dataEX_variable_SAFRAN$date,
+                                       na.rm=TRUE) < date)
 
-        dataEX_var = dplyr::bind_rows(dataEX_var, dataEX_var_SAFRAN)
+        dataEX_variable = dplyr::bind_rows(dataEX_variable, dataEX_variable_SAFRAN)
 
-        DateEX_var = dplyr::summarise(dplyr::group_by(dataEX_var,
+        DateEX_variable = dplyr::summarise(dplyr::group_by(dataEX_variable,
                                                       climateChain),
-                                      minDate=min(Date),
-                                      maxDate=max(Date))
-        minDate = min(DateEX_var$minDate)
-        maxDate = max(DateEX_var$maxDate)
+                                      minDate=min(date),
+                                      maxDate=max(date))
+        minDate = min(DateEX_variable$minDate)
+        maxDate = max(DateEX_variable$maxDate)
         
-        dataEX_var_mean =
-            dplyr::filter(dplyr::group_by(dataEX_var, Code, Chain),
-                          period_reference[1] <= Date &
-                          Date <= period_reference[2])
-        dataEX_var_mean =
-            dplyr::summarise(dplyr::group_by(dataEX_var_mean,
+        dataEX_variable_mean =
+            dplyr::filter(dplyr::group_by(dataEX_variable, Code, Chain),
+                          period_reference[1] <= date &
+                          date <= period_reference[2])
+        dataEX_variable_mean =
+            dplyr::summarise(dplyr::group_by(dataEX_variable_mean,
                                              Code, Chain),
-                             !!paste0("mean", var):=mean(get(var),
+                             !!paste0("mean", variable):=mean(get(variable),
                                                          na.rm=TRUE),
                              .groups="drop")
-        dataEX_var = dplyr::left_join(dataEX_var, dataEX_var_mean,
+        dataEX_variable = dplyr::left_join(dataEX_variable, dataEX_variable_mean,
                                       by=c("Code", "Chain"))
-        dataEX_var[[var]] =
-            dataEX_var[[var]] -
-            dataEX_var[[paste0("mean", var)]]
+        dataEX_variable[[variable]] =
+            dataEX_variable[[variable]] -
+            dataEX_variable[[paste0("mean", variable)]]
         
-        dataEX_var_med =
+        dataEX_variable_med =
             dplyr::summarise(
-                       dplyr::group_by(dataEX_var,
-                                       Date, Code, climateChain),
-                       !!var := median(get(var),
+                       dplyr::group_by(dataEX_variable,
+                                       date, Code, climateChain),
+                       !!variable := median(get(variable),
                                        na.rm=FALSE))
         
-        min_value = quantile(dataEX_var_med[[var]],
+        min_value = quantile(dataEX_variable_med[[variable]],
                             prob, na.rm=TRUE)
-        max_value = quantile(dataEX_var_med[[var]],
+        max_value = quantile(dataEX_variable_med[[variable]],
                             1-prob, na.rm=TRUE)
         
         
         for (j in 1:nCode) {
             code = Code[j]
-            Nom = meta$Nom[meta$Code == code]
+            Name = meta$name[meta$Code == code]
             
             print(code)
-            print(Nom)
+            print(Name)
             
-            dataEX_var_med_code =
-                dataEX_var_med[dataEX_var_med$Code == code,]
+            dataEX_variable_med_code =
+                dataEX_variable_med[dataEX_variable_med$Code == code,]
             
             herd = bring_grass(verbose=verbose)
             herd = plan_of_herd(herd, plan, verbose=verbose)
@@ -169,7 +169,7 @@ sheet_stripes = function (dataEX_serie,
             
             label = paste0("<b style='font-size:12pt;
                                  color:", IPCCgrey20, "'>",
-                           Nom, "</b> ", nbsp(1),
+                           Name, "</b> ", nbsp(1),
                            "<span style='font-size:8pt;
                                  color:", IPCCgrey40, "'>",
                            code)
@@ -200,9 +200,9 @@ sheet_stripes = function (dataEX_serie,
             for (k in 1:nClimateChain) {
                 cchain = climateChain[k]
 
-                dataEX_var_med_code_cchain =
-                    dataEX_var_med_code[
-                        dataEX_var_med_code$climateChain ==
+                dataEX_variable_med_code_cchain =
+                    dataEX_variable_med_code[
+                        dataEX_variable_med_code$climateChain ==
                         cchain,]
 
                 if (k == nClimateChain) {
@@ -212,8 +212,8 @@ sheet_stripes = function (dataEX_serie,
                 }
 
                 stripes = panel_stripes(
-                    dataEX_var_med_code_cchain[[var]],
-                    dataEX_var_med_code_cchain$Date,
+                    dataEX_variable_med_code_cchain[[variable]],
+                    dataEX_variable_med_code_cchain$date,
                     min_value=min_value,
                     max_value=max_value,
                     palette_name=palette_name,
@@ -327,12 +327,12 @@ sheet_stripes = function (dataEX_serie,
                 annotate("text",
                          x=0,
                          y=0.85,
-                         label=TeX(paste0(VarTeX[i],
+                         label=TeX(paste0(VariableTeX[i],
                                           " ", UnitTeX[i])),
                          size=5, hjust=0, vjust=1,
                          color=IPCCgrey40)
             
-            glose = metaEX_serie$glose[metaEX_serie$var == var]
+            glose = metaEX_serie$glose[metaEX_serie$variable == variable]
             glose = guess_newline(glose, px=20, PX=PX)
             glose = unlist(strsplit(glose, "\n"))
             
@@ -373,7 +373,7 @@ sheet_stripes = function (dataEX_serie,
             plot = res$plot
             paper_size = res$paper_size
 
-            filename = paste0("stripes_", Nom, "_", var, ".pdf")
+            filename = paste0("stripes_", Name, "_", variable, ".pdf")
             
             if (!(file.exists(figdir))) {
                 dir.create(figdir, recursive=TRUE)

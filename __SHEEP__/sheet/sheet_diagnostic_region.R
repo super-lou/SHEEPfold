@@ -50,8 +50,8 @@ sheet_diagnostic_region = function (meta,
         ncol=2)
     
 
-    Model = levels(factor(dataEX_criteria$Model))
-    nModel = length(Model)
+    HM = levels(factor(dataEX_criteria$HM))
+    nHM = length(HM)
     
     Code = levels(factor(dataEX_criteria$Code))
     nCode = length(Code)
@@ -66,7 +66,7 @@ sheet_diagnostic_region = function (meta,
         region = Region[i]
         Code_region = Code[substr(Code, 1, 1) == region]
         meta_region = meta[substr(meta$Code, 1, 1) == region,]
-        region_disp = paste0(meta_region$Region_Hydro[1],
+        region_disp = paste0(meta_region$hydrological_region[1],
                              " - ", region)
 
         if (verbose) {
@@ -153,11 +153,11 @@ sheet_diagnostic_region = function (meta,
                 dataMOD = dataEX_serie_code[["medQJC5"]]
                 dataMOD =
                     dplyr::mutate(dplyr::group_by(dataMOD,
-                                                  Model, Code),
+                                                  HM, Code),
                                   n=1:dplyr::n())
                 dataMOD = filter(dataMOD, n <= 365)
                 dataMOD = dplyr::rename(dataMOD,
-                                        Date="Date",
+                                        date="date",
                                         Q_obs="medQJC5_obs",
                                         Q_sim="medQJC5_sim")
                 

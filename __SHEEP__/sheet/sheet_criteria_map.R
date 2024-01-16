@@ -24,7 +24,7 @@ sheet_criteria_map = function (dataEX_criteria,
                                metaEX_criteria,
                                meta,
                                prob=0.1,
-                               ModelSelection=NULL,
+                               HMSelection=NULL,
                                Colors=refCOL,
                                subtitle=NULL,
                                one_colorbar=FALSE,
@@ -33,7 +33,7 @@ sheet_criteria_map = function (dataEX_criteria,
                                is_foot=TRUE,
                                is_secteur=FALSE,
                                is_warning=FALSE,
-                               model_by_shape=FALSE,
+                               HM_by_shape=FALSE,
                                remove_warning_lim=FALSE,
                                figdir="",
                                Pages=NULL,
@@ -64,26 +64,26 @@ sheet_criteria_map = function (dataEX_criteria,
     }
 
 
-    if (is.null(ModelSelection)) {
-        Model = levels(factor(dataEX_criteria$Model))
-        Model = as.list(Model)
-        names(Model) = Model
+    if (is.null(HMSelection)) {
+        HM = levels(factor(dataEX_criteria$HM))
+        HM = as.list(HM)
+        names(HM) = HM
     } else {
-        Model = ModelSelection
+        HM = HMSelection
     }
-    nModel = length(Model)
+    nHM = length(HM)
 
     if (length(Colors) == 1) {
-        Colors = rep(Colors, nModel)
+        Colors = rep(Colors, nHM)
     }
     
     Code = levels(factor(data$Code))
     CodeALL = levels(factor(dataEX_criteria$Code))
     nCode = length(Code)
 
-    Var = metaEX_criteria$var
-    VarTeX = convert2TeX(Var)
-    nVar = length(Var)
+    Variable = metaEX_criteria$variable
+    VariableTeX = convert2TeX(Variable)
+    nVariable = length(Variable)
 
     # if (!is_warning) {
     #     Unit = metaEX_criteria$unit
@@ -93,42 +93,42 @@ sheet_criteria_map = function (dataEX_criteria,
         
     #     UnitTeX = convert2TeX(Unit, size="small", bold=FALSE)
     # } else {
-    #     UnitTeX = rep("\\small{proportion en %}", nVar)
+    #     UnitTeX = rep("\\small{proportion en %}", nVariable)
     # }
     Unit = metaEX_criteria$unit
     UnitTeX = convert2TeX(Unit, size="small", bold=FALSE)
     PX = get_alphabet_in_px()
     
-    for (i in 1:nModel) {
-        model = Model[[i]]
-        model_names = names(Model)[i]
+    for (i in 1:nHM) {
+        hm = HM[[i]]
+        hm_names = names(HM)[i]
 
-        if (is.null(model_names)) {
-            model_names = paste0(model, collapse=" ")
+        if (is.null(hm_names)) {
+            hm_names = paste0(hm, collapse=" ")
         }
-        if (nchar(model_names) == 0) {
-            model2Disp = paste0(model, collapse=" ")
-            model4Save = paste0(model, collapse="_")
+        if (nchar(hm_names) == 0) {
+            hm2Disp = paste0(hm, collapse=" ")
+            hm4Save = paste0(hm, collapse="_")
         } else {
-            model2Disp = model_names
-            model4Save = gsub(" ", "_", model_names)
+            hm2Disp = hm_names
+            hm4Save = gsub(" ", "_", hm_names)
         }
         
         if (verbose) {
             print(paste0("diagnostic map for ",
-                         model2Disp,
-                         "   ", round(i/nModel*100, 1), "% done"))
+                         hm2Disp,
+                         "   ", round(i/nHM*100, 1), "% done"))
         }
 
-        if (is.null(Colors) | !(model2Disp %in% names(Colors))) {
-            model_color = refCOL
+        if (is.null(Colors) | !(hm2Disp %in% names(Colors))) {
+            hm_color = refCOL
         } else {
-            model_color = Colors[names(Colors) == model2Disp]
+            hm_color = Colors[names(Colors) == hm2Disp]
         }
 
-        for (j in 1:nVar) {
+        for (j in 1:nVariable) {
 
-            var = Var[j]
+            variable = Variable[j]
             
             herd = bring_grass(verbose=verbose)
             herd = plan_of_herd(herd, plan, verbose=verbose)
@@ -163,9 +163,9 @@ sheet_criteria_map = function (dataEX_criteria,
                 annotate("text",
                          x=0,
                          y=y1,
-                         label=TeX(paste0("\\textbf{", model2Disp, "}")),
+                         label=TeX(paste0("\\textbf{", hm2Disp, "}")),
                          size=7, hjust=0, vjust=1,
-                         color=model_color)
+                         color=hm_color)
 
             if (!is.null(subtitle)) {
                 title = title +
@@ -176,20 +176,20 @@ sheet_criteria_map = function (dataEX_criteria,
                              size=3, hjust=0, vjust=1,
                              bg.color="white",
                              bg.r=0.15,
-                             color=model_color)
+                             color=hm_color)
             }
 
             title = title +
                 annotate("text",
                          x=0,
                          y=y3,
-                         label=TeX(paste0(VarTeX[j],
+                         label=TeX(paste0(VariableTeX[j],
                                           " ", UnitTeX[j])),
                          size=4, hjust=0, vjust=1,
                          color=IPCCgrey40)
 
             
-            glose = metaEX_criteria$glose[metaEX_criteria$var == var]
+            glose = metaEX_criteria$glose[metaEX_criteria$variable == variable]
             glose = guess_newline(glose, px=20, PX=PX)
             glose = unlist(strsplit(glose, "\n"))
             
@@ -216,20 +216,20 @@ sheet_criteria_map = function (dataEX_criteria,
                              id="title",
                              verbose=verbose)
 
-            dataEX_criteria_var =
-                dplyr::select(dataEX_criteria, c("Model", "Code", var))
+            dataEX_criteria_variable =
+                dplyr::select(dataEX_criteria, c("HM", "Code", variable))
 
-            dataEX_criteria_model_var =
-                dataEX_criteria_var[dataEX_criteria_var$Model %in% model,]
+            dataEX_criteria_hm_variable =
+                dataEX_criteria_variable[dataEX_criteria_variable$HM %in% hm,]
 
             if (one_colorbar) {
-                min_var = quantile(dataEX_criteria_var[[var]],
+                min_variable = quantile(dataEX_criteria_variable[[variable]],
                                    prob, na.rm=TRUE)
-                max_var = quantile(dataEX_criteria_var[[var]],
+                max_variable = quantile(dataEX_criteria_variable[[variable]],
                                    1-prob, na.rm=TRUE)
             } else {
-                min_var = NULL
-                max_var = NULL
+                min_variable = NULL
+                max_variable = NULL
             }
 
             if (is.null(subtitle)) {
@@ -238,15 +238,15 @@ sheet_criteria_map = function (dataEX_criteria,
                 margin_map = margin(t=10, r=0, b=0, l=0, "mm")
             }
             
-            map = panel_criteria_map(dataEX_criteria_model_var,
+            map = panel_criteria_map(dataEX_criteria_hm_variable,
                                      metaEX_criteria,
                                      meta,
-                                     min_var,
-                                     max_var,
+                                     min_variable,
+                                     max_variable,
                                      prob=prob,
                                      is_secteur=is_secteur,
                                      is_warning=is_warning,
-                                     model_by_shape=model_by_shape,
+                                     hm_by_shape=hm_by_shape,
                                      remove_warning_lim=remove_warning_lim,
                                      Shapefiles=Shapefiles,
                                      margin_map,
@@ -267,10 +267,10 @@ sheet_criteria_map = function (dataEX_criteria,
                 } else {
                     n_page = Pages$n[nrow(Pages)] + 1
                 }
-                if (is.null(ModelSelection)) {
-                    subsection = model
+                if (is.null(HMSelection)) {
+                    subsection = hm
                 } else {
-                    subsection = var
+                    subsection = variable
                 }
                 Pages = bind_rows(
                     Pages,
@@ -300,9 +300,9 @@ sheet_criteria_map = function (dataEX_criteria,
             paper_size = res$paper_size
 
             if (is_secteur) {
-                filename = paste0(model4Save, "_", var, "_secteur.pdf")
+                filename = paste0(hm4Save, "_", variable, "_secteur.pdf")
             } else {
-                filename = paste0(model4Save, "_", var, ".pdf")
+                filename = paste0(hm4Save, "_", variable, ".pdf")
             }
             
             if (!(file.exists(figdir))) {

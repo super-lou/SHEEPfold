@@ -46,7 +46,7 @@ panel_info_region = function(meta,
         # Converts all texts to graphical object in the right position
         gtext1 = richtext_grob(
             paste0("<b style='font-size:14pt; color:", refCOL, "'>",
-                   meta_region$Region_Hydro[1], "</b>",
+                   meta_region$hydrological_region[1], "</b>",
                    nbsp(1),
                    "<span style='font-size:14pt; color:", refCOL, "'>", "-", "</span>",
                    nbsp(1),
@@ -78,14 +78,14 @@ panel_info_region = function(meta,
 
     # Spatial info about station
     if ('spatial' %in% to_do | 'all' %in% to_do) {
-        if (all(is.na(meta_region$Surface_km2))) {
+        if (all(is.na(meta_region$surface_km2))) {
             surface_min = "inconnue"
             surface_max = "inconnue"
         } else {
-            surface_min = paste0(round(min(meta_region$Surface_km2,
+            surface_min = paste0(round(min(meta_region$surface_km2,
                                            na.rm=TRUE)),
                                  " km<sup>2</sup>")
-            surface_max = paste0(round(max(meta_region$Surface_km2,
+            surface_max = paste0(round(max(meta_region$surface_km2,
                                            na.rm=TRUE)),
                                  " km<sup>2</sup>")
         }

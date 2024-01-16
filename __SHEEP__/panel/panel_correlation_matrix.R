@@ -79,12 +79,12 @@ panel_correlation_matrix = function (dataEX,
 
     logicalCol = names(dataEX)[sapply(dataEX, class) == "logical"]
     dataEX = dataEX[!(names(dataEX) %in% logicalCol)]
-    metaEX = metaEX[!(metaEX$var %in% logicalCol),]
+    metaEX = metaEX[!(metaEX$variable %in% logicalCol),]
     
     Topic = strsplit(metaEX$topic, "[|]")
     Topic = lapply(Topic, complete)
     mainTopicVAR = sapply(Topic, '[[', 2)
-    names(mainTopicVAR) = metaEX$var
+    names(mainTopicVAR) = metaEX$variable
     lenMainTopic = rle(mainTopicVAR)$lengths
     nMainTopic = length(lenMainTopic)
     startMainTopic =
@@ -97,56 +97,56 @@ panel_correlation_matrix = function (dataEX,
         file.path(icon_path, paste0(gsub(" ", "_", mainTopic), ".svg")),
         svgparser::read_svg)
 
-    vars2keep = names(dataEX)
-    vars2keep = vars2keep[!grepl("([_]obs)|([_]sim)", vars2keep)]
+    variables2keep = names(dataEX)
+    variables2keep = variables2keep[!grepl("([_]obs)|([_]sim)", variables2keep)]
 
     dataEX = dplyr::mutate(dataEX,
                            dplyr::across(where(is.logical),
                                          as.numeric),
                            .keep="all")
-    dataEX = dplyr::select(dataEX, vars2keep)
+    dataEX = dplyr::select(dataEX, variables2keep)
 
-    Model = levels(factor(dataEX$Model))
-    nModel = length(Model)
+    HM = levels(factor(dataEX$HM))
+    nHM = length(HM)
 
     CORRmat = c()
     Pmat = c()
-    for (i in 1:nModel) {
-        dataEX_model = dataEX[dataEX$Model == Model[i],]
-        nameRow = dataEX_model$Code
+    for (i in 1:nHM) {
+        dataEX_hm = dataEX[dataEX$HM == HM[i],]
+        nameRow = dataEX_hm$Code
         
-        dataEX_model = dplyr::select(dataEX_model, -c(Code, Model))
+        dataEX_hm = dplyr::select(dataEX_hm, -c(Code, HM))
 
-        matchVar = match(names(dataEX_model), metaEX$var)
-        matchVar = matchVar[!is.na(matchVar)]
+        matchVariable = match(names(dataEX_hm), metaEX$variable)
+        matchVariable = matchVariable[!is.na(matchVariable)]
         
-        dataEX_model = dataEX_model[matchVar]
+        dataEX_hm = dataEX_hm[matchVariable]
         
-        nameCol = names(dataEX_model)
-        Var = nameCol
-        nVar = ncol(dataEX_model)
+        nameCol = names(dataEX_hm)
+        Variable = nameCol
+        nVariable = ncol(dataEX_hm)
 
-        nCol = ncol(dataEX_model)
+        nCol = ncol(dataEX_hm)
         col2rm = c()
         for (i in 1:nCol) {
-            dataEX_model[[i]][is.nan(dataEX_model[[i]])] = NA
-            if (sum(!is.na(dataEX_model[[i]])) < 2) {
-                col2rm = c(col2rm, names(dataEX_model)[i])
+            dataEX_hm[[i]][is.nan(dataEX_hm[[i]])] = NA
+            if (sum(!is.na(dataEX_hm[[i]])) < 2) {
+                col2rm = c(col2rm, names(dataEX_hm)[i])
             }
         }
         
         if (!is.null(col2rm)) {
-            dataEX_model = dplyr::select(dataEX_model, -col2rm)
-            nameCol = names(dataEX_model)
+            dataEX_hm = dplyr::select(dataEX_hm, -col2rm)
+            nameCol = names(dataEX_hm)
         }
 
 
-        # dataEX_model = as.matrix(dataEX_model)
+        # dataEX_hm = as.matrix(dataEX_hm)
         
         CORRmat_tmp = 
             as.matrix(
                 dplyr::select(
-                           corrr::correlate(dataEX_model,
+                           corrr::correlate(dataEX_hm,
                                             method="spearman",
                                             use="pairwise.complete.obs",
                                             diagonal=1),
@@ -157,7 +157,7 @@ panel_correlation_matrix = function (dataEX,
         Pmat_tmp =
             as.matrix(
                 dplyr::select(
-                           corrr::colpair_map(dataEX_model,
+                           corrr::colpair_map(dataEX_hm,
                                               calc_ttest_p_value),
                            -"term"))
         name = colnames(Pmat_tmp)
@@ -165,8 +165,8 @@ panel_correlation_matrix = function (dataEX,
 
         # rownames(Pmat_tmp) = colnames(Pmat_tmp)
 
-        # colnames(dataEX_model) = nameCol
-        # rownames(dataEX_model) = nameRow
+        # colnames(dataEX_hm) = nameCol
+        # rownames(dataEX_hm) = nameRow
         
         CORRmat = c(CORRmat,
                     CORRmat_tmp)
@@ -175,61 +175,61 @@ panel_correlation_matrix = function (dataEX,
 
 
         # CORRmat = c(CORRmat,
-        #             c(cor(dataEX_model,
+        #             c(cor(dataEX_hm,
         #                   method="spearman",
         #                   use="pairwise.complete.obs")))
         # Pmat = c(Pmat,
         #          c(corrplot::cor.mtest(
-        #                          dataEX_model,
+        #                          dataEX_hm,
         #                          conf.level=1-level,
         #                          method="spearman",
         #                          use="pairwise.complete.obs")$p))
     }
     
-    CORRmat = array(CORRmat, c(nVar, nVar, nModel))
-    Pmat = array(Pmat, c(nVar, nVar, nModel))
+    CORRmat = array(CORRmat, c(nVariable, nVariable, nHM))
+    Pmat = array(Pmat, c(nVariable, nVariable, nHM))
 
-    CORRmat_model = apply(CORRmat, 1:2, median, na.rm=TRUE)
-    if (nModel > 1) {
-        Pmat_model = matrix(rep(0, nVar*nVar), ncol=nVar)
+    CORRmat_hm = apply(CORRmat, 1:2, median, na.rm=TRUE)
+    if (nHM > 1) {
+        Pmat_hm = matrix(rep(0, nVariable*nVariable), ncol=nVariable)
     } else {
-        Pmat_model = matrix(Pmat, ncol=nVar)
+        Pmat_hm = matrix(Pmat, ncol=nVariable)
     }
 
     if (!is.null(col2rm)) {
         nCol2add = length(col2rm)
-        nVarCORR = length(colnames(CORRmat_model))
+        nVariableCORR = length(colnames(CORRmat_hm))
         
         for (i in 1:nCol2add) {
-            missVar = col2rm[i]
-            id = which(Var == missVar)
-            CORRmat_model = rbind(CORRmat_model[1:(id-1),],
-                                  rep(NA, nVarCORR),
-                                  CORRmat_model[id:nrow(CORRmat_model),])
-            # print(CORRmat_model)
+            missVariable = col2rm[i]
+            id = which(Variable == missVariable)
+            CORRmat_hm = rbind(CORRmat_hm[1:(id-1),],
+                                  rep(NA, nVariableCORR),
+                                  CORRmat_hm[id:nrow(CORRmat_hm),])
+            # print(CORRmat_hm)
             # print(id)
-            # print(missVar)
-            # print(rownames(CORRmat_model)[id])
-            # rownames(CORRmat_model)[id] = missVar
+            # print(missVariable)
+            # print(rownames(CORRmat_hm)[id])
+            # rownames(CORRmat_hm)[id] = missVariable
             # print("ok")
             
-            Pmat_model = rbind(Pmat_model[1:(id-1),],
-                               rep(NA, nVarCORR),
-                               Pmat_model[id:nrow(Pmat_model),])
-            # rownames(Pmat_model)[id] = missVar
+            Pmat_hm = rbind(Pmat_hm[1:(id-1),],
+                               rep(NA, nVariableCORR),
+                               Pmat_hm[id:nrow(Pmat_hm),])
+            # rownames(Pmat_hm)[id] = missVariable
         }
         
         for (i in 1:nCol2add) {
-            missVar = col2rm[i]
-            id = which(Var == missVar)
-            CORRmat_model = cbind(CORRmat_model[, 1:(id-1)],
-                                  rep(NA, nVarCORR+nCol2add),
-                                  CORRmat_model[, id:ncol(CORRmat_model)])
-            # colnames(CORRmat_model)[id] = missVar
-            Pmat_model = cbind(Pmat_model[, 1:(id-1)],
-                               rep(NA, nVarCORR+nCol2add),
-                               Pmat_model[, id:ncol(Pmat_model)])
-            # colnames(Pmat_model)[id] = missVar
+            missVariable = col2rm[i]
+            id = which(Variable == missVariable)
+            CORRmat_hm = cbind(CORRmat_hm[, 1:(id-1)],
+                                  rep(NA, nVariableCORR+nCol2add),
+                                  CORRmat_hm[, id:ncol(CORRmat_hm)])
+            # colnames(CORRmat_hm)[id] = missVariable
+            Pmat_hm = cbind(Pmat_hm[, 1:(id-1)],
+                               rep(NA, nVariableCORR+nCol2add),
+                               Pmat_hm[, id:ncol(Pmat_hm)])
+            # colnames(Pmat_hm)[id] = missVariable
         }
     }
 
@@ -244,17 +244,17 @@ panel_correlation_matrix = function (dataEX,
     upBin = res$upBin
     lowBin = res$lowBin
 
-    Colors = get_colors(CORRmat_model,
+    Colors = get_colors(CORRmat_hm,
                         upBin=upBin,
                         lowBin=lowBin,
                         Palette=Palette)
 
     COLORmat = matrix(Colors,
-                      nrow=nrow(CORRmat_model),
-                      ncol=ncol(CORRmat_model))
-    SIZEmat = (abs(CORRmat_model))^(1/6)*ech
-    Xmat = matrix(rep(0:(nVar-1)*ech, nVar), nrow=nVar, byrow=TRUE) + 0.5*ech
-    Ymat = matrix(rep((nVar-1):0*ech, nVar), nrow=nVar) + 0.5*ech
+                      nrow=nrow(CORRmat_hm),
+                      ncol=ncol(CORRmat_hm))
+    SIZEmat = (abs(CORRmat_hm))^(1/6)*ech
+    Xmat = matrix(rep(0:(nVariable-1)*ech, nVariable), nrow=nVariable, byrow=TRUE) + 0.5*ech
+    Ymat = matrix(rep((nVariable-1):0*ech, nVariable), nrow=nVariable) + 0.5*ech
     XMINmat = Xmat - SIZEmat/2
     XMAXmat = Xmat + SIZEmat/2
     YMINmat = Ymat - SIZEmat/2
@@ -266,7 +266,7 @@ panel_correlation_matrix = function (dataEX,
     YMIN = unlist(as.list(YMINmat))
     YMAX = unlist(as.list(YMAXmat))
 
-    nOKPmat = Pmat_model > level
+    nOKPmat = Pmat_hm > level
     nOKPmat[!nOKPmat] = NA
     XPSIZEmat = SIZEmat*nOKPmat/ech
     XPmat = Xmat*nOKPmat
@@ -279,7 +279,7 @@ panel_correlation_matrix = function (dataEX,
     YP = unlist(as.list(YPmat))
     YP = YP[!is.na(YP)]
 
-    VarTeX = convert2TeX(Var)
+    VariableTeX = convert2TeX(Variable)
 
     cm = ggplot() + theme_void() + coord_fixed(clip="off") +
         theme(text=element_text(family="Helvetica"),
@@ -291,13 +291,13 @@ panel_correlation_matrix = function (dataEX,
                  fill=COLOR)
     
     cm = cm +
-        annotate("rect", xmin=0, xmax=nVar*ech, ymin=0, ymax=nVar*ech,
+        annotate("rect", xmin=0, xmax=nVariable*ech, ymin=0, ymax=nVariable*ech,
                  linewidth=lw_mat, color=IPCCgrey95, fill=NA)
-    for (i in 1:(nVar-1)) {
+    for (i in 1:(nVariable-1)) {
         cm = cm +
-            annotate("line", x=c(0, nVar)*ech, y=c(i, i)*ech,
+            annotate("line", x=c(0, nVariable)*ech, y=c(i, i)*ech,
                      linewidth=lw_mat, color=IPCCgrey95) +
-            annotate("line", x=c(i, i)*ech, y=c(0, nVar)*ech,
+            annotate("line", x=c(i, i)*ech, y=c(0, nVariable)*ech,
                      linewidth=lw_mat, color=IPCCgrey95)
     }
 
@@ -307,41 +307,41 @@ panel_correlation_matrix = function (dataEX,
 
 
     if (!is.null(criteria_selection)) {
-        Var_selected = apply(sapply(criteria_selection, grepl, x=Var),
+        Variable_selected = apply(sapply(criteria_selection, grepl, x=Variable),
                              1, any)
-        Var_color = rep(IPCCgrey60, nVar) 
-        Var_color[Var_selected] = IPCCgrey40
+        Variable_color = rep(IPCCgrey60, nVariable) 
+        Variable_color[Variable_selected] = IPCCgrey40
     } else {
-        Var_color = rep(IPCCgrey60, nVar) 
+        Variable_color = rep(IPCCgrey60, nVariable) 
     }
     
     cm = cm +
         annotate("text",
-                 x=rep(-d_W_mat*ech, nVar),
-                 y=(nVar-1):0*ech + 0.5*ech,
+                 x=rep(-d_W_mat*ech, nVariable),
+                 y=(nVariable-1):0*ech + 0.5*ech,
                  hjust=1, vjust=0.5,
-                 label=TeX(VarTeX), size=size_T1,
-                 color=Var_color) +
+                 label=TeX(VariableTeX), size=size_T1,
+                 color=Variable_color) +
         
         annotate("text",
-                 x=0:(nVar-1)*ech + 0.5*ech,
-                 y=rep(-d_W_mat*ech, nVar),
+                 x=0:(nVariable-1)*ech + 0.5*ech,
+                 y=rep(-d_W_mat*ech, nVariable),
                  hjust=1, vjust=0.5,
                  angle=90,
-                 label=TeX(VarTeX), size=size_T1,
-                 color=Var_color)
+                 label=TeX(VariableTeX), size=size_T1,
+                 color=Variable_color)
 
     PX = get_alphabet_in_px(style="bold")
 
-    VarRAW = VarTeX
-    VarRAW = gsub("normalsize", "", VarRAW)
-    VarRAW = gsub("textit", "", VarRAW)
-    VarRAW = gsub("textbf", "", VarRAW)
-    VarRAW = gsub("bf", "", VarRAW)
-    VarRAW = gsub("\\", "", VarRAW, fixed=TRUE)
-    VarRAW = gsub("$", "", VarRAW, fixed=TRUE)
-    VarRAW = gsub("{", "", VarRAW, fixed=TRUE)
-    VarRAW = gsub("}", "", VarRAW, fixed=TRUE)
+    VariableRAW = VariableTeX
+    VariableRAW = gsub("normalsize", "", VariableRAW)
+    VariableRAW = gsub("textit", "", VariableRAW)
+    VariableRAW = gsub("textbf", "", VariableRAW)
+    VariableRAW = gsub("bf", "", VariableRAW)
+    VariableRAW = gsub("\\", "", VariableRAW, fixed=TRUE)
+    VariableRAW = gsub("$", "", VariableRAW, fixed=TRUE)
+    VariableRAW = gsub("{", "", VariableRAW, fixed=TRUE)
+    VariableRAW = gsub("}", "", VariableRAW, fixed=TRUE)
 
     change_ = function (x) {
         if (any(grepl("[_]", x))) {
@@ -355,17 +355,17 @@ panel_correlation_matrix = function (dataEX,
         }
     }
 
-    VarRAW = sapply(VarRAW, change_)
-    VarRAW = paste0(" ", VarRAW)
-    # VarRAW = gsub("BFI$", "BFI ", VarRAW)
+    VariableRAW = sapply(VariableRAW, change_)
+    VariableRAW = paste0(" ", VariableRAW)
+    # VariableRAW = gsub("BFI$", "BFI ", VariableRAW)
     
-    Space = sapply(VarRAW, text2px, PX=PX)
+    Space = sapply(VariableRAW, text2px, PX=PX)
     maxSpace = max(Space)
     
     
-    dy = nVar + d_W_mat
+    dy = nVariable + d_W_mat
     
-    for (i in 1:nVar) {
+    for (i in 1:nVariable) {
         cm = cm +
             
             annotate("line",
@@ -418,11 +418,11 @@ panel_correlation_matrix = function (dataEX,
                      x=((i-1) + 0.5)*ech,
                      y=(dy +
                         dy_L1 + dy_I1 + dy_T1)*ech,
-                     label=TeX(VarTeX[i]),
+                     label=TeX(VariableTeX[i]),
                      hjust=0, vjust=0.675,
                      angle=90,
                      size=size_T1,
-                     color=Var_color[i])
+                     color=Variable_color[i])
     }
 
     dy = dy + dy_L1 + dy_I1 + dy_T1 + maxSpace*ech_T1 + dy_L2_min

@@ -67,25 +67,25 @@ sheet_stationnarity_map = function (trendEX,
     Code = levels(factor(data$Code))
     nCode = length(Code)
 
-    Var = metaEX_serie$var
-    VarTeX = convert2TeX(Var)
-    nVar = length(Var)
+    Variable = metaEX_serie$variable
+    VariableTeX = convert2TeX(Variable)
+    nVariable = length(Variable)
 
     Unit = metaEX_serie$unit
     UnitTeX = convert2TeX(Unit, size="small", bold=FALSE)
     PX = get_alphabet_in_px()
     
-    for (i in 1:nVar) {
-        var = Var[i]
+    for (i in 1:nVariable) {
+        variable = Variable[i]
 
-        trendEX_var = trendEX[grepl(var, trendEX$var),]
-        metaEX_var = metaEX_serie[metaEX_serie$var == var,]
+        trendEX_variable = trendEX[grepl(variable, trendEX$variable),]
+        metaEX_variable = metaEX_serie[metaEX_serie$variable == variable,]
 
         prob = 0.1
-        Palette = unlist(strsplit(metaEX_var$palette[metaEX_var$var == var], " "))
-        min_var = quantile(trendEX_var$trend,
+        Palette = unlist(strsplit(metaEX_variable$palette[metaEX_variable$variable == variable], " "))
+        min_variable = quantile(trendEX_variable$trend,
                            prob, na.rm=TRUE)
-        max_var = quantile(trendEX_var$trend,
+        max_variable = quantile(trendEX_variable$trend,
                            1-prob, na.rm=TRUE)
         
         if (is.null(suffix_names)) {
@@ -99,9 +99,9 @@ sheet_stationnarity_map = function (trendEX,
             suffix_name = suffix_names[j]
 
             if (is.null(suffix_names)) {
-                var_suffix = var
+                variable_suffix = variable
             } else {
-                var_suffix = paste0(var, "_", suffix) 
+                variable_suffix = paste0(variable, "_", suffix) 
             }
             
             herd = bring_grass(verbose=verbose)
@@ -126,7 +126,7 @@ sheet_stationnarity_map = function (trendEX,
                 annotate("text",
                          x=x_off,
                          y=y1,
-                         label=TeX(paste0("\\textbf{", VarTeX[i], "}")),
+                         label=TeX(paste0("\\textbf{", VariableTeX[i], "}")),
                          size=7, hjust=0, vjust=1,
                          color=INRAEcyan)
 
@@ -144,7 +144,7 @@ sheet_stationnarity_map = function (trendEX,
                          color=INRAEcyan)
 
             
-            glose = metaEX_var$glose
+            glose = metaEX_variable$glose
             glose = guess_newline(glose, px=50, PX=PX)
             glose = unlist(strsplit(glose, "\n"))
             
@@ -170,13 +170,13 @@ sheet_stationnarity_map = function (trendEX,
                              height=title_height,
                              verbose=verbose)
 
-            trendEX_var_suffix = trendEX[trendEX$var == var_suffix,]
+            trendEX_variable_suffix = trendEX[trendEX$variable == variable_suffix,]
             
-            map = panel_stationnarity_map(trendEX_var_suffix,
-                                          metaEX_var,
+            map = panel_stationnarity_map(trendEX_variable_suffix,
+                                          metaEX_variable,
                                           meta,
-                                          min_var=min_var,
-                                          max_var=max_var,
+                                          min_variable=min_variable,
+                                          max_variable=max_variable,
                                           prob=prob,
                                           is_secteur=is_secteur,
                                           zoom=zoom,
@@ -224,8 +224,8 @@ sheet_stationnarity_map = function (trendEX,
             #                  verbose=verbose)
 
 
-            res = compute_colorBin(min_var,
-                                   max_var,
+            res = compute_colorBin(min_variable,
+                                   max_variable,
                                    colorStep=length(Palette),
                                    center=0,
                                    include=FALSE)
@@ -290,10 +290,10 @@ sheet_stationnarity_map = function (trendEX,
                 } else {
                     n_page = Pages$n[nrow(Pages)] + 1
                 }
-                if (is.null(ModelSelection)) {
-                    subsection = model
+                if (is.null(HMSelection)) {
+                    subsection = hm
                 } else {
-                    subsection = var
+                    subsection = variable
                 }
                 Pages = bind_rows(
                     Pages,
@@ -323,9 +323,9 @@ sheet_stationnarity_map = function (trendEX,
             paper_size = res$paper_size
 
             if (is_secteur) {
-                filename = paste0("map_stationnarity_", var_suffix, "_secteur.pdf")
+                filename = paste0("map_stationnarity_", variable_suffix, "_secteur.pdf")
             } else {
-                filename = paste0("map_stationnarity_", var_suffix, ".pdf")
+                filename = paste0("map_stationnarity_", variable_suffix, ".pdf")
             }
             
             if (!(file.exists(figdir))) {

@@ -55,12 +55,12 @@ sheet_diagnostic_station = function (data,
     
 
     # dataEX_serieQM_obs =
-    #     dplyr::summarise(dplyr::group_by(dataEX_serie$QM, Code, Date),
+    #     dplyr::summarise(dplyr::group_by(dataEX_serie$QM, Code, date),
     #                      QM=select_good(QM_obs),
     #                      .groups="drop")
 
     # dataEX_seriePA_med = dplyr::summarise(dplyr::group_by(dataEX_serie$PA,
-    #                                                      Code, Date),
+    #                                                      Code, date),
     #                                      PAs=median(PAs_obs, na.rm=TRUE),
     #                                      PAl=median(PAl_obs, na.rm=TRUE),
     #                                      PA=median(PA_obs, na.rm=TRUE),
@@ -70,7 +70,7 @@ sheet_diagnostic_station = function (data,
 
     # dataEX_serieQM_obs =
     #     dplyr::summarise(dplyr::group_by(dataEX_serie$QM,
-    #                                      Code, Date),
+    #                                      Code, date),
     #                      QM=select_good(QM_obs),
     #                      .groups="drop")
     # dataEX_seriePA_ratio =
@@ -84,20 +84,20 @@ sheet_diagnostic_station = function (data,
     #                                dataEX_seriePA_ratio)
 
     data_obs =
-        dplyr::summarise(dplyr::group_by(data, Code, Date),
+        dplyr::summarise(dplyr::group_by(data, Code, date),
                          Q=median(Q_obs, na.rm=TRUE),
                          .groups="drop")
 
     dataEX_serieQM_obs =
         dplyr::summarise(dplyr::group_by(dataEX_serie$QM,
-                                         Code, Date),
+                                         Code, date),
                          QM=median(QM_obs, na.rm=TRUE),
                          .groups="drop")
     
     dataEX_serieR_ratio =
         dplyr::full_join(dataEX_serie$Rl_ratio,
                          dataEX_serie$Rs_ratio,
-                         by=c("Code", "Model"))
+                         by=c("Code", "HM"))
     dataEX_serieR_ratio =
         dplyr::summarise(
                    dplyr::group_by(dataEX_serieR_ratio,
@@ -114,8 +114,8 @@ sheet_diagnostic_station = function (data,
 
     
 
-    Model = levels(factor(dataEX_criteria$Model))
-    nModel = length(Model)
+    HM = levels(factor(dataEX_criteria$HM))
+    nHM = length(HM)
                    
     Code = levels(factor(data$Code))
     CodeALL = levels(factor(dataEX_criteria$Code))
@@ -132,8 +132,8 @@ sheet_diagnostic_station = function (data,
 
         data_code =
             dplyr::filter(data_code,
-                          Model %in%
-                          dataEX_criteria$Model[dataEX_criteria$Code == code])
+                          HM %in%
+                          dataEX_criteria$HM[dataEX_criteria$Code == code])
         
         
         data_obs_code = data_obs[data_obs$Code == code,]
@@ -237,8 +237,8 @@ sheet_diagnostic_station = function (data,
             lwObs_back=1,
             lwSim=0.4,
             lwSim_back=0.7,
-            axis_xlim=c(min(data_obs_code$Date),
-                        max(data_obs_code$Date)),
+            axis_xlim=c(min(data_obs_code$date),
+                        max(data_obs_code$date)),
             grid=TRUE,
             ratio_title=1/7,
             margin_title=
@@ -262,11 +262,11 @@ sheet_diagnostic_station = function (data,
         dataMOD = dataEX_serie_code[["medQJC5"]]
         dataMOD =
             dplyr::mutate(dplyr::group_by(dataMOD,
-                                          Model, Code),
+                                          HM, Code),
                           n=1:dplyr::n())
         dataMOD = filter(dataMOD, n <= 365)
         dataMOD = dplyr::rename(dataMOD,
-                                Date="Date",
+                                date="date",
                                 Q_obs="medQJC5_obs",
                                 Q_sim="medQJC5_sim")
         
@@ -315,7 +315,7 @@ sheet_diagnostic_station = function (data,
 
         dataMOD = dataEX_serie_code[["CDC"]]
         dataMOD = dplyr::rename(dataMOD,
-                                Date="CDC_p",
+                                date="CDC_p",
                                 Q_obs="CDC_Q_obs",
                                 Q_sim="CDC_Q_sim")
         CDC = panel_spaghetti(dataMOD,

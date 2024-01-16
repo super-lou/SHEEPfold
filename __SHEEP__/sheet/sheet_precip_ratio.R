@@ -21,7 +21,7 @@
 
 
 sheet_precip_ratio = function (dataEX,
-                               ModelGroup=NULL,
+                               HMGroup=NULL,
                                Colors=refCOL,
                                refCOL=refCOL,
                                figdir="",
@@ -36,37 +36,37 @@ sheet_precip_ratio = function (dataEX,
     plan = matrix(c("title", "graph"),
                   ncol=1)
     
-    nGroup = length(ModelGroup)
+    nGroup = length(HMGroup)
 
     if (length(Colors) == 1) {
         Colors = rep(Colors, nGroup)
     }
 
-    Model = levels(factor(dataEX$PA_ratio$Model))
+    HM = levels(factor(dataEX$PA_ratio$HM))
     
     for (i in 1:nGroup) {
-        models = ModelGroup[[i]]
+        hms = HMGroup[[i]]
 
-        model1 = models[1]
-        model2 = models[2]
-        name_model1 = models[1]
-        name_model2 = models[2]
+        hm1 = hms[1]
+        hm2 = hms[2]
+        name_hm1 = hms[1]
+        name_hm2 = hms[2]
         
-        if (model1 == "SAFRAN") {
-            model1 = "SMASH"
+        if (hm1 == "SAFRAN") {
+            hm1 = "SMASH"
         }
-        if (model2 == "SAFRAN") {
-            model2 = "SMASH"
+        if (hm2 == "SAFRAN") {
+            hm2 = "SMASH"
         }
 
-        color_model1 = Colors[names(Colors) == name_model1]
-        color_model2 = Colors[names(Colors) == name_model2]
+        color_hm1 = Colors[names(Colors) == name_hm1]
+        color_hm2 = Colors[names(Colors) == name_hm2]
 
-        if (length(color_model1) == 0) {
-            color_model1 = refCOL  
+        if (length(color_hm1) == 0) {
+            color_hm1 = refCOL  
         }
-        if (length(color_model2) == 0) {
-            color_model2 = refCOL    
+        if (length(color_hm2) == 0) {
+            color_hm2 = refCOL    
         }
         
 
@@ -120,54 +120,54 @@ sheet_precip_ratio = function (dataEX,
                                       isLabelX=TRUE, isLabelY=TRUE) +
             theme(plot.margin=margin(t=0, r=0, b=0, l=0, "cm")) +
             theme(axis.title.x = element_text(size=10,
-                                              color=color_model2),
+                                              color=color_hm2),
                   axis.title.y = element_text(size=10,
-                                              color=color_model1))
+                                              color=color_hm1))
 
-        Pl_ratio_model1 =
+        Pl_ratio_hm1 =
             dplyr::rename(
                        dplyr::select(
                                   dplyr::filter(dataEX$PA_ratio,
-                                                Model == model1),
-                                  Model, Code, Pl_ratio_obs),
-                       !!paste0("Pl_ratio_", name_model1):=Pl_ratio_obs)
-        Pl_ratio_model2 =
+                                                HM == hm1),
+                                  HM, Code, Pl_ratio_obs),
+                       !!paste0("Pl_ratio_", name_hm1):=Pl_ratio_obs)
+        Pl_ratio_hm2 =
             dplyr::rename(
                        dplyr::select(
                                   dplyr::filter(dataEX$PA_ratio,
-                                                Model == model2),
-                                  Model, Code, Pl_ratio_obs),
-                       !!paste0("Pl_ratio_", name_model2):=Pl_ratio_obs)
-        Pl_ratio_models = dplyr::inner_join(Pl_ratio_model1,
-                                            Pl_ratio_model2,
+                                                HM == hm2),
+                                  HM, Code, Pl_ratio_obs),
+                       !!paste0("Pl_ratio_", name_hm2):=Pl_ratio_obs)
+        Pl_ratio_hms = dplyr::inner_join(Pl_ratio_hm1,
+                                            Pl_ratio_hm2,
                                             by="Code")
         
         
-        Ps_ratio_model1 =
+        Ps_ratio_hm1 =
             dplyr::rename(
                        dplyr::select(dplyr::filter(dataEX$PA_ratio,
-                                                   Model == model1),
-                                     Model, Code, Ps_ratio_obs),
-                       !!paste0("Ps_ratio_", name_model1):=Ps_ratio_obs)
-        Ps_ratio_model2 =
+                                                   HM == hm1),
+                                     HM, Code, Ps_ratio_obs),
+                       !!paste0("Ps_ratio_", name_hm1):=Ps_ratio_obs)
+        Ps_ratio_hm2 =
             dplyr::rename(
                        dplyr::select(dplyr::filter(dataEX$PA_ratio,
-                                                   Model == model2),
-                                     Model, Code, Ps_ratio_obs),
-                       !!paste0("Ps_ratio_", name_model2):=Ps_ratio_obs)
-        Ps_ratio_models = dplyr::inner_join(Ps_ratio_model1,
-                                            Ps_ratio_model2,
+                                                   HM == hm2),
+                                     HM, Code, Ps_ratio_obs),
+                       !!paste0("Ps_ratio_", name_hm2):=Ps_ratio_obs)
+        Ps_ratio_hms = dplyr::inner_join(Ps_ratio_hm1,
+                                            Ps_ratio_hm2,
                                             by="Code")
 
         graph = graph +
-            ggplot2::geom_point(data=Ps_ratio_models,
-                                aes(x=get(paste0("Ps_ratio_", name_model2)),
-                                    y=get(paste0("Ps_ratio_", name_model1))),
+            ggplot2::geom_point(data=Ps_ratio_hms,
+                                aes(x=get(paste0("Ps_ratio_", name_hm2)),
+                                    y=get(paste0("Ps_ratio_", name_hm1))),
                                 shape=16, alpha=0.8,
                                 color=EXPLORE2blue) +
-            ggplot2::geom_point(data=Pl_ratio_models,
-                                aes(x=get(paste0("Pl_ratio_", name_model2)),
-                                    y=get(paste0("Pl_ratio_", name_model1))),
+            ggplot2::geom_point(data=Pl_ratio_hms,
+                                aes(x=get(paste0("Pl_ratio_", name_hm2)),
+                                    y=get(paste0("Pl_ratio_", name_hm1))),
                                 shape=16, alpha=0.8,
                                 color=IPCCblue) +
             
@@ -181,8 +181,8 @@ sheet_precip_ratio = function (dataEX,
                                linewidth=0.2) 
 
         graph = graph +
-            ggplot2::xlab(TeX(paste0("\\textbf{", name_model2, "}"))) + 
-            ggplot2::ylab(TeX(paste0("\\textbf{", name_model1, "}")))
+            ggplot2::xlab(TeX(paste0("\\textbf{", name_hm2, "}"))) + 
+            ggplot2::ylab(TeX(paste0("\\textbf{", name_hm1, "}")))
         
         graph = graph +
             scale_x_continuous(expand=c(0, 0)) +
@@ -203,7 +203,7 @@ sheet_precip_ratio = function (dataEX,
         plot = res$plot
         paper_size = res$paper_size
         
-        filename = paste0("precip_ratio_", name_model1, "_", name_model2, ".pdf")
+        filename = paste0("precip_ratio_", name_hm1, "_", name_hm2, ".pdf")
             
         if (!(file.exists(figdir))) {
                 dir.create(figdir, recursive=TRUE)

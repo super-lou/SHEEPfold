@@ -24,15 +24,15 @@
 # Generates a map plot of the tendancy of a hydrological variable
 #' @title Mini map panel
 #' @export
-panel_criteria_map = function (dataEX_criteria_model_var,
+panel_criteria_map = function (dataEX_criteria_hm_variable,
                                metaEX_criteria,
                                meta,
-                               min_var,
-                               max_var,
+                               min_variable,
+                               max_variable,
                                prob=0.1,
                                is_secteur=FALSE,
                                is_warning=FALSE,
-                               model_by_shape=FALSE,
+                               hm_by_shape=FALSE,
                                remove_warning_lim=FALSE,
                                Shapefiles=Shapefiles,
                                margin=margin(t=0, r=0, b=0, l=0, "cm"),
@@ -42,16 +42,16 @@ panel_criteria_map = function (dataEX_criteria_model_var,
         return (is.logical(x) | is.numeric(x))
     }
 
-    Model = levels(factor(dataEX_criteria_model_var$Model))
-    nModel = length(Model)
+    HM = levels(factor(dataEX_criteria_hm_variable$HM))
+    nHM = length(HM)
     
-    var = names(dataEX_criteria_model_var)[which(sapply(dataEX_criteria_model_var,
+    variable = names(dataEX_criteria_hm_variable)[which(sapply(dataEX_criteria_hm_variable,
                                                   is_numeric_logical))[1]]
     
-    unit = metaEX_criteria$unit[metaEX_criteria$var == var]
-    is_date = metaEX_criteria$is_date[metaEX_criteria$var == var]
-    normalize = metaEX_criteria$normalize[metaEX_criteria$var == var]
-    reverse_palette = metaEX_criteria$reverse_palette[metaEX_criteria$var == var]
+    unit = metaEX_criteria$unit[metaEX_criteria$variable == variable]
+    is_date = metaEX_criteria$is_date[metaEX_criteria$variable == variable]
+    is_normalize = metaEX_criteria$is_normalize[metaEX_criteria$variable == variable]
+    reverse_palette = metaEX_criteria$reverse_palette[metaEX_criteria$variable == variable]
 
     
     # Extract shapefiles
@@ -109,12 +109,12 @@ panel_criteria_map = function (dataEX_criteria_model_var,
                      color=IPCCgrey50, size=size)
     }
 
-    print(var)
+    print(variable)
 
     ## center
-    if (grepl("(Biais)|(^Q)|(^moyQ)|(^V)|(^BF)|(^med[{]v)|(^med[{]t)|(^med[{]debut)|(^med[{]centre)|(^med[{]fin)|(^med[{]dt)|([_]ratio$)", var)) {
+    if (grepl("(Biais)|(^Q)|(^moyQ)|(^V)|(^BF)|(^med[{]v)|(^med[{]t)|(^med[{]debut)|(^med[{]centre)|(^med[{]fin)|(^med[{]dt)|([_]ratio$)", variable)) {
         center = 0
-    } else if (grepl("(Rc)|(^epsilon)|(^alpha)|(^a)|(STD)|(CR)", var)) {
+    } else if (grepl("(Rc)|(^epsilon)|(^alpha)|(^a)|(STD)|(CR)", variable)) {
         center = 1
     } else {
         center = 0
@@ -122,49 +122,49 @@ panel_criteria_map = function (dataEX_criteria_model_var,
 
 
     ## lim
-    if (grepl("(KGE)|(NSE)|(^r$)", var)) {
+    if (grepl("(KGE)|(NSE)|(^r$)", variable)) {
         lim = c(0.5, 1)
-    } else if (grepl("^Biais$", var)) {
+    } else if (grepl("^Biais$", variable)) {
         lim = c(-0.2, 0.2)
-    } else if (grepl("^Biaismoy$", var)) {
+    } else if (grepl("^Biaismoy$", variable)) {
         lim = c(-2, 2)
-    } else if (grepl("^Q10$", var)) {
+    } else if (grepl("^Q10$", variable)) {
         lim = c(-0.2, 0.2)
-    } else if (grepl("^Q90$", var)) {  
+    } else if (grepl("^Q90$", variable)) {  
         lim = c(-0.8, 0.8)
-    } else if (grepl("^med[{]t", var)) {
+    } else if (grepl("^med[{]t", variable)) {
         lim = c(-1, 1)
-    } else if (grepl("(^epsilon)|(^alpha)|(^a)", var)) {
+    } else if (grepl("(^epsilon)|(^alpha)|(^a)", variable)) {
         lim = c(0.5, 2)
-    } else if (grepl("(RAT)|(HYP)", var)) {
+    } else if (grepl("(RAT)|(HYP)", variable)) {
         lim = NULL
     } else {
         remove_warning_lim = TRUE
     }
 
     
-    ## count warning or agreagate for multi model
+    ## count warning or agreagate for multi hm
     if (is_warning) {
-        dataEX_criteria_var = dataEX_criteria_model_var
-        if (!grepl("(RAT)|(HYP)", var)) {
-            dataEX_criteria_var[[var]] = !(lim[1] < dataEX_criteria_var[[var]] & dataEX_criteria_var[[var]] < lim[2])
+        dataEX_criteria_variable = dataEX_criteria_hm_variable
+        if (!grepl("(RAT)|(HYP)", variable)) {
+            dataEX_criteria_variable[[variable]] = !(lim[1] < dataEX_criteria_variable[[variable]] & dataEX_criteria_variable[[variable]] < lim[2])
         }
         # else {
-            # dataEX_criteria_var[[var]] = !dataEX_criteria_var[[var]]
+            # dataEX_criteria_variable[[variable]] = !dataEX_criteria_variable[[variable]]
         # }
         
     } else {
-        if (model_by_shape) {
-            dataEX_criteria_var = dataEX_criteria_model_var
+        if (hm_by_shape) {
+            dataEX_criteria_variable = dataEX_criteria_hm_variable
             
         } else {
-            if (!grepl("(RAT)|(HYP)", var)) {
-                dataEX_criteria_var =
-                    dplyr::summarise(dplyr::group_by(dataEX_criteria_model_var, Code),
-                                     !!var:=median(get(var), na.rm=TRUE))
+            if (!grepl("(RAT)|(HYP)", variable)) {
+                dataEX_criteria_variable =
+                    dplyr::summarise(dplyr::group_by(dataEX_criteria_hm_variable, Code),
+                                     !!variable:=median(get(variable), na.rm=TRUE))
             } else {
-                if (nModel == 1) {
-                    dataEX_criteria_var = dataEX_criteria_model_var
+                if (nHM == 1) {
+                    dataEX_criteria_variable = dataEX_criteria_hm_variable
                 } else {
                     return (void())
                 }
@@ -194,29 +194,29 @@ panel_criteria_map = function (dataEX_criteria_model_var,
                                            sparse=FALSE),
                              2, get_name)
 
-        dataEX_criteria_var = dplyr::left_join(dataEX_criteria_var,
+        dataEX_criteria_variable = dplyr::left_join(dataEX_criteria_variable,
                                          dplyr::select(meta,
                                                        c("Code",
                                                          "Secteur")),
                                          by="Code")
         
         if (is_warning) {
-            dataEX_criteria_var =
+            dataEX_criteria_variable =
                 dplyr::summarise(
-                           dplyr::group_by(dataEX_criteria_var, Secteur),
-                           !!var:=sum(get(var),
+                           dplyr::group_by(dataEX_criteria_variable, Secteur),
+                           !!variable:=sum(get(variable),
                                       na.rm=TRUE)/dplyr::n()*100,
                            .groups="drop")
         } else {
-            dataEX_criteria_var =
-                dplyr::summarise(dplyr::group_by(dataEX_criteria_var, Secteur),
-                                 !!var:=median(get(var), na.rm=TRUE),
+            dataEX_criteria_variable =
+                dplyr::summarise(dplyr::group_by(dataEX_criteria_variable, Secteur),
+                                 !!variable:=median(get(variable), na.rm=TRUE),
                                  .groups="drop")
         }
 
     } else {
-        dataEX_criteria_var =
-            dplyr::left_join(dataEX_criteria_var,
+        dataEX_criteria_variable =
+            dplyr::left_join(dataEX_criteria_variable,
                              dplyr::select(meta,
                                            c("Code",
                                              "XL93_m",
@@ -230,19 +230,19 @@ panel_criteria_map = function (dataEX_criteria_model_var,
             reverse_palette = FALSE
         }
         
-        if (grepl("(KGE)|(NSE)|(^r$)", var)) {
+        if (grepl("(KGE)|(NSE)|(^r$)", variable)) {
             Palette_level = c(5, 4, 3, 2, 1)
             bin = c(-Inf, 0, 0.25, 0.5, 0.75, 1)
             upBin = c(0, 0.25, 0.5, 0.75, 1)
             lowBin = c(-Inf, 0, 0.25, 0.5, 0.75)
             Palette = get_IPCC_Palette("rainbow_8")[4:8]
 
-        } else if (!grepl("(RAT)|(HYP)", var)) {
+        } else if (!grepl("(RAT)|(HYP)", variable)) {
 
-            if (grepl("(Biais)|(^Q)|(^alpha)|(^a)|(^moyQ)|(^V)|(^BF)|(^med[{]v)|(CR)|([_]ratio$)|(moyRA)", var)) {
+            if (grepl("(Biais)|(^Q)|(^alpha)|(^a)|(^moyQ)|(^V)|(^BF)|(^med[{]v)|(CR)|([_]ratio$)|(moyRA)", variable)) {
                 reverse = FALSE
                 name = "ground_8"
-            } else if (grepl("(Rc)|(^epsilon)|(^med[{]t)|(^med[{]debut)|(^med[{]centre)|(^med[{]fin)|(^med[{]dt)|(STD)", var)) {
+            } else if (grepl("(Rc)|(^epsilon)|(^med[{]t)|(^med[{]debut)|(^med[{]centre)|(^med[{]fin)|(^med[{]dt)|(STD)", variable)) {
                 reverse = TRUE
                 name = "rainbow_8"
             } else {
@@ -252,12 +252,12 @@ panel_criteria_map = function (dataEX_criteria_model_var,
             
             Palette_level = c(4, 3, 2, 1, 1, 2, 3, 4)
             Palette = get_IPCC_Palette(name, reverse=reverse)
-            if (is.null(min_var)) {
-                min_var = quantile(dataEX_criteria_var[[var]],
+            if (is.null(min_variable)) {
+                min_variable = quantile(dataEX_criteria_variable[[variable]],
                                    prob, na.rm=TRUE)
             }
-            if (is.null(max_var)) {
-                max_var = quantile(dataEX_criteria_var[[var]],
+            if (is.null(max_variable)) {
+                max_variable = quantile(dataEX_criteria_variable[[variable]],
                                    1-prob, na.rm=TRUE)
             }
 
@@ -265,8 +265,8 @@ panel_criteria_map = function (dataEX_criteria_model_var,
 
 
             
-            res = compute_colorBin(min_var,
-                                   max_var,
+            res = compute_colorBin(min_variable,
+                                   max_variable,
                                    colorStep=8,
                                    center=center,
                                    include=FALSE)
@@ -274,9 +274,9 @@ panel_criteria_map = function (dataEX_criteria_model_var,
             upBin = res$upBin
             lowBin = res$lowBin
 
-            # print(dataEX_criteria_var)
-            # print(min_var)
-            # print(max_var)
+            # print(dataEX_criteria_variable)
+            # print(min_variable)
+            # print(max_variable)
             # print(center)
             # print(lowBin)
             # print(upBin)
@@ -292,54 +292,54 @@ panel_criteria_map = function (dataEX_criteria_model_var,
             
         }
         
-        if (grepl("(RAT)|(HYP)", var)) {
+        if (grepl("(RAT)|(HYP)", variable)) {
             Palette_level = c(1, 2)
             Palette = get_IPCC_Palette("OrangePurple",
                                        reverse=TRUE)[c(2, 5)]
-            RAT = dataEX_criteria_var[[var]]
+            RAT = dataEX_criteria_variable[[variable]]
             RAT[is.na(RAT)] = TRUE
             fills = rep(Palette[1], length(RAT))
             fills[RAT] = Palette[2]
-            dataEX_criteria_var$fill = fills
+            dataEX_criteria_variable$fill = fills
         } else {
-            dataEX_criteria_var$fill = get_colors(dataEX_criteria_var[[var]],
+            dataEX_criteria_variable$fill = get_colors(dataEX_criteria_variable[[variable]],
                                             upBin=upBin,
                                             lowBin=lowBin,
                                             Palette=Palette)
         }
 
-        palette_match = match(dataEX_criteria_var$fill, Palette)
+        palette_match = match(dataEX_criteria_variable$fill, Palette)
         palette_matchNoNA = palette_match[!is.na(palette_match)]
-        dataEX_criteria_var$level = Palette_level[palette_match]
+        dataEX_criteria_variable$level = Palette_level[palette_match]
         
-        dataEX_criteria_var$color = "grey30"
-        dataEX_criteria_var$stroke = 0.5
+        dataEX_criteria_variable$color = "grey30"
+        dataEX_criteria_variable$stroke = 0.5
         
         if (!remove_warning_lim) {
-            if (!grepl("(RAT)|(HYP)", var)) {
-                dataEX_criteria_var$color[lim[1] <= dataEX_criteria_var[[var]] &
-                                    dataEX_criteria_var[[var]] <= lim[2]] = "grey75"
-                dataEX_criteria_var$stroke[lim[1] <= dataEX_criteria_var[[var]] &
-                                     dataEX_criteria_var[[var]] <= lim[2]] = 0.4
+            if (!grepl("(RAT)|(HYP)", variable)) {
+                dataEX_criteria_variable$color[lim[1] <= dataEX_criteria_variable[[variable]] &
+                                    dataEX_criteria_variable[[variable]] <= lim[2]] = "grey75"
+                dataEX_criteria_variable$stroke[lim[1] <= dataEX_criteria_variable[[variable]] &
+                                     dataEX_criteria_variable[[variable]] <= lim[2]] = 0.4
             } else {
-                dataEX_criteria_var$color[!dataEX_criteria_var[[var]]] = "grey75"
-                dataEX_criteria_var$stroke[!dataEX_criteria_var[[var]]] = 0.4
+                dataEX_criteria_variable$color[!dataEX_criteria_variable[[variable]]] = "grey75"
+                dataEX_criteria_variable$stroke[!dataEX_criteria_variable[[variable]]] = 0.4
             }
         }
 
 
     } else {
         colorStep = 10
-        min_var = 0
-        max_var = 100
+        min_variable = 0
+        max_variable = 100
         Palette_level = 0:colorStep
         Palette = c(IPCCfreshblue,
                     get_IPCC_Palette("red_ramp",
                                      colorStep=colorStep,
                                      reverse=TRUE))
         
-        res = compute_colorBin(min_var,
-                               max_var,
+        res = compute_colorBin(min_variable,
+                               max_variable,
                                colorStep=colorStep+1,
                                center=NULL,
                                include=c(FALSE, TRUE))
@@ -347,39 +347,39 @@ panel_criteria_map = function (dataEX_criteria_model_var,
         upBin = res$upBin
         lowBin = res$lowBin
 
-        dataEX_criteria_var$fill = get_colors(
-            dataEX_criteria_var[[var]],
+        dataEX_criteria_variable$fill = get_colors(
+            dataEX_criteria_variable[[variable]],
             upBin=upBin,
             lowBin=lowBin,
             Palette=Palette,
             include_min=c(FALSE, TRUE, rep(FALSE, 9)),
             include_max=c(TRUE, FALSE, rep(TRUE, 9)))
-        dataEX_criteria_var$color = "grey75"
-        dataEX_criteria_var$stroke = 0.4
+        dataEX_criteria_variable$color = "grey75"
+        dataEX_criteria_variable$stroke = 0.4
     }
 
-    dataEX_criteria_var$shape = 21
-    if (model_by_shape) {
+    dataEX_criteria_variable$shape = 21
+    if (hm_by_shape) {
         shape = c(21, 22, 23, 24, 25)
 
-        Model = levels(factor(dataEX_criteria_var$Model))
-        nModel = length(Model)
+        HM = levels(factor(dataEX_criteria_variable$HM))
+        nHM = length(HM)
 
-        if (nModel > length(shape)) {
-            stop ("too many model")
+        if (nHM > length(shape)) {
+            stop ("too many hm")
         }
-        for (i in 1:nModel) {
-            dataEX_criteria_var$shape[dataEX_criteria_var$Model == Model[i]] = shape[i]
+        for (i in 1:nHM) {
+            dataEX_criteria_variable$shape[dataEX_criteria_variable$HM == HM[i]] = shape[i]
         }
     }
 
 
-    # dataEX_criteria_var$color[is.na(dataEX_criteria_var$fill)] = NA
-    dataEX_criteria_var$color[is.na(dataEX_criteria_var$fill)] = "grey75"
-    dataEX_criteria_var$level[is.na(dataEX_criteria_var$fill)] = 0
+    # dataEX_criteria_variable$color[is.na(dataEX_criteria_variable$fill)] = NA
+    dataEX_criteria_variable$color[is.na(dataEX_criteria_variable$fill)] = "grey75"
+    dataEX_criteria_variable$level[is.na(dataEX_criteria_variable$fill)] = 0
     
     
-    level = as.numeric(levels(factor(dataEX_criteria_var$level)))
+    level = as.numeric(levels(factor(dataEX_criteria_variable$level)))
 
     map = map +
         geom_sf(data=france,
@@ -403,13 +403,13 @@ panel_criteria_map = function (dataEX_criteria_model_var,
     }
 
     if (is_secteur | is_warning) {
-        dataEX_criteria_var = dplyr::rename(dataEX_criteria_var,
+        dataEX_criteria_variable = dplyr::rename(dataEX_criteria_variable,
                                       CdSecteurH=Secteur)
         # secteurHydro = dplyr::filter(secteurHydro,
                                      # CdSecteurH %in%
-                                     # dataEX_criteria_var$CdSecteurH)
+                                     # dataEX_criteria_variable$CdSecteurH)
         secteurHydro = dplyr::full_join(secteurHydro,
-                                        dataEX_criteria_var,
+                                        dataEX_criteria_variable,
                                         by="CdSecteurH")
         map = map +
             geom_sf(data=secteurHydro,
@@ -432,16 +432,16 @@ panel_criteria_map = function (dataEX_criteria_model_var,
     
     if (!is_secteur & !is_warning) {
         for (l in level) {
-            dataEX_criteria_var_tmp = dplyr::filter(dataEX_criteria_var,
+            dataEX_criteria_variable_tmp = dplyr::filter(dataEX_criteria_variable,
                                               level==l)
             map = map +
-                geom_point(data=dataEX_criteria_var_tmp,
+                geom_point(data=dataEX_criteria_variable_tmp,
                            aes(x=XL93_m, y=YL93_m),
-                           color=dataEX_criteria_var_tmp$color,
-                           fill=dataEX_criteria_var_tmp$fill,
-                           shape=dataEX_criteria_var_tmp$shape,
+                           color=dataEX_criteria_variable_tmp$color,
+                           fill=dataEX_criteria_variable_tmp$fill,
+                           shape=dataEX_criteria_variable_tmp$shape,
                            size=3,
-                           stroke=dataEX_criteria_var_tmp$stroke)
+                           stroke=dataEX_criteria_variable_tmp$stroke)
         }
     }
 
@@ -472,7 +472,7 @@ panel_criteria_map = function (dataEX_criteria_model_var,
                      verbose=verbose)
 
     if (!is_secteur & !is_warning &
-        !remove_warning_lim & !model_by_shape) {
+        !remove_warning_lim & !hm_by_shape) {
         ca = panel_colorbar_circle(c(0, 1),
                                    c("transparent",
                                      "transparent"),
@@ -491,7 +491,7 @@ panel_criteria_map = function (dataEX_criteria_model_var,
                                    margin=margin(t=0.2, r=0.5,
                                                  b=0.5, l=2.5,
                                                  "cm"))
-    } else if (model_by_shape & nModel > 1) {
+    } else if (hm_by_shape & nHM > 1) {
         ca = panel_colorbar_circle(c(0, 0.5, 1),
                                    c("transparent",
                                      "transparent",
@@ -506,8 +506,8 @@ panel_criteria_map = function (dataEX_criteria_model_var,
                                    color=c("grey30",
                                            "grey30",
                                            "grey30"),
-                                   label=Model,
-                                   shape=shape[1:nModel],
+                                   label=HM,
+                                   shape=shape[1:nHM],
                                    on_circle=TRUE,
                                    margin=margin(t=0.2, r=0.5,
                                                  b=0.2, l=2.5,
@@ -523,14 +523,14 @@ panel_criteria_map = function (dataEX_criteria_model_var,
                      verbose=verbose)
     
     
-    if (grepl("KGE|(NSE)|(^r$)", var) & !is_warning) {
+    if (grepl("KGE|(NSE)|(^r$)", variable) & !is_warning) {
         label = bin
         text_size = 3
         on_circle = FALSE
         d_space = 0.15
         margin = margin(t=1.5, r=0.5, b=2.5, l=5.3, "cm")
 
-    } else if (grepl("(RAT)|(HYP)", var) & !is_warning) {
+    } else if (grepl("(RAT)|(HYP)", variable) & !is_warning) {
         bin = c(0, 1)
         text_size = 2.6
         ###########################################

@@ -118,18 +118,18 @@ panel_info_regime = function(QM_code,
         gtext2 = void()
     }
 
-    # print(meta_regime$Code[is.na(meta_regime$Surface_km2)])
+    # print(meta_regime$Code[is.na(meta_regime$surface_km2)])
 
     # Spatial info about station
     if ('spatial' %in% to_do | 'all' %in% to_do) {
-        if (all(is.na(meta_regime$Surface_km2))) {
+        if (all(is.na(meta_regime$surface_km2))) {
             surface_min = "inconnue"
             surface_max = "inconnue"
         } else {
-            surface_min = paste0(round(min(meta_regime$Surface_km2,
+            surface_min = paste0(round(min(meta_regime$surface_km2,
                                            na.rm=TRUE)),
                                  " km<sup>2</sup>")
-            surface_max = paste0(round(max(meta_regime$Surface_km2,
+            surface_max = paste0(round(max(meta_regime$surface_km2,
                                            na.rm=TRUE)),
                                  " km<sup>2</sup>")
         }

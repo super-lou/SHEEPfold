@@ -31,7 +31,7 @@ sheet_station = function (list_df2plot, meta, trend_period,
                             colorForce, exXprob, info_header, time_header,
                             foot_note, structure,
                             info_height, time_height,
-                            var_ratio, foot_height,
+                            variable_ratio, foot_height,
                             paper_size, shapefile_list, logo_path,
                             zone_to_show, show_colorEvent,
                             outdirTmp_pdf, outdirTmp_png,
@@ -47,7 +47,7 @@ sheet_station = function (list_df2plot, meta, trend_period,
     lim_pct = 10
 
     # Number of variable/plot
-    nVar = length(list_df2plot)
+    nVariable = length(list_df2plot)
     
     # Get all different stations code
     Code = rle(data$Code)$value
@@ -61,7 +61,7 @@ sheet_station = function (list_df2plot, meta, trend_period,
 
         # Extracts the min and the max of the mean trend for all the station
         res = get_valueExtremes(list_df2plot, Code,
-                                nPeriod_trend, nVar,
+                                nPeriod_trend, nVariableiable,
                                 nCode,
                                 valueType="trend",
                                 colorForce=colorForce,
@@ -83,7 +83,7 @@ sheet_station = function (list_df2plot, meta, trend_period,
         nbh = as.numeric(!is.null(info_header)) + as.numeric(!is.null(time_header))*3
         nbf = as.numeric(foot_note)
         # Actualises the number of plot
-        nbg = nbh + nVar + nbf
+        nbg = nbh + nVariable + nbf
 
         df_P = tibble() # name | first | last | plot
         
@@ -136,8 +136,8 @@ sheet_station = function (list_df2plot, meta, trend_period,
             
             if (is.null(axis_xlim)) {
                 # Gets the limits of the time serie
-                axis_xlim_code = c(min(df_X_code$Date),
-                                   max(df_X_code$Date))
+                axis_xlim_code = c(min(df_X_code$date),
+                                   max(df_X_code$date))
             } else {
                 axis_xlim_code = axis_xlim
             }
@@ -146,7 +146,7 @@ sheet_station = function (list_df2plot, meta, trend_period,
             HX = panel_trend(df_X_code, trend_code=NULL,
                             trend_period=trend_period,
                             axis_xlim=axis_xlim_code, missRect=TRUE,
-                            unit2day=365.25, var='Q',
+                            unit2day=365.25, variable='Q',
                             unit="m^{3}.s^{-1}",
                             grid=TRUE, ymin_lim=0,
                             first=TRUE, lim_pct=lim_pct)
@@ -163,7 +163,7 @@ sheet_station = function (list_df2plot, meta, trend_period,
                                     axis_xlim=axis_xlim_code,
                                     missRect=TRUE,
                                     unit2day=365.25,
-                                    var='\\sqrt{Q}',
+                                    variable='\\sqrt{Q}',
                                     unit="m^{3/2}.s^{-1/2}",
                                     grid=TRUE, ymin_lim=0,
                                     first=TRUE, lim_pct=lim_pct)
@@ -179,7 +179,7 @@ sheet_station = function (list_df2plot, meta, trend_period,
                                        axis_xlim=axis_xlim_code,
                                        missRect=TRUE,
                                        unit2day=365.25,
-                                       var='\\sqrt{Q}',
+                                       variable='\\sqrt{Q}',
                                        unit="m^{3/2}.s^{-1/2}",
                                        grid=TRUE, ymin_lim=0,
                                        first=FALSE, lim_pct=lim_pct)
@@ -195,9 +195,9 @@ sheet_station = function (list_df2plot, meta, trend_period,
         }
 
         # Computes the number of column of plot asked on the datasheet
-        var_plotted = c()
+        variable_plotted = c()
         # For all variable
-        for (i in 1:nVar) {
+        for (i in 1:nVariable) {
             # Extracts the data corresponding to the current variable
             data = list_df2plot[[i]]$data
             # Extracts the trend corresponding to the
@@ -206,18 +206,18 @@ sheet_station = function (list_df2plot, meta, trend_period,
             
             unit2day = list_df2plot[[i]]$unit2day
             # Extract the variable of the plot
-            var = list_df2plot[[i]]$var
-            var_plotted = c(var_plotted, var)
+            variable = list_df2plot[[i]]$variable
+            variable_plotted = c(variable_plotted, variable)
             
             event = list_df2plot[[i]]$event
             unit = list_df2plot[[i]]$unit
-            samplePeriod = list_df2plot[[i]]$samplePeriod
+            sampling_period = list_df2plot[[i]]$sampling_period
 
-            if (is.tbl(samplePeriod)) {
-                samplePeriod_code =
-                    samplePeriod$sp[samplePeriod$Code == code]
+            if (is.tbl(sampling_period)) {
+                sampling_period_code =
+                    sampling_period$sp[sampling_period$Code == code]
             } else {
-                samplePeriod_code = samplePeriod
+                sampling_period_code = sampling_period
             }
             
             # Extracts the data corresponding to the code
@@ -240,8 +240,8 @@ sheet_station = function (list_df2plot, meta, trend_period,
 
                         # Extracts the corresponding data for the period
                         data_code_per =
-                            data_code[data_code$Date >= Start 
-                                         & data_code$Date <= End,]
+                            data_code[data_code$date >= Start 
+                                         & data_code$date <= End,]
                         # Same for trend
                         trend_code_per = 
                             trend_code[trend_code$start == Start 
@@ -269,7 +269,7 @@ sheet_station = function (list_df2plot, meta, trend_period,
                         }
 
 
-                        reverse = get_reverse(var)
+                        reverse = get_reverse(variable)
                         color_res = get_color(value,
                                               minTrendX[j, i],
                                               maxTrendX[j, i],
@@ -291,7 +291,7 @@ sheet_station = function (list_df2plot, meta, trend_period,
                 }
             }
 
-            if (var != '\\sqrt{Q}' & var != 'Q') {
+            if (variable != '\\sqrt{Q}' & variable != 'Q') {
                 grid = FALSE
                 ymin_lim = NULL
             } else {
@@ -305,11 +305,11 @@ sheet_station = function (list_df2plot, meta, trend_period,
                 first = FALSE
             }
 
-            print(paste0("Time panel for ", var))
+            print(paste0("Time panel for ", variable))
 
             res = panel_trend(data_code, trend_code,
-                             var=var, unit=unit,
-                             samplePeriod_code=samplePeriod_code,
+                             variable=variable, unit=unit,
+                             sampling_period_code=sampling_period_code,
                              linetype_per=linetype_per,
                              level=level, colorForce=colorForce,
                              missRect=FALSE,
@@ -324,11 +324,11 @@ sheet_station = function (list_df2plot, meta, trend_period,
             
             df_P = add_plot(df_P,
                             plot=res$lastTRUE,
-                            name=var,
+                            name=variable,
                             last=TRUE)
             df_P = add_plot(df_P,
                             plot=res$lastFALSE,
-                            name=var,
+                            name=variable,
                             last=FALSE)
         }
 
@@ -347,7 +347,7 @@ sheet_station = function (list_df2plot, meta, trend_period,
         page_code = 0
         for (i in 1:nEvent) {
             
-            var_to_place = structure[[i]]
+            variable_to_place = structure[[i]]
             event = names(structure)[i]
 
             if (event != 'Resume' & event != 'None' & show_colorEvent) {
@@ -364,15 +364,15 @@ sheet_station = function (list_df2plot, meta, trend_period,
             }
             
             if (event == 'Resume') {
-                nVar_max = 4
+                nVariable_max = 4
             } else {
-                nVar_max = 5
+                nVariable_max = 5
             }
 
-            nVar_to_place = length(var_to_place)
-            nVar_page = ceiling(nVar_to_place/nVar_max)
+            nVariable_to_place = length(variable_to_place)
+            nVariable_page = ceiling(nVariable_to_place/nVariable_max)
             
-            for (page in 1:nVar_page) {
+            for (page in 1:nVariable_page) {
 
                 page_code = page_code + 1
                 
@@ -399,8 +399,8 @@ sheet_station = function (list_df2plot, meta, trend_period,
                                     overwrite_by_name=TRUE)
                 }
 
-                var_to_place_page = var_to_place[(1+(nVar_max*(page-1))) : (nVar_max*page)]
-                var_to_place_page = var_to_place_page[!is.na(var_to_place_page)]
+                variable_to_place_page = variable_to_place[(1+(nVariable_max*(page-1))) : (nVariable_max*page)]
+                variable_to_place_page = variable_to_place_page[!is.na(variable_to_place_page)]
 
                 LM_id = c()
                 LM_name = c()
@@ -436,19 +436,19 @@ sheet_station = function (list_df2plot, meta, trend_period,
                     nbt = 0
                 }
 
-                P_var = c()
-                for (var in var_to_place_page) {
-                    if (var == var_to_place_page[length(var_to_place_page)]) {
+                P_variable = c()
+                for (variable in variable_to_place_page) {
+                    if (variable == variable_to_place_page[length(variable_to_place_page)]) {
                         last = TRUE
                     } else {
                         last = FALSE
                     }
-                    id_plot = which(df_P$name == var & df_P$last == last)
+                    id_plot = which(df_P$name == variable & df_P$last == last)
                     LM_id = c(LM_id, id_plot)
                     LM_name = c(LM_name, df_P$name[id_plot])
                 }
                 
-                nGraphMiss = nVar_max - length(var_to_place_page)
+                nGraphMiss = nVariable_max - length(variable_to_place_page)
 
                 if (nGraphMiss > 0) {
                     for (i in 1:nGraphMiss) {
@@ -487,9 +487,9 @@ sheet_station = function (list_df2plot, meta, trend_period,
 
                 margin_height = 0.5
                 
-                Norm_ratio = height * var_ratio * nVar_max / (height - 2*margin_height - time_height*nbt - foot_height*nbf - info_height*nbi)
+                Norm_ratio = height * variable_ratio * nVariable_max / (height - 2*margin_height - time_height*nbt - foot_height*nbf - info_height*nbi)
 
-                var_height = height * var_ratio / Norm_ratio
+                variable_height = height * variable_ratio / Norm_ratio
                 
                 Hcut = LM_name[, 2]
                 heightLM = rep(0, times=LMrow)        
@@ -497,8 +497,8 @@ sheet_station = function (list_df2plot, meta, trend_period,
                 heightLM[Hcut == "info"] = info_height
                 heightLM[Hcut == "Q"] = time_height
                 heightLM[Hcut == "\\sqrt{Q}"] = time_height
-                heightLM[Hcut %in% var_to_place_page |
-                         Hcut == "void"] = var_height
+                heightLM[Hcut %in% variable_to_place_page |
+                         Hcut == "void"] = variable_height
                 heightLM[Hcut == "foot"] = foot_height
                 heightLM[Hcut == "margin"] = margin_height
 
@@ -513,20 +513,20 @@ sheet_station = function (list_df2plot, meta, trend_period,
                 
                 LM_name_inline = as.vector(LM_name)
 
-                widths_var = list()
+                widths_variable = list()
                 nPlot = length(LM_inline)
                 for (i in 1:nPlot) {
                     if (is.null(LM_inline[[i]])) {
                         LM_inline[[i]] = void()
                     }
-                    if (LM_name_inline[i] %in% c(var_plotted, "Q", "\\sqrt{Q}")) {
+                    if (LM_name_inline[i] %in% c(variable_plotted, "Q", "\\sqrt{Q}")) {
                         LM_inline[[i]] = ggplot_gtable(ggplot_build(LM_inline[[i]]))
-                        widths_var = append(widths_var, list(LM_inline[[i]]$widths))
+                        widths_variable = append(widths_variable, list(LM_inline[[i]]$widths))
                     }
                 }        
-                maxWidth = do.call(grid::unit.pmax, widths_var)
+                maxWidth = do.call(grid::unit.pmax, widths_variable)
                 for (i in 1:nPlot) {
-                    if (LM_name_inline[i] %in% c(var_plotted, "Q", "\\sqrt{Q}")) {
+                    if (LM_name_inline[i] %in% c(variable_plotted, "Q", "\\sqrt{Q}")) {
                         LM_inline[[i]]$widths = as.list(maxWidth)
                     }
                 }

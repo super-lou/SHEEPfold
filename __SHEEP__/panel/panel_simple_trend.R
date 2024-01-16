@@ -22,8 +22,8 @@
 
 #' @title Time panel
 #' @export
-panel_simple_trend = function (dataEX_code, trendEX_code, var, unit,
-                               samplePeriod_code=NULL,
+panel_simple_trend = function (dataEX_code, trendEX_code, variable, unit,
+                               sampling_period_code=NULL,
                                linetype_per='solid', level=0.1,
                                axis_xlim=NULL, grid=TRUE,
                                ymin_lim=NULL, color=NULL,
@@ -50,10 +50,10 @@ panel_simple_trend = function (dataEX_code, trendEX_code, var, unit,
     
     ### Data ###
     # If it is a square root flow or flow
-    if (var == '\\sqrt{Q}' | var == 'Q') {
+    if (variable == '\\sqrt{Q}' | variable == 'Q') {
         # Plot the data as line
         p = p +
-            geom_line(aes(x=dataEX_code$Date,
+            geom_line(aes(x=dataEX_code$date,
                           y=dataEX_code$X),
                       color='grey20',
                       size=0.3,
@@ -62,13 +62,13 @@ panel_simple_trend = function (dataEX_code, trendEX_code, var, unit,
         # Plot the data as point
         if (unit == "jour de l'année") {
             p = p +
-                geom_point(aes(x=dataEX_code$Date,
+                geom_point(aes(x=dataEX_code$date,
                                y=as.Date(dataEX_code$X + isDate)),
                            shape=19, color='grey50', alpha=1,
                            stroke=0, size=1)
         } else {
             p = p +
-                geom_point(aes(x=dataEX_code$Date,
+                geom_point(aes(x=dataEX_code$date,
                                y=dataEX_code$X),
                            shape=19, color='grey50', alpha=1,
                            stroke=0, size=1)
@@ -98,8 +98,8 @@ panel_simple_trend = function (dataEX_code, trendEX_code, var, unit,
 
             # Extracts the corresponding data for the period
             dataEX_code_per =
-                dataEX_code[dataEX_code$Date >= Start[i] 
-                             & dataEX_code$Date <= End[i],]
+                dataEX_code[dataEX_code$date >= Start[i] 
+                             & dataEX_code$date <= End[i],]
 
             # Computes the mean of the data on the period
             dataEXMean = mean(dataEX_code_per$X,
@@ -122,12 +122,12 @@ panel_simple_trend = function (dataEX_code, trendEX_code, var, unit,
             
             # Search for the index of the closest existing date 
             # to the start of the trend period of analysis
-            iStart = which.min(abs(dataEX_codeNoNA$Date - Start[i]))
+            iStart = which.min(abs(dataEX_codeNoNA$date - Start[i]))
             # Same for the end
-            iEnd = which.min(abs(dataEX_codeNoNA$Date - End[i]))
+            iEnd = which.min(abs(dataEX_codeNoNA$date - End[i]))
             # Get the start and end date associated
-            xmin = dataEX_codeNoNA$Date[iStart]
-            xmax = dataEX_codeNoNA$Date[iEnd]
+            xmin = dataEX_codeNoNA$date[iStart]
+            xmax = dataEX_codeNoNA$date[iEnd]
 
             # If there is a x axis limit
             if (!is.null(axis_xlim)) {
@@ -165,7 +165,7 @@ panel_simple_trend = function (dataEX_code, trendEX_code, var, unit,
                 codeDate = axis_xlim
             } else {
                 # The entire date data is selected
-                codeDate = dataEX_code$Date
+                codeDate = dataEX_code$date
             }
             # The y limit is stored in a vector
             codeX = c(minX, maxX)
@@ -429,14 +429,14 @@ panel_simple_trend = function (dataEX_code, trendEX_code, var, unit,
         }
     }
 
-    if (!is.null(samplePeriod_code)) {
+    if (!is.null(sampling_period_code)) {
         # If there is a x axis limit
         if (!is.null(axis_xlim)) {
             # The x axis limit is selected
             codeDate = axis_xlim
         } else {
             # The entire date data is selected
-            codeDate = dataEX_code$Date
+            codeDate = dataEX_code$date
         }
         # The y limit is stored in a vector
         codeX = c(minX_win, maxX_win)
@@ -446,40 +446,40 @@ panel_simple_trend = function (dataEX_code, trendEX_code, var, unit,
         # Position of the y beginning and end of the legend symbol
         hPy = gpct(50, codeX, min_lim=ymin_lim, shift=TRUE)
 
-        if (length(samplePeriod_code) > 1) {
+        if (length(sampling_period_code) > 1) {
             hPlabel = paste0(
                 "$^{$",
                 "\\small{",
                 format(as.Date(paste0("1970-",
-                                      samplePeriod_code[1])), "%d %B"),
+                                      sampling_period_code[1])), "%d %B"),
                 " / ",
                 format(as.Date(paste0("1970-",
-                                      samplePeriod_code[2])), "%d %B"),
+                                      sampling_period_code[2])), "%d %B"),
                 "}}")
         } else {
             hPlabel = paste0(
                 "$^{$",
                 "\\small{",
                 format(as.Date(paste0("1970-",
-                                      samplePeriod_code)), "%d %B"),
+                                      sampling_period_code)), "%d %B"),
                 " / ",
                 format(as.Date(paste0("1970-",
-                                      samplePeriod_code))-1, "%d %B"),
+                                      sampling_period_code))-1, "%d %B"),
                 "}}")
         }
     }
     
     # Y axis title
     # If it is a flow variable
-    varF = gsub("etiage", "étiage", var)  
-    if (grepl("[_]", varF)) {
-        varF = gsub("[_]", "$_{$", varF)
-        varF = paste0(varF, "}")
+    variableF = gsub("etiage", "étiage", variable)  
+    if (grepl("[_]", variableF)) {
+        variableF = gsub("[_]", "$_{$", variableF)
+        variableF = paste0(variableF, "}")
     }
     unitF = gsub(" ", "\\\\,", unit)
-    ylabel = paste0("\\textbf{", varF, "}", "\\;", "\\[$", unitF, "$\\]")
+    ylabel = paste0("\\textbf{", variableF, "}", "\\;", "\\[$", unitF, "$\\]")
 
-    if (!is.null(samplePeriod_code)) {
+    if (!is.null(sampling_period_code)) {
         yTeXlabel = bquote(atop(.(TeX(ylabel)[[1]]),.(TeX(hPlabel)[[1]])))
     } else {
         yTeXlabel = bquote(atop(.(TeX(ylabel)[[1]])," "))
@@ -495,7 +495,7 @@ panel_simple_trend = function (dataEX_code, trendEX_code, var, unit,
     }
 
     if (is.null(axis_xlim)) {
-        limits = c(min(dataEX_code$Date), max(dataEX_code$Date))
+        limits = c(min(dataEX_code$date), max(dataEX_code$date))
     } else {
         limits = axis_xlim
     }
@@ -539,7 +539,7 @@ panel_simple_trend = function (dataEX_code, trendEX_code, var, unit,
         )
 
     # Parameters of the y axis
-    # If it is a flow variable
+    # If it is a flow variableiable
     if (unit == 'jour' | unit == 'hm^{3}' | unit == 'm^{3}.s^{-1}' | unit == 'm^{3/2}.s^{-1/2}' | unit == 'jour.an^{-1}') {
         
         if (get_power(minX) >= 4) {

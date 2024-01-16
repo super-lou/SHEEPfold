@@ -25,7 +25,7 @@
 panel_hydrograph = function (QM_code, regimeLight, period=NULL,
                              legend="QM ($m^{3}.s^{-1}$)",
                              ratio_title=1/4,
-                             varAbove=FALSE,
+                             variableAbove=FALSE,
                              margin_title=margin(t=0, r=0,
                                                  b=0, l=0, unit="mm"),
                              margin_hyd=margin(t=0, r=0,
@@ -36,7 +36,7 @@ panel_hydrograph = function (QM_code, regimeLight, period=NULL,
     title = ggplot() + theme_void() +
         theme(plot.margin=margin_title)
 
-    if (varAbove) {
+    if (variableAbove) {
         title = title +
             annotate("text",
                      x=0,
@@ -101,7 +101,7 @@ panel_hydrograph = function (QM_code, regimeLight, period=NULL,
                  fill=IPCCgrey67,
                  width=0.75, size=0.2)
 
-    if (!varAbove) {
+    if (!variableAbove) {
         hyd = hyd +
             theme(axis.title.y=element_text(size=7.2,
                                             vjust=0, hjust=0.5,

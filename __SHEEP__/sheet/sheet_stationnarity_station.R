@@ -32,27 +32,27 @@ sheet_stationnarity_station = function (data,
                                         figdir="",
                                         verbose=FALSE) {
 
-    Var = metaEX_serie$var
-    Var = Var[Var != "QM"]
-    nVar = length(Var)
+    Variable = metaEX_serie$variable
+    Variable = Variable[Variable != "QM"]
+    nVariable = length(Variable)
     
     page_margin = c(t=0.5, r=0.5, b=0.5, l=0.5)
 
     info_height = 3
     chronicle_height = 3
     foot_height = 1.25
-    var_height = (29.7 - 0.5*2 - info_height - chronicle_height - foot_height) / nVar
+    variable_height = (29.7 - 0.5*2 - info_height - chronicle_height - foot_height) / nVariable
     
-    var_width = 21 - 0.5*2 
+    variable_width = 21 - 0.5*2 
     
     plan = matrix(c(
-        "info", "chronicle", Var, "foot"
+        "info", "chronicle", Variable, "foot"
     ), ncol=1)
 
     regimeHydro =
         find_regimeHydro(
             dplyr::rename(dplyr::select(dataEX_serie$QM,
-                                        c("Code", "Date", "QM_obs")),
+                                        c("Code", "date", "QM_obs")),
                           QM=QM_obs))
 
     Code = levels(factor(data$Code))
@@ -98,11 +98,11 @@ sheet_stationnarity_station = function (data,
                          verbose=verbose)
 
         data_code_chronicle = dplyr::rename(data_code, Q_sim=Q_nat)
-        data_code_chronicle$Model = "Naturalisé"
+        data_code_chronicle$HM = "Naturalisé"
         Colors = IPCCgold
         names(Colors) = "Naturalisé"
         
-        limits = c(min(data_code$Date), max(data_code$Date))
+        limits = c(min(data_code$date), max(data_code$date))
         
         chronicle = panel_spaghetti(data_code_chronicle,
                                     Colors=Colors,
@@ -115,7 +115,7 @@ sheet_stationnarity_station = function (data,
                                     isTitleAbove=FALSE,
                                     isLegend=TRUE,
                                     obsLegend="Observé",
-                                    addModelLegend=TRUE,
+                                    addHMLegend=TRUE,
                                     sizeYticks=6,
                                     date_labels="%Y",
                                     breaks="5 years",
@@ -142,11 +142,11 @@ sheet_stationnarity_station = function (data,
                          verbose=verbose)
         herd$sheep$label[herd$sheep$id == "chronicle.spag"] = "align"
 
-        for (j in 1:nVar) {
-            var = Var[j]
-            print(paste0("Time panel for ", var))
+        for (j in 1:nVariable) {
+            variable = Variable[j]
+            print(paste0("Time panel for ", variable))
 
-            if (j == nVar) {
+            if (j == nVariable) {
                 first = FALSE
                 last = TRUE
             } else {
@@ -154,15 +154,15 @@ sheet_stationnarity_station = function (data,
                 last = FALSE
             }
 
-            dataEX_serie_code_var = dataEX_serie_code[[var]]
+            dataEX_serie_code_variable = dataEX_serie_code[[variable]]
 
-            trendEX_serie_code_var =
+            trendEX_serie_code_variable =
                 trendEX_serie[trendEX_serie$Code == code &
-                              grepl(var, trendEX_serie$var, fixed=TRUE),]
+                              grepl(variable, trendEX_serie$variable, fixed=TRUE),]
             
-            trend = panel_trend(var,
-                                dataEX_serie_code_var,
-                                trendEX_serie_code_var,
+            trend = panel_trend(variable,
+                                dataEX_serie_code_variable,
+                                trendEX_serie_code_variable,
                                 metaEX_serie,
                                 period_trend_show=period_trend_show,
                                 linetype='solid',
@@ -179,10 +179,10 @@ sheet_stationnarity_station = function (data,
             
             herd = add_sheep(herd,
                              sheep=trend,
-                             id=var,
+                             id=variable,
                              label="align",
-                             height=var_height,
-                             width=var_width,
+                             height=variable_height,
+                             width=variable_width,
                              verbose=verbose)
         }
 

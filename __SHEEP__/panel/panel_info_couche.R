@@ -40,18 +40,18 @@ panel_info_couche = function(meta_couche,
 
     # Gets the metadata about the station
     if ('title' %in% to_do | 'all' %in% to_do) {
-        Nom =
+        Name =
             as.character(Shapefiles$entitePiezo$libelleeh)[
                 as.character(Shapefiles$entitePiezo$codeeh) ==
                 meta_couche$Couche[[1]]]
 
         PX = get_alphabet_in_px()
-        Nom = guess_newline(Nom, px=26, PX=PX)
-        Nom = gsub(" ", nbsp(1, 10), Nom, fixed=TRUE)
-        nLine = length(unlist(strsplit(Nom, "\n")))
-        Nom = gsub("\n", "<br>", Nom, fixed=TRUE)
+        Name = guess_newline(Name, px=26, PX=PX)
+        Name = gsub(" ", nbsp(1, 10), Name, fixed=TRUE)
+        nLine = length(unlist(strsplit(Name, "\n")))
+        Name = gsub("\n", "<br>", Name, fixed=TRUE)
 
-        if (length(Nom) == 0) {
+        if (length(Name) == 0) {
             sep = ""
         } else {
             sep = paste0(nbsp(1),
@@ -64,7 +64,7 @@ panel_info_couche = function(meta_couche,
         # Converts all texts to graphical object in the right position
         gtext1 = richtext_grob(
             paste0("<b style='font-size:14pt; color:", refCOL, "'>",
-                   Nom, "</b>", sep,
+                   Name, "</b>", sep,
                    "<span style='font-size:14pt; color:", refCOL, "'>",
                    coucheLight, "</span>"),
             x=0, y=1,
@@ -129,7 +129,7 @@ panel_info_couche = function(meta_couche,
     herd = plan_of_herd(herd, plan,
                         verbose=verbose)
 
-    if (length(Nom) == 0 | nLine == 1) {
+    if (length(Name) == 0 | nLine == 1) {
         herd = add_sheep(herd,
                          sheep=gtext1,
                          id="text1",

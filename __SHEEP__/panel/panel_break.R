@@ -34,8 +34,8 @@ panel_break_histogram = function (df_break, meta, title='') {
     datebreak = 10
     dateminbreak = 1
 
-    Date = df_break$Date
-    DateOk = df_break$Date[df_break$significant]
+    Date = df_break$date
+    DateOk = df_break$date[df_break$significant]
 
     ## All data
     # Computes histogram by year
@@ -117,8 +117,8 @@ panel_break_cumulative = function (df_break, meta, title='', dyear=10) {
     datebreak = 10
     dateminbreak = 1
 
-    Date = df_break$Date
-    DateOk = df_break$Date[df_break$significant]
+    Date = df_break$date
+    DateOk = df_break$date[df_break$significant]
 
     ## All data
     # Computes histogram by year

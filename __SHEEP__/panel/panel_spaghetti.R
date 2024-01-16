@@ -33,7 +33,7 @@ panel_spaghetti = function (data_code, Colors=NULL,
                             isLegend=FALSE,
                             obsLegend="Observations",
                             simLegend="Simulations",
-                            addModelLegend=FALSE,
+                            addHMLegend=FALSE,
                             sizeYticks=9,
                             date_labels="%Y",
                             breaks="10 years",
@@ -131,8 +131,8 @@ panel_spaghetti = function (data_code, Colors=NULL,
                          size=2.5, hjust=0, vjust=1,
                          color=IPCCgrey50)
 
-            if (addModelLegend & length(Colors) == 1) {
-                dx_model = 0.14
+            if (addHMLegend & length(Colors) == 1) {
+                dx_hm = 0.14
                 title = title +
                     annotate("line",
                              x=c(dx_title+dx_obs,
@@ -148,7 +148,7 @@ panel_spaghetti = function (data_code, Colors=NULL,
                              size=2.5, hjust=0, vjust=1,
                              color=IPCCgrey50)
             } else {
-                dx_model = 0.11
+                dx_hm = 0.11
                 title = title +
                     annotate("line",
                              x=c(dx_title+dx_obs,
@@ -169,15 +169,15 @@ panel_spaghetti = function (data_code, Colors=NULL,
             if (missRect) {
                 title = title +
                     annotate("rect",
-                             xmin=dx_title+dx_obs+dx_model, 
+                             xmin=dx_title+dx_obs+dx_hm, 
                              ymin=0, 
-                             xmax=dx_title+dx_obs+dx_model+0.005, 
+                             xmax=dx_title+dx_obs+dx_hm+0.005, 
                              ymax=0.55,
                              linetype=0,
                              fill=INRAElightcyan,
                              alpha=0.4) +
                     annotate("text",
-                             x=dx_title+dx_obs+dx_model+0.01,
+                             x=dx_title+dx_obs+dx_hm+0.01,
                              y=0.5,
                              label="Lacunes",
                              size=2.5, hjust=0, vjust=1,
@@ -193,16 +193,16 @@ panel_spaghetti = function (data_code, Colors=NULL,
     }
     
    
-    isDate = inherits(data_code$Date, 'Date')
+    isDate = inherits(data_code$date, 'date')
 
     if (isNormLaw) {
-        data_code = data_code[data_code$Date != 0 &
-                              data_code$Date != 1,]
+        data_code = data_code[data_code$date != 0 &
+                              data_code$date != 1,]
     }
     
-    if ("Model" %in% names(data_code)) {
-        Model = levels(factor(data_code$Model))
-        nModel = length(Model)
+    if ("HM" %in% names(data_code)) {
+        HM = levels(factor(data_code$HM))
+        nHM = length(HM)
         
         select_good = function (X) {
             Xrle = rle(X)
@@ -214,7 +214,7 @@ panel_spaghetti = function (data_code, Colors=NULL,
         }
         
         data_code_obs =
-            dplyr::summarise(dplyr::group_by(data_code, Date),
+            dplyr::summarise(dplyr::group_by(data_code, date),
                              Q=median(Q_obs, na.rm=TRUE),
                              .groups="drop")
 
@@ -232,7 +232,7 @@ panel_spaghetti = function (data_code, Colors=NULL,
     }
 
     if (is.null(axis_xlim)) {
-        limits = c(min(data_code_obs$Date), max(data_code_obs$Date))
+        limits = c(min(data_code_obs$date), max(data_code_obs$date))
     } else {
         limits = axis_xlim
     }
@@ -260,7 +260,7 @@ panel_spaghetti = function (data_code, Colors=NULL,
     # If the option is TRUE
     if (missRect) {
         # Remove NA data
-        NAdate = data_code_obs$Date[is.na(data_code_obs$Q)]
+        NAdate = data_code_obs$date[is.na(data_code_obs$Q)]
         # Get the difference between each point of date data without NA
         dNAdate = diff(NAdate)
         # If difference of day is not 1 then
@@ -302,38 +302,38 @@ panel_spaghetti = function (data_code, Colors=NULL,
     if (!isBackObsAbove) {
         spag = spag +
             ggplot2::annotate("line",
-                              x=data_code_obs$Date,
+                              x=data_code_obs$date,
                               y=data_code_obs$Q,
                               color="white",
                               linewidth=lwObs_back,#0.4,
                               lineend="round")
     }
     
-    if ("Model" %in% names(data_code)) {
-        for (i in 1:nModel) {
-            model = Model[i]
-            data_model_code = data_code[data_code$Model == model,] 
+    if ("HM" %in% names(data_code)) {
+        for (i in 1:nHM) {
+            hm = HM[i]
+            data_hm_code = data_code[data_code$HM == hm,] 
             # Plot the data as line
             spag = spag +
                 ggplot2::annotate("line",
-                                  x=data_model_code$Date,
-                                  y=data_model_code$Q_sim,
+                                  x=data_hm_code$date,
+                                  y=data_hm_code$Q_sim,
                                   color="white",
                                   linewidth=lwSim_back,#0.7,
                                   lineend="round")
         }
         if (is.null(Colors)) {
-            Colors = rep(IPCCgrey67, nModel)
-            names(Colors) = Model
+            Colors = rep(IPCCgrey67, nHM)
+            names(Colors) = HM
         }
-        for (i in 1:nModel) {
-            model = Model[i]
-            data_model_code = data_code[data_code$Model == model,]
+        for (i in 1:nHM) {
+            hm = HM[i]
+            data_hm_code = data_code[data_code$HM == hm,]
             spag = spag +
                 ggplot2::annotate("line",
-                                  x=data_model_code$Date,
-                                  y=data_model_code$Q_sim,
-                                  color=Colors[names(Colors) == model],
+                                  x=data_hm_code$date,
+                                  y=data_hm_code$Q_sim,
+                                  color=Colors[names(Colors) == hm],
                                   linewidth=lwSim,
                                   alpha=alpha,
                                   lineend="round")
@@ -343,13 +343,13 @@ panel_spaghetti = function (data_code, Colors=NULL,
     if (isBackObsAbove) {
         spag = spag +
             ggplot2::annotate("line",
-                              x=data_code_obs$Date,
+                              x=data_code_obs$date,
                               y=data_code_obs$Q,
                               color="white",
                               linewidth=lwObs_back,#1.7,
                               lineend="round") +
             ggplot2::annotate("line",
-                              x=data_code_obs$Date,
+                              x=data_code_obs$date,
                               y=data_code_obs$Q,
                               color=IPCCgrey23,
                               linewidth=lwObs,#0.55,
@@ -357,7 +357,7 @@ panel_spaghetti = function (data_code, Colors=NULL,
     } else {
         spag = spag +
             ggplot2::annotate("line",
-                              x=data_code_obs$Date,
+                              x=data_code_obs$date,
                               y=data_code_obs$Q,
                               color=IPCCgrey23,
                               linewidth=lwObs,#0.2,

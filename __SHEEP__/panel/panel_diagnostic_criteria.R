@@ -189,7 +189,7 @@ panel_diagnostic_criteria = function (dataEX_criteria,
     dy_T1 = 0.1
     size_T1 = 3.2
     dy_T1_space = 0.6
-    ech_text_var = 0.46
+    ech_text_variable = 0.46
 
     dy_L2_min = 0.5
     lw_L2 = 0.25
@@ -224,12 +224,12 @@ panel_diagnostic_criteria = function (dataEX_criteria,
 
     logicalCol = names(dataEX_criteria)[sapply(dataEX_criteria, class) == "logical"]
     dataEX_criteria = dataEX_criteria[!(names(dataEX_criteria) %in% logicalCol)]
-    metaEX_criteria = metaEX_criteria[!(metaEX_criteria$var %in% logicalCol),]
+    metaEX_criteria = metaEX_criteria[!(metaEX_criteria$variable %in% logicalCol),]
     
     Topic = strsplit(metaEX_criteria$topic, "[|]")
     Topic = lapply(Topic, complete)
     mainTopicVAR = sapply(Topic, '[[', 2)
-    names(mainTopicVAR) = metaEX_criteria$var
+    names(mainTopicVAR) = metaEX_criteria$variable
     lenMainTopic = rle(mainTopicVAR)$lengths
     nMainTopic = length(lenMainTopic)
     startMainTopic =
@@ -243,42 +243,42 @@ panel_diagnostic_criteria = function (dataEX_criteria,
         svgparser::read_svg)
     names(mainTopic_icon) = mainTopic
 
-    vars2keep = names(dataEX_criteria)
-    vars2keep = vars2keep[!grepl("([_]obs)|([_]sim)", vars2keep)]
+    variables2keep = names(dataEX_criteria)
+    variables2keep = variables2keep[!grepl("([_]obs)|([_]sim)", variables2keep)]
 
     dataEX_criteria = dplyr::mutate(dataEX_criteria,
                               dplyr::across(where(is.logical),
                                             as.numeric),
                               .keep="all")
 
-    dataEX_criteria = dplyr::select(dataEX_criteria, vars2keep)
+    dataEX_criteria = dplyr::select(dataEX_criteria, variables2keep)
 
     CodeIN = c(codeLight, groupCode)
     
-    Model = levels(factor(dataEX_criteria$Model[dataEX_criteria$Code %in% CodeIN]))
+    HM = levels(factor(dataEX_criteria$HM[dataEX_criteria$Code %in% CodeIN]))
     if (!is.null(codeLight)) {
-        Model_codeLight =
-            levels(factor(dataEX_criteria$Model[dataEX_criteria$Code %in%
+        HM_codeLight =
+            levels(factor(dataEX_criteria$HM[dataEX_criteria$Code %in%
                                           codeLight]))
     } else {
-        Model_codeLight = Model
+        HM_codeLight = HM
     }
 
-    nModel = length(Model)
+    nHM = length(HM)
     
     dataEX_criteria_tmp = dataEX_criteria
-    dataEX_criteria_tmp = dplyr::select(dataEX_criteria_tmp, -c(Code, Model))
+    dataEX_criteria_tmp = dplyr::select(dataEX_criteria_tmp, -c(Code, HM))
 
-    matchVar = match(names(dataEX_criteria_tmp), metaEX_criteria$var)
-    matchVar = matchVar[!is.na(matchVar)]
+    matchVariable = match(names(dataEX_criteria_tmp), metaEX_criteria$variable)
+    matchVariable = matchVariable[!is.na(matchVariable)]
 
-    dataEX_criteria_tmp = dataEX_criteria_tmp[matchVar]
+    dataEX_criteria_tmp = dataEX_criteria_tmp[matchVariable]
 
     nameCol = names(dataEX_criteria_tmp)
-    Var = nameCol
-    nVar = length(Var)
+    Variable = nameCol
+    nVariable = length(Variable)
 
-    VarTeX = convert2TeX(Var, is_it_small=TRUE)
+    VariableTeX = convert2TeX(Variable, is_it_small=TRUE)
         
     Code = levels(factor(dataEX_criteria$Code))    
     perfect_tick_save = ""
@@ -299,7 +299,7 @@ panel_diagnostic_criteria = function (dataEX_criteria,
         ggtitle(title)
 
     if (is.na(width)) {
-        width = nVar
+        width = nVariable
     }
     
     x_limits =
@@ -310,20 +310,20 @@ panel_diagnostic_criteria = function (dataEX_criteria,
 
 
 ## 4. INDICATOR BAR PLOT _____________________________________________
-    for (i in 1:nVar) {
-        var = Var[i]
+    for (i in 1:nVariable) {
+        variable = Variable[i]
 
-        if (i == nVar) {
+        if (i == nVariable) {
             dr_grid_tmp = 0
         } else {
             dr_grid_tmp = dspace_grid/2
         }
 
-        varRAW = gsub("[{]", "[{]", var)
-        varRAW = gsub("[}]", "[}]", varRAW)
-        varRAW = gsub("[_]", "[_]", varRAW)
+        variableRAW = gsub("[{]", "[{]", variable)
+        variableRAW = gsub("[}]", "[}]", variableRAW)
+        variableRAW = gsub("[_]", "[_]", variableRAW)
         
-        id = sapply(names(perfect_tick_val), grepl, x=varRAW)
+        id = sapply(names(perfect_tick_val), grepl, x=variableRAW)
         if (all(!id)) {
             id = "default"
         } else {
@@ -339,14 +339,14 @@ panel_diagnostic_criteria = function (dataEX_criteria,
         max_tick = max(c(perfect_tick, major_tick, minor_tick))
 
 
-        if (i < nVar) {
-            var_next = Var[i+1]
+        if (i < nVariable) {
+            variable_next = Variable[i+1]
 
-            varRAW_next = gsub("[{]", "[{]", var_next)
-            varRAW_next = gsub("[}]", "[}]", varRAW_next)
-            varRAW_next = gsub("[_]", "[_]", varRAW_next)
+            variableRAW_next = gsub("[{]", "[{]", variable_next)
+            variableRAW_next = gsub("[}]", "[}]", variableRAW_next)
+            variableRAW_next = gsub("[_]", "[_]", variableRAW_next)
             
-            id_next = sapply(names(perfect_tick_val), grepl, x=varRAW_next)
+            id_next = sapply(names(perfect_tick_val), grepl, x=variableRAW_next)
             if (all(!id_next)) {
                 id_next = "default"
             } else {
@@ -519,7 +519,7 @@ panel_diagnostic_criteria = function (dataEX_criteria,
         if (perfect_tick != perfect_tick_next |
             min_tick != min_tick_next |
             max_tick != max_tick_next |
-            i == nVar) {
+            i == nVariable) {
 
             major_tick_block = major_tick_block[!duplicated(major_tick_block)]
             
@@ -551,14 +551,14 @@ panel_diagnostic_criteria = function (dataEX_criteria,
         }
     }
 
-    for (i in 1:nVar) {
-        var = Var[i]
+    for (i in 1:nVariable) {
+        variable = Variable[i]
 
-        varRAW = gsub("[{]", "[{]", var)
-        varRAW = gsub("[}]", "[}]", varRAW)
-        varRAW = gsub("[_]", "[_]", varRAW)
+        variableRAW = gsub("[{]", "[{]", variable)
+        variableRAW = gsub("[}]", "[}]", variableRAW)
+        variableRAW = gsub("[_]", "[_]", variableRAW)
         
-        id = sapply(names(perfect_tick_val), grepl, x=varRAW)
+        id = sapply(names(perfect_tick_val), grepl, x=variableRAW)
         if (all(!id)) {
             id = "default"
         } else {
@@ -573,14 +573,14 @@ panel_diagnostic_criteria = function (dataEX_criteria,
 
         space = Spaces[i]
 
-        for (j in 1:nModel) {
-            model = Model[j]
-            dataEX_criteria_model = dataEX_criteria[dataEX_criteria$Model == model,]
-            dataEX_criteria_model_group =
-                dataEX_criteria_model[dataEX_criteria_model$Code %in% groupCode,]
+        for (j in 1:nHM) {
+            hm = HM[j]
+            dataEX_criteria_hm = dataEX_criteria[dataEX_criteria$HM == hm,]
+            dataEX_criteria_hm_group =
+                dataEX_criteria_hm[dataEX_criteria_hm$Code %in% groupCode,]
 
-            if (nrow(dataEX_criteria_model_group) != 0) {
-                Q = (quantile(dataEX_criteria_model_group[[var]],
+            if (nrow(dataEX_criteria_hm_group) != 0) {
+                Q = (quantile(dataEX_criteria_hm_group[[variable]],
                               c(min(Probs), 1-min(Probs)),
                               na.rm=TRUE)+shift)*norm
                 
@@ -590,7 +590,7 @@ panel_diagnostic_criteria = function (dataEX_criteria,
                 Ind = Ind +
                     annotate("line",
                              x=rep((i-1) + 0.5 -
-                                   (nModel/2)*dx_bar+dx_bar/2 +
+                                   (nHM/2)*dx_bar+dx_bar/2 +
                                    (j-1)*dx_bar + space, 2)*ech_x,
                              y=Q,
                              color="white",
@@ -599,15 +599,15 @@ panel_diagnostic_criteria = function (dataEX_criteria,
             }
         }
 
-        for (j in 1:nModel) {
-            model = Model[j]
-            dataEX_criteria_model = dataEX_criteria[dataEX_criteria$Model == model,]
-            dataEX_criteria_model_group =
-                dataEX_criteria_model[dataEX_criteria_model$Code %in% groupCode,]
+        for (j in 1:nHM) {
+            hm = HM[j]
+            dataEX_criteria_hm = dataEX_criteria[dataEX_criteria$HM == hm,]
+            dataEX_criteria_hm_group =
+                dataEX_criteria_hm[dataEX_criteria_hm$Code %in% groupCode,]
             
-            if (nrow(dataEX_criteria_model_group) != 0) {
+            if (nrow(dataEX_criteria_hm_group) != 0) {
                 for (k in 1:NP) {
-                    Q = (quantile(dataEX_criteria_model_group[[var]],
+                    Q = (quantile(dataEX_criteria_hm_group[[variable]],
                                   c(Probs[k], 1-Probs[k]),
                                   na.rm=TRUE)+shift)*norm
                     
@@ -617,11 +617,11 @@ panel_diagnostic_criteria = function (dataEX_criteria,
                     Ind = Ind +
                         annotate("line",
                                  x=rep((i-1) + 0.5 -
-                                       (nModel/2)*dx_bar+dx_bar/2 +
+                                       (nHM/2)*dx_bar+dx_bar/2 +
                                        (j-1)*dx_bar + space, 2)*ech_x,
                                  y=Q,
                                  color=
-                                     Colors[names(Colors) == model],
+                                     Colors[names(Colors) == hm],
                                  alpha=Alpha[k],
                                  linewidth=1.3,
                                  lineend="round")
@@ -631,20 +631,20 @@ panel_diagnostic_criteria = function (dataEX_criteria,
         
 
         
-        for (j in 1:nModel) {
-            model = Model[j]
-            dataEX_criteria_model = dataEX_criteria[dataEX_criteria$Model == model,]
+        for (j in 1:nHM) {
+            hm = HM[j]
+            dataEX_criteria_hm = dataEX_criteria[dataEX_criteria$HM == hm,]
 
             if (!is.null(codeLight)) {
-                dataEX_criteria_model_code =
-                    dataEX_criteria_model[dataEX_criteria_model$Code ==
+                dataEX_criteria_hm_code =
+                    dataEX_criteria_hm[dataEX_criteria_hm$Code ==
                                     codeLight,]
-                value = dataEX_criteria_model_code[[var]]
+                value = dataEX_criteria_hm_code[[variable]]
             } else {
-                dataEX_criteria_model_group =
-                    dataEX_criteria_model[dataEX_criteria_model$Code %in%
+                dataEX_criteria_hm_group =
+                    dataEX_criteria_hm[dataEX_criteria_hm$Code %in%
                                     groupCode,]
-                value = median(dataEX_criteria_model_group[[var]],
+                value = median(dataEX_criteria_hm_group[[variable]],
                                na.rm=TRUE)
             }
 
@@ -668,7 +668,7 @@ panel_diagnostic_criteria = function (dataEX_criteria,
                     Ind = Ind +
                         annotate("point",
                                  x=((i-1) + 0.5 -
-                                    (nModel/2)*dx_bar +
+                                    (nHM/2)*dx_bar +
                                     dx_bar/2 +
                                     (j-1)*dx_bar +
                                     space)*ech_x,
@@ -680,13 +680,13 @@ panel_diagnostic_criteria = function (dataEX_criteria,
                     Ind = Ind +
                         annotate("line",
                                  x=c(((i-1) + 0.5 -
-                                      (nModel/2)*dx_bar +
+                                      (nHM/2)*dx_bar +
                                       dx_bar/2 +
                                       (j-1)*dx_bar +
                                       space)*ech_x -
                                      w_leg_line/2,
                                  ((i-1) + 0.5 -
-                                  (nModel/2)*dx_bar +
+                                  (nHM/2)*dx_bar +
                                   dx_bar/2 +
                                   (j-1)*dx_bar +
                                   space)*ech_x +
@@ -700,20 +700,20 @@ panel_diagnostic_criteria = function (dataEX_criteria,
             }
         }
         
-        for (j in 1:nModel) {
-            model = Model[j]
-            dataEX_criteria_model = dataEX_criteria[dataEX_criteria$Model == model,]
+        for (j in 1:nHM) {
+            hm = HM[j]
+            dataEX_criteria_hm = dataEX_criteria[dataEX_criteria$HM == hm,]
 
             if (!is.null(codeLight)) {
-                dataEX_criteria_model_code =
-                    dataEX_criteria_model[dataEX_criteria_model$Code ==
+                dataEX_criteria_hm_code =
+                    dataEX_criteria_hm[dataEX_criteria_hm$Code ==
                                     codeLight,]
-                value = dataEX_criteria_model_code[[var]]
+                value = dataEX_criteria_hm_code[[variable]]
             } else {
-                dataEX_criteria_model_group =
-                    dataEX_criteria_model[dataEX_criteria_model$Code %in%
+                dataEX_criteria_hm_group =
+                    dataEX_criteria_hm[dataEX_criteria_hm$Code %in%
                                     groupCode,]
-                value = median(dataEX_criteria_model_group[[var]],
+                value = median(dataEX_criteria_hm_group[[variable]],
                                na.rm=TRUE)
             }
 
@@ -737,13 +737,13 @@ panel_diagnostic_criteria = function (dataEX_criteria,
                     Ind = Ind +
                         annotate("point",
                                  x=((i-1) + 0.5 -
-                                    (nModel/2)*dx_bar +
+                                    (nHM/2)*dx_bar +
                                     dx_bar/2 +
                                     (j-1)*dx_bar +
                                     space)*ech_x,
                                  y=(value+shift)*norm,
                                  color=
-                                     Colors[names(Colors) == model],
+                                     Colors[names(Colors) == hm],
                                  alpha=alpha_marker,
                                  size=1.5,
                                  stroke=0)
@@ -751,13 +751,13 @@ panel_diagnostic_criteria = function (dataEX_criteria,
                     Ind = Ind +
                         annotate("line",
                                  x=c(((i-1) + 0.5 -
-                                      (nModel/2)*dx_bar +
+                                      (nHM/2)*dx_bar +
                                       dx_bar/2 +
                                       (j-1)*dx_bar +
                                       space)*ech_x -
                                      w_leg_line/2,
                                  ((i-1) + 0.5 -
-                                  (nModel/2)*dx_bar +
+                                  (nHM/2)*dx_bar +
                                   dx_bar/2 +
                                   (j-1)*dx_bar +
                                   space)*ech_x +
@@ -766,27 +766,27 @@ panel_diagnostic_criteria = function (dataEX_criteria,
                                        shift, 2)*norm,
                                  alpha=alpha_marker,
                                  color=Colors[names(Colors) ==
-                                              model],
+                                              hm],
                                  linewidth=0.9,
                                  lineend="round")
                 }
             }
         }
 
-        for (j in 1:nModel) {
-            model = Model[j]
-            dataEX_criteria_model = dataEX_criteria[dataEX_criteria$Model == model,]
+        for (j in 1:nHM) {
+            hm = HM[j]
+            dataEX_criteria_hm = dataEX_criteria[dataEX_criteria$HM == hm,]
 
             if (!is.null(codeLight)) {
-                dataEX_criteria_model_code =
-                    dataEX_criteria_model[dataEX_criteria_model$Code ==
+                dataEX_criteria_hm_code =
+                    dataEX_criteria_hm[dataEX_criteria_hm$Code ==
                                     codeLight,]
-                value = dataEX_criteria_model_code[[var]]
+                value = dataEX_criteria_hm_code[[variable]]
             } else {
-                dataEX_criteria_model_group =
-                    dataEX_criteria_model[dataEX_criteria_model$Code %in%
+                dataEX_criteria_hm_group =
+                    dataEX_criteria_hm[dataEX_criteria_hm$Code %in%
                                     groupCode,]
-                value = median(dataEX_criteria_model_group[[var]],
+                value = median(dataEX_criteria_hm_group[[variable]],
                                na.rm=TRUE)
             }
 
@@ -807,7 +807,7 @@ panel_diagnostic_criteria = function (dataEX_criteria,
             
             if (above | below) {
                 x = ((i-1) + 0.5 -
-                     (nModel/2)*dx_bar+dx_bar/2 +
+                     (nHM/2)*dx_bar+dx_bar/2 +
                      (j-1)*dx_bar + space)*ech_x
                 
                 if (above) {
@@ -836,7 +836,7 @@ panel_diagnostic_criteria = function (dataEX_criteria,
                              x=x, xend=x,
                              y=y, yend=yend,
                              color=
-                                 Colors[names(Colors) == model],
+                                 Colors[names(Colors) == hm],
                              alpha=alpha_marker,
                              linewidth=0.3,
                              arrow=arrow(length=unit(dx_arrow,
@@ -848,7 +848,7 @@ panel_diagnostic_criteria = function (dataEX_criteria,
 
     
 ## 5. TOPIC INFO _____________________________________________________
-    for (i in 1:nVar) { 
+    for (i in 1:nVariable) { 
 
         space = Spaces[i]
         
@@ -857,7 +857,7 @@ panel_diagnostic_criteria = function (dataEX_criteria,
                      x=((i-1) + 0.5 + space)*ech_x,
                      y=(dy +
                         dy_T1),
-                     label=TeX(VarTeX[i]),
+                     label=TeX(VariableTeX[i]),
                      hjust=0.5, vjust=0,
                      angle=0,
                      size=size_T1,
@@ -926,7 +926,7 @@ panel_diagnostic_criteria = function (dataEX_criteria,
     dy = dy + dy_I2 + size_I2
 
     
-## 6. MODEL HYDRO LEGEND _____________________________________________
+## 6. HM HYDRO LEGEND _____________________________________________
     title_mod = "MODÈLES HYDROLOGIQUES"
     Ind = Ind +
         annotate("text",
@@ -949,21 +949,21 @@ panel_diagnostic_criteria = function (dataEX_criteria,
                      hjust=0, vjust=0.43, size=2.2)
     }
     
-    # Span = lapply(strsplit(Model, "*"), X2px, PX=PX)
+    # Span = lapply(strsplit(HM, "*"), X2px, PX=PX)
     # Span = lapply(Span, sum)
     # Span = unlist(Span)
-    Span = sapply(Model, text2px, PX=PX)
+    Span = sapply(HM, text2px, PX=PX)
     Span = c(0, Span)
 
     find = function (x, table) {
         which(grepl(x, table))[1]
     }
     
-    color = Colors[sapply(Model, find, table=names(Colors))]
-    for (i in 1:nModel) {
+    color = Colors[sapply(HM, find, table=names(Colors))]
+    for (i in 1:nHM) {
 
         for (k in 1:length(dl_mod_line)) {
-            if (k == 2 & !(Model[i] %in% Model_codeLight)) {
+            if (k == 2 & !(HM[i] %in% HM_codeLight)) {
                 next
             }
             Ind = Ind +
@@ -995,19 +995,19 @@ panel_diagnostic_criteria = function (dataEX_criteria,
                          (dy_gap +
                           dy_mod +
                           dy_mod_name),
-                     label=Model[i],
+                     label=HM[i],
                      color=IPCCgrey25,
                      hjust=0, vjust=0, size=2.8)
         
         if (!is.null(codeLight)) {
-            S_code_model =
+            S_code_hm =
                 round(
-                    meta[meta$Code == codeLight,][[paste0("Surface_",
-                                                          Model[i],
+                    meta[meta$Code == codeLight,][[paste0("surface_",
+                                                          HM[i],
                                                           "_km2")]])
 
-            if (is.na(S_code_model)) {
-                S_code_model = "X"
+            if (is.na(S_code_hm)) {
+                S_code_hm = "X"
             }
             
             Ind = Ind +
@@ -1021,7 +1021,7 @@ panel_diagnostic_criteria = function (dataEX_criteria,
                               dy_mod +
                               dy_mod_name +
                               dy_mod_surf),
-                         label=paste0("(", S_code_model, ")"),
+                         label=paste0("(", S_code_hm, ")"),
                          color=IPCCgrey25,
                          hjust=0, vjust=0, size=2)
         }

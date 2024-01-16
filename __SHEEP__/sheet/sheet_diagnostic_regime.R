@@ -52,19 +52,19 @@ sheet_diagnostic_regime = function (meta,
         ncol=2)
     WIP = FALSE
 
-    Model = levels(factor(dataEX_criteria$Model))
-    nModel = length(Model)
+    HM = levels(factor(dataEX_criteria$HM))
+    nHM = length(HM)
     
     Code = levels(factor(dataEX_criteria$Code))
     nCode = length(Code)
 
     # dataEX_serieQM_obs =
-    #     dplyr::summarise(dplyr::group_by(dataEX_serie$QM, Code, Date),
+    #     dplyr::summarise(dplyr::group_by(dataEX_serie$QM, Code, date),
     #                      QM=select_good(QM_obs),
     #                      .groups="drop")
 
     # dataEX_seriePA_med = dplyr::summarise(dplyr::group_by(dataEX_serie$PA,
-    #                                                      Code, Date),
+    #                                                      Code, date),
     #                                      PAs=median(PAs_obs, na.rm=TRUE),
     #                                      PAl=median(PAl_obs, na.rm=TRUE),
     #                                      PA=median(PA_obs, na.rm=TRUE),
@@ -85,7 +85,7 @@ sheet_diagnostic_regime = function (meta,
 
     dataEX_serieQM_obs =
         dplyr::summarise(dplyr::group_by(dataEX_serie$QM,
-                                         Code, Date),
+                                         Code, date),
                          QM=median(QM_obs,
                                    na.rm=TRUE),
                          .groups="drop")
@@ -93,7 +93,7 @@ sheet_diagnostic_regime = function (meta,
     dataEXserieR_ratio =
         dplyr::full_join(dataEX_serie$Rl_ratio,
                          dataEX_serie$Rs_ratio,
-                         by=c("Code", "Model"))
+                         by=c("Code", "HM"))
     dataEXserieR_ratio =
         dplyr::summarise(
                    dplyr::group_by(dataEXserieR_ratio,
@@ -181,7 +181,7 @@ sheet_diagnostic_regime = function (meta,
                 dataEX_serieQM_obs[dataEX_serieQM_obs$Code %in%
                                    Code_detail,]
 
-            dataEX_serieQM_obs_detail$Date = lubridate::month(dataEX_serieQM_obs_detail$Date)
+            dataEX_serieQM_obs_detail$date = lubridate::month(dataEX_serieQM_obs_detail$date)
             
             dataEX_serieQM_obs_detail =
                 dplyr::mutate(dplyr::group_by(
@@ -195,7 +195,7 @@ sheet_diagnostic_regime = function (meta,
             dataEX_serieQM_obs_detail_med =
                 dplyr::summarise(dplyr::group_by(
                                             dataEX_serieQM_obs_detail,
-                                            Date),
+                                            date),
                                  QM=median(QM, na.rm=TRUE),
                                  .groups="drop")
 
@@ -254,11 +254,11 @@ sheet_diagnostic_regime = function (meta,
                 dataMOD = dataEX_serie_code[["medQJC5"]]
                 dataMOD =
                     dplyr::mutate(dplyr::group_by(dataMOD,
-                                                  Model, Code),
+                                                  HM, Code),
                                   n=1:dplyr::n())
                 dataMOD = filter(dataMOD, n <= 365)
                 dataMOD = dplyr::rename(dataMOD,
-                                        Date="Date",
+                                        date="date",
                                         Q_obs="medQJC5_obs",
                                         Q_sim="medQJC5_sim")
                 

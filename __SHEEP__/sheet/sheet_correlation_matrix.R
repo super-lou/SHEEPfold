@@ -21,7 +21,7 @@
 
 
 sheet_correlation_matrix = function (dataEX, metaEX,
-                                     ModelGroup=NULL,
+                                     HMGroup=NULL,
                                      Colors=NULL,
                                      subtitle=NULL,
                                      criteria_selection=NULL,
@@ -30,12 +30,12 @@ sheet_correlation_matrix = function (dataEX, metaEX,
                                      figdir='',
                                      verbose=FALSE) {
 
-    if (is.null(ModelGroup)) {
-        Model = levels(factor(dataEX$Model))
-        ModelGroup = append(as.list(Model), list(Model))
-        names(ModelGroup) = c(Model, "Multi-modèle")
+    if (is.null(HMGroup)) {
+        HM = levels(factor(dataEX$HM))
+        HMGroup = append(as.list(HM), list(HM))
+        names(HMGroup) = c(HM, "Multi-modèle")
     }
-    nModelGroup = length(ModelGroup)
+    nHMGroup = length(HMGroup)
 
     page_margin = c(t=0.5, r=0.5, b=0.5, l=0.5)
     
@@ -63,48 +63,48 @@ sheet_correlation_matrix = function (dataEX, metaEX,
                   ncol=4)
     WIP = FALSE
 
-    for (i in 1:nModelGroup) {
-        Model = ModelGroup[[i]]
-        Model_names = names(ModelGroup)[i]
-        nModel = length(Model)
+    for (i in 1:nHMGroup) {
+        HM = HMGroup[[i]]
+        HM_names = names(HMGroup)[i]
+        nHM = length(HM)
         
-        if (is.null(Model_names)) {
-            Model_names = ""
+        if (is.null(HM_names)) {
+            HM_names = ""
         }
-        if (nchar(Model_names) == 0) {
-            Model2Disp = paste0(Model, collapse=" ")
-            Model4Save = paste0(Model, collapse="_")
+        if (nchar(HM_names) == 0) {
+            HM2Disp = paste0(HM, collapse=" ")
+            HM4Save = paste0(HM, collapse="_")
         } else {
-            Model2Disp = Model_names
-            Model4Save = gsub(" ", "_", Model_names)
+            HM2Disp = HM_names
+            HM4Save = gsub(" ", "_", HM_names)
         }
         
         if (verbose) {
             print(paste0("diagnostic correlation matrix for ",
-                         Model2Disp,
-                         "   ", round(i/nModelGroup*100, 1), "% done"))
+                         HM2Disp,
+                         "   ", round(i/nHMGroup*100, 1), "% done"))
         }
 
         herd = bring_grass(verbose=verbose)
         herd = plan_of_herd(herd, plan, verbose=verbose)
         
-        var_plotted = c()
+        variable_plotted = c()
         
-        dataEX_model = dataEX[dataEX$Model %in% Model,]
+        dataEX_hm = dataEX[dataEX$HM %in% HM,]
 
-        if (is.null(Colors) | !(Model2Disp %in% names(Colors))) {
-            model_color = refCOL
+        if (is.null(Colors) | !(HM2Disp %in% names(Colors))) {
+            hm_color = refCOL
         } else {
-            model_color = Colors[names(Colors) == Model2Disp]
+            hm_color = Colors[names(Colors) == HM2Disp]
         }
 
         title = paste0("<b style='font-size:16pt; color:", refCOL, "'>",
                        "Matrice de corrélation des critères d'évaluation", "</b>",
                        "<br>",
-                       "<b style='font-size:14pt; color:", model_color, "'>", Model2Disp, "</b>")
+                       "<b style='font-size:14pt; color:", hm_color, "'>", HM2Disp, "</b>")
         if (!is.null(subtitle)) {
             title = paste0(title, nbsp(1),
-                           "<span style='font-size:10pt; color:", model_color, "'>", subtitle, "</span>")
+                           "<span style='font-size:10pt; color:", hm_color, "'>", subtitle, "</span>")
         }
         
         title = richtext_grob(title,
@@ -118,7 +118,7 @@ sheet_correlation_matrix = function (dataEX, metaEX,
                          height=title_height,
                          verbose=verbose)
         
-        cm = panel_correlation_matrix(dataEX_model,
+        cm = panel_correlation_matrix(dataEX_hm,
                                       metaEX,
                                       icon_path=icon_path,
                                       criteria_selection=
@@ -173,7 +173,7 @@ sheet_correlation_matrix = function (dataEX, metaEX,
                          height=ssg_height,
                          verbose=verbose)
 
-        if (nModel == 1) {
+        if (nHM == 1) {
             si = panel_shape_info(Shape="rect",
                                 Size=0.2,
                                 Color=IPCCgrey50,
@@ -194,7 +194,7 @@ sheet_correlation_matrix = function (dataEX, metaEX,
                          height=si_height,
                          verbose=verbose)
 
-        footName = paste0('Matrice de corrélation : ', Model2Disp)
+        footName = paste0('Matrice de corrélation : ', HM2Disp)
         if (is.null(Pages)) {
             n_page = i
         } else {
@@ -206,7 +206,7 @@ sheet_correlation_matrix = function (dataEX, metaEX,
             Pages = bind_rows(
                 Pages,
                 dplyr::tibble(section="Matrice de corrélation",
-                              subsection=Model2Disp,
+                              subsection=HM2Disp,
                               n=n_page))
         }
         foot = panel_foot(footName, n_page,
@@ -227,10 +227,10 @@ sheet_correlation_matrix = function (dataEX, metaEX,
         paper_size = res$paper_size
 
         if (!is.null(subtitle)) {
-            filename = paste0("matrice_correlation_", Model4Save, "_",
+            filename = paste0("matrice_correlation_", HM4Save, "_",
                               gsub(" ", "_", subtitle), ".pdf")
         } else {
-            filename = paste0("matrice_correlation_", Model4Save, ".pdf")
+            filename = paste0("matrice_correlation_", HM4Save, ".pdf")
         }
         
         if (!(file.exists(figdir))) {

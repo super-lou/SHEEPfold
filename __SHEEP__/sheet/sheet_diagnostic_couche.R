@@ -50,8 +50,8 @@ sheet_diagnostic_couche = function (data,
         "info", "void", "medQJ_075", "medQJ_0", "criteria", "foot"),
         ncol=2)
 
-    Model = levels(factor(dataEX_criteria$Model))
-    nModel = length(Model)
+    HM = levels(factor(dataEX_criteria$HM))
+    nHM = length(HM)
     
     Code = levels(factor(dataEX_criteria$Code))
     nCode = length(Code)
@@ -167,20 +167,20 @@ sheet_diagnostic_couche = function (data,
                 dataMOD = dataEX_serie_code[["medQJC5"]]
                 dataMOD =
                     dplyr::mutate(dplyr::group_by(dataMOD,
-                                                  Model, Code),
+                                                  HM, Code),
                                   n=1:dplyr::n())
                 dataMOD = filter(dataMOD, n <= 365)
                 dataMOD = dplyr::rename(dataMOD,
-                                        Date="Date",
+                                        date="date",
                                         Q_obs="medQJC5_obs",
                                         Q_sim="medQJC5_sim")
                 
 
                 if (all(is.na(dataMOD$Q_obs))) {
-                    dataMOD =  data[data$Model == dataMOD$Model[1] & data$Code == code,]
+                    dataMOD =  data[data$HM == dataMOD$HM[1] & data$Code == code,]
                     
                     dataMOD = dplyr::rename(dataMOD,
-                                            Date="Date",
+                                            date="date",
                                             Q_obs="H_obs",
                                             Q_sim="H_sim")
 

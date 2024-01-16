@@ -72,7 +72,7 @@ panel_info_station = function(data_code,
                    "<span style='font-size:14pt; color:", refCOL, "'>", "-", "</span>",
                    nbsp(1),
                    "<span style='font-size:14pt; color:", refCOL, "'>",
-                   meta_code$Nom, "</span>"),
+                   meta_code$name, "</span>"),
             x=0, y=1,
             margin=unit(c(t=0, r=5, b=0, l=0),
                         "mm"),
@@ -99,7 +99,7 @@ panel_info_station = function(data_code,
         text2 = paste(
             "<b>",
             # "Gestionnaire : ", meta_code$Gestionnaire, "<br>",
-            "Région hydrographique : ", meta_code$Region_Hydro,
+            "Région hydrographique : ", meta_code$hydrological_region,
             "</b>",
             sep='')
         gtext2 = richtext_grob(text2,
@@ -114,10 +114,10 @@ panel_info_station = function(data_code,
 
     # Spatial info about station
     if ('spatial' %in% to_do | 'all' %in% to_do) {
-        if (is.na(meta_code$Surface_km2)) {
+        if (is.na(meta_code$surface_km2)) {
             surface = "inconnue"
         } else {
-            surface = paste0(round(meta_code$Surface_km2),
+            surface = paste0(round(meta_code$surface_km2),
                              " km<sup>2</sup>")
         }
         if (is.na(meta_code$Altitude_m)) {
@@ -144,10 +144,10 @@ panel_info_station = function(data_code,
     # Time info about station
     if ('temporal' %in% to_do | 'all' %in% to_do) {
         # Computes the time span of data, the start and the end
-        duration = round(as.numeric(max(data_code$Date) -
-                                    min(data_code$Date))/365.25)
-        debut = format(min(data_code$Date), "%d/%m/%Y")
-        fin = format(max(data_code$Date), "%d/%m/%Y")
+        duration = round(as.numeric(max(data_code$date) -
+                                    min(data_code$date))/365.25)
+        debut = format(min(data_code$date), "%d/%m/%Y")
+        fin = format(max(data_code$date), "%d/%m/%Y")
 
         text4 = paste0(
             "Date de début : ", debut, "<br>",

@@ -91,11 +91,11 @@ panel_regime_map = function (meta,
     }
 
     # if (is_secteur) {
-    #     dataEXind_var =
-    #         dplyr::summarise(dplyr::group_by(dataEXind_var,
+    #     dataEXind_variable =
+    #         dplyr::summarise(dplyr::group_by(dataEXind_variable,
     #                                          Secteur=substr(Code,
     #                                                         1, 2)),
-    #                          !!var:=median(get(var), na.rm=TRUE),
+    #                          !!variable:=median(get(variable), na.rm=TRUE),
     #                          .groups="drop")
     # }
     
@@ -121,10 +121,10 @@ panel_regime_map = function (meta,
     }
 
     # if (is_secteur) {
-    #     dataEXind_var = dplyr::rename(dataEXind_var,
+    #     dataEXind_variable = dplyr::rename(dataEXind_variable,
     #                                   CdSecteurH=Secteur)
     #     secteurHydro = dplyr::inner_join(secteurHydro,
-    #                                      dataEXind_var,
+    #                                      dataEXind_variable,
     #                                      by="CdSecteurH")
     #     map = map +
     #         geom_sf(data=secteurHydro,

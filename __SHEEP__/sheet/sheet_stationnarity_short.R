@@ -41,14 +41,14 @@ sheet_stationnarity_short = function (meta, data,
     Period = unique(trendEX$period)
     nPeriod = length(Period)
 
-    Var = names(dataEX)[!(names(dataEX) %in% c("Code", "Date"))]
-    # Var =  levels(factor(trendEX$var))
-    nVar = length(Var)
+    Variable = names(dataEX)[!(names(dataEX) %in% c("Code", "date"))]
+    # Variable =  levels(factor(trendEX$variable))
+    nVariable = length(Variable)
 
     title_height = 0.7
-    var_height = (paper_size[1] - 0.5*2 - title_height) / nVar
+    variable_height = (paper_size[1] - 0.5*2 - title_height) / nVariable
     
-    plan = matrix(c("title", Var),
+    plan = matrix(c("title", Variable),
                   ncol=1)
     
 
@@ -73,14 +73,14 @@ sheet_stationnarity_short = function (meta, data,
                          height=title_height,
                          verbose=verbose)
 
-        for (i in 1:nVar) {
-            var = Var[i]
-            print(paste0("Time panel for ", var))
+        for (i in 1:nVariable) {
+            variable = Variable[i]
+            print(paste0("Time panel for ", variable))
 
             if (i == 1) {
                 first = TRUE
                 last = FALSE
-            } else if (i == nVar) {
+            } else if (i == nVariable) {
                 first = FALSE
                 last = TRUE
             } else {
@@ -88,15 +88,15 @@ sheet_stationnarity_short = function (meta, data,
                 last = FALSE
             }
 
-            dataEX_code_var =
+            dataEX_code_variable =
                 dplyr::select(dataEX[dataEX$Code == code,],
-                              c("Code", "Date", var))
+                              c("Code", "date", variable))
 
-            trendEX_code_var = trendEX[trendEX$Code == code &
-                                      trendEX$var == var,]
+            trendEX_code_variable = trendEX[trendEX$Code == code &
+                                      trendEX$variable == variable,]
             
-            trend = panel_trend(dataEX_code_var,
-                                trendEX_code_var,
+            trend = panel_trend(dataEX_code_variable,
+                                trendEX_code_variable,
                                 metaEX,
                                 period_trend_show=period_trend_show,
                                 linetype_per=linetype_per,
@@ -110,9 +110,9 @@ sheet_stationnarity_short = function (meta, data,
             
             herd = add_sheep(herd,
                              sheep=trend,
-                             id=var,
+                             id=variable,
                              label="align",
-                             height=var_height,
+                             height=variable_height,
                              verbose=verbose)
         }
 
@@ -172,15 +172,15 @@ sheet_stationnarity_short = function (meta, data,
 #             }
             
 #             if (event == 'Resume') {
-#                 nVar_max = 4
+#                 nVariable_max = 4
 #             } else {
-#                 nVar_max = 5
+#                 nVariable_max = 5
 #             }
 
-#             nVar_to_place = length(var_to_place)
-#             nVar_page = ceiling(nVar_to_place/nVar_max)
+#             nVariable_to_place = length(var_to_place)
+#             nVariable_page = ceiling(nVariable_to_place/nVariable_max)
             
-#             for (page in 1:nVar_page) {
+#             for (page in 1:nVariable_page) {
 
 #                 page_code = page_code + 1
                 
@@ -207,7 +207,7 @@ sheet_stationnarity_short = function (meta, data,
 #                                     overwrite_by_name=TRUE)
 #                 }
 
-#                 var_to_place_page = var_to_place[(1+(nVar_max*(page-1))) : (nVar_max*page)]
+#                 var_to_place_page = var_to_place[(1+(nVariable_max*(page-1))) : (nVariable_max*page)]
 #                 var_to_place_page = var_to_place_page[!is.na(var_to_place_page)]
 
 #                 LM_id = c()
@@ -256,7 +256,7 @@ sheet_stationnarity_short = function (meta, data,
 #                     LM_name = c(LM_name, df_P$name[id_plot])
 #                 }
                 
-#                 nGraphMiss = nVar_max - length(var_to_place_page)
+#                 nGraphMiss = nVariable_max - length(var_to_place_page)
 
 #                 if (nGraphMiss > 0) {
 #                     for (i in 1:nGraphMiss) {
@@ -295,7 +295,7 @@ sheet_stationnarity_short = function (meta, data,
 
 #                 margin_height = 0.5
                 
-#                 Norm_ratio = height * var_ratio * nVar_max / (height - 2*margin_height - time_height*nbt - foot_height*nbf - info_height*nbi)
+#                 Norm_ratio = height * var_ratio * nVariable_max / (height - 2*margin_height - time_height*nbt - foot_height*nbf - info_height*nbi)
 
 #                 var_height = height * var_ratio / Norm_ratio
                 

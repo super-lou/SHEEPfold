@@ -24,11 +24,11 @@
 # Generates a map plot of the tendancy of a hydrological variable
 #' @title Mini map panel
 #' @export
-panel_stationnarity_map = function (trendEX_var,
-                                    metaEX_var,
+panel_stationnarity_map = function (trendEX_variable,
+                                    metaEX_variable,
                                     meta,
-                                    min_var=NULL,
-                                    max_var=NULL,
+                                    min_variable=NULL,
+                                    max_variable=NULL,
                                     prob=0.1,
                                     is_secteur=FALSE,
                                     zoom=NULL,
@@ -48,11 +48,11 @@ panel_stationnarity_map = function (trendEX_var,
         return (is.logical(x) | is.numeric(x))
     }
 
-    var = metaEX_var$var
-    unit = metaEX_var$unit[metaEX_var$var == var]
-    is_date = metaEX_var$is_date[metaEX_var$var == var]
-    normalize = metaEX_var$normalize[metaEX_var$var == var]
-    Palette = unlist(strsplit(metaEX_var$palette[metaEX_var$var == var], " "))
+    variable = metaEX_variable$variable
+    unit = metaEX_variable$unit[metaEX_variable$variable == variable]
+    is_date = metaEX_variable$is_date[metaEX_variable$variable == variable]
+    is_normalize = metaEX_variable$is_normalize[metaEX_variable$variable == variable]
+    Palette = unlist(strsplit(metaEX_variable$palette[metaEX_variable$variable == variable], " "))
 
     # Extract shapefiles
     france = Shapefiles$france
@@ -114,7 +114,7 @@ panel_stationnarity_map = function (trendEX_var,
                      color=IPCCgrey50, size=size)
     }
 
-    print(var)
+    print(variable)
 
     # by secteur or not
     if (is_secteur) {
@@ -136,19 +136,19 @@ panel_stationnarity_map = function (trendEX_var,
         #                                    sparse=FALSE),
         #                      2, get_name)
 
-        # dataEX_criteria_var = dplyr::left_join(dataEX_criteria_var,
+        # dataEX_criteria_variable = dplyr::left_join(dataEX_criteria_variable,
         #                                        dplyr::select(meta,
         #                                                      c("Code",
         #                                                        "Secteur")),
         #                                        by="Code")
-        # dataEX_criteria_var =
-        #     dplyr::summarise(dplyr::group_by(dataEX_criteria_var, Secteur),
-        #                      !!var:=median(get(var), na.rm=TRUE),
+        # dataEX_criteria_variable =
+        #     dplyr::summarise(dplyr::group_by(dataEX_criteria_variable, Secteur),
+        #                      !!variable:=median(get(variable), na.rm=TRUE),
         #                      .groups="drop")
 
     } else {
-        trendEX_var =
-            dplyr::left_join(trendEX_var,
+        trendEX_variable =
+            dplyr::left_join(trendEX_variable,
                              dplyr::select(meta,
                                            c("Code",
                                              "XL93_m",
@@ -162,17 +162,17 @@ panel_stationnarity_map = function (trendEX_var,
     Palette_level = c(rev(Palette_level), Palette_level)
     
     # Palette = get_IPCC_Palette(name, reverse=reverse)
-    if (is.null(min_var)) {
-        min_var = quantile(trendEX_var$trend,
+    if (is.null(min_variable)) {
+        min_variable = quantile(trendEX_variable$trend,
                            prob, na.rm=TRUE)
     }
-    if (is.null(max_var)) {
-        max_var = quantile(trendEX_var$trend,
+    if (is.null(max_variable)) {
+        max_variable = quantile(trendEX_variable$trend,
                            1-prob, na.rm=TRUE)
     }
 
-    res = compute_colorBin(min_var,
-                           max_var,
+    res = compute_colorBin(min_variable,
+                           max_variable,
                            colorStep=length(Palette),
                            center=0,
                            include=FALSE)
@@ -180,32 +180,32 @@ panel_stationnarity_map = function (trendEX_var,
     upBin = res$upBin
     lowBin = res$lowBin
     
-    trendEX_var$fill = get_colors(trendEX_var$trend,
+    trendEX_variable$fill = get_colors(trendEX_variable$trend,
                                   upBin=upBin,
                                   lowBin=lowBin,
                                   Palette=Palette)
 
-    palette_match = match(trendEX_var$fill, Palette)
+    palette_match = match(trendEX_variable$fill, Palette)
     palette_matchNoNA = palette_match[!is.na(palette_match)]
 
-    trendEX_var$H[is.na(trendEX_var$H)] = FALSE
-    trendEX_var$level = Palette_level[palette_match]
-    trendEX_var$level[!trendEX_var$H] = trendEX_var$level[!trendEX_var$H]/10
+    trendEX_variable$H[is.na(trendEX_variable$H)] = FALSE
+    trendEX_variable$level = Palette_level[palette_match]
+    trendEX_variable$level[!trendEX_variable$H] = trendEX_variable$level[!trendEX_variable$H]/10
 
-    trendEX_var$stroke = 0.6
-    trendEX_var$color = IPCCgrey40
-    trendEX_var$color[!trendEX_var$H] = IPCCgrey67
-    trendEX_var$size = 4
-    trendEX_var$size[!trendEX_var$H] = 3
-    trendEX_var$shape = 21
-    trendEX_var$shape[trendEX_var$H & trendEX_var$a > 0] = 24
-    trendEX_var$shape[trendEX_var$H & trendEX_var$a < 0] = 25
+    trendEX_variable$stroke = 0.6
+    trendEX_variable$color = IPCCgrey40
+    trendEX_variable$color[!trendEX_variable$H] = IPCCgrey67
+    trendEX_variable$size = 4
+    trendEX_variable$size[!trendEX_variable$H] = 3
+    trendEX_variable$shape = 21
+    trendEX_variable$shape[trendEX_variable$H & trendEX_variable$a > 0] = 24
+    trendEX_variable$shape[trendEX_variable$H & trendEX_variable$a < 0] = 25
 
-    trendEX_var$color[is.na(trendEX_var$fill)] = NA
-    # trendEX_var$color[is.na(trendEX_var$fill)] = "grey75"
-    # trendEX_var$level[is.na(trendEX_var$fill)] = 0
+    trendEX_variable$color[is.na(trendEX_variable$fill)] = NA
+    # trendEX_variable$color[is.na(trendEX_variable$fill)] = "grey75"
+    # trendEX_variable$level[is.na(trendEX_variable$fill)] = 0
     
-    level = as.numeric(levels(factor(trendEX_var$level)))
+    level = as.numeric(levels(factor(trendEX_variable$level)))
 
     map = map +
         geom_sf(data=france,
@@ -229,10 +229,10 @@ panel_stationnarity_map = function (trendEX_var,
     }
 
     if (is_secteur) {
-        trendEX_var = dplyr::rename(trendEX_var,
+        trendEX_variable = dplyr::rename(trendEX_variable,
                                     CdSecteurH=Secteur)
         secteurHydro = dplyr::full_join(secteurHydro,
-                                        trendEX_var,
+                                        trendEX_variable,
                                         by="CdSecteurH")
         map = map +
             geom_sf(data=secteurHydro,
@@ -255,16 +255,16 @@ panel_stationnarity_map = function (trendEX_var,
     
     if (!is_secteur) {
         for (l in level) {
-            trendEX_var_tmp = dplyr::filter(trendEX_var,
+            trendEX_variable_tmp = dplyr::filter(trendEX_variable,
                                               level==l)
             map = map +
-                geom_point(data=trendEX_var_tmp,
+                geom_point(data=trendEX_variable_tmp,
                            aes(x=XL93_m, y=YL93_m),
-                           color=trendEX_var_tmp$color,
-                           fill=trendEX_var_tmp$fill,
-                           shape=trendEX_var_tmp$shape,
-                           size=trendEX_var_tmp$size,
-                           stroke=trendEX_var_tmp$stroke)
+                           color=trendEX_variable_tmp$color,
+                           fill=trendEX_variable_tmp$fill,
+                           shape=trendEX_variable_tmp$shape,
+                           size=trendEX_variable_tmp$size,
+                           stroke=trendEX_variable_tmp$stroke)
         }
     }
 
