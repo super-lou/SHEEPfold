@@ -1,4 +1,4 @@
-# ashes
+# SHEEPfold
 
 <!-- badges: start -->
 [![Lifecycle: maturing](https://img.shields.io/badge/lifecycle-maturing-blue.svg)](https://lifecycle.r-lib.org/articles/stages.html)
@@ -6,23 +6,21 @@
 [![Contributor Covenant](https://img.shields.io/badge/Contributor%20Covenant-2.1-4baaaa.svg)](code_of_conduct.md) 
 <!-- badges: end -->
 
-[<img src="https://github.com/super-lou/MAKAHO/blob/0fad3c354954ebc2d8605a2ec9dd3d4f11a36920/www/screen.png" width="600">](https://makaho.sk8.inrae.fr/)</br>
+A set of graphical representation functions useful in hydro-climatology.
 
-`ashes` stand for Hydrological Stationarity Analysis of Surface Flows which means Analyse de Stationnarité Hydrologique des Écoulements de Surface in french.
+This project was carried out for National Research Institute for Agriculture, Food and the Environment (Institut National de Recherche pour l’Agriculture, l’Alimentation et l’Environnement, [INRAE](https://agriculture.gouv.fr/inrae-linstitut-national-de-recherche-pour-lagriculture-lalimentation-et-lenvironnement) in french).
+
 
 ### Installation
 
 For latest development version
 
-``` r
-remotes::install_github('super-lou/ashes')
+``` 
+git clone https://github.com/super-lou/SHEEPfold.git
 ```
 
 ### Documentation
 
-Data came from [Hydroportail](https://www.hydro.eaufrance.fr/) and the selection of stations follows the Reference Network for Low Water Monitoring (Réseau de référence pour la surveillance des étiages, [RRSE](https://geo.data.gouv.fr/en/datasets/29819c27c73f29ee1a962450da7c2d49f6e11c15) in french).</br>
-
-This project was carried out for National Research Institute for Agriculture, Food and the Environment (Institut National de Recherche pour l’Agriculture, l’Alimentation et l’Environnement, [INRAE](https://agriculture.gouv.fr/inrae-linstitut-national-de-recherche-pour-lagriculture-lalimentation-et-lenvironnement) in french).
 
 
 ### Help
