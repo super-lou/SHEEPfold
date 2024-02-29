@@ -48,11 +48,11 @@ panel_stationnarity_map = function (trendEX_variable,
         return (is.logical(x) | is.numeric(x))
     }
 
-    variable = metaEX_variable$variable
-    unit = metaEX_variable$unit[metaEX_variable$variable == variable]
-    is_date = metaEX_variable$is_date[metaEX_variable$variable == variable]
-    is_normalize = metaEX_variable$is_normalize[metaEX_variable$variable == variable]
-    Palette = unlist(strsplit(metaEX_variable$palette[metaEX_variable$variable == variable], " "))
+    variable = metaEX_variable$variable_en
+    unit = metaEX_variable$unit_fr[metaEX_variable$variable_en == variable]
+    is_date = metaEX_variable$is_date[metaEX_variable$variable_en == variable]
+    is_normalise = metaEX_variable$is_normalise[metaEX_variable$variable_en == variable]
+    Palette = unlist(strsplit(metaEX_variable$palette[metaEX_variable$variable_en == variable], " "))
 
     # Extract shapefiles
     france = Shapefiles$france
@@ -163,11 +163,11 @@ panel_stationnarity_map = function (trendEX_variable,
     
     # Palette = get_IPCC_Palette(name, reverse=reverse)
     if (is.null(min_variable)) {
-        min_variable = quantile(trendEX_variable$trend,
+        min_variable = quantile(trendEX_variable$a_normalise,
                            prob, na.rm=TRUE)
     }
     if (is.null(max_variable)) {
-        max_variable = quantile(trendEX_variable$trend,
+        max_variable = quantile(trendEX_variable$a_normalise,
                            1-prob, na.rm=TRUE)
     }
 
@@ -180,7 +180,7 @@ panel_stationnarity_map = function (trendEX_variable,
     upBin = res$upBin
     lowBin = res$lowBin
     
-    trendEX_variable$fill = get_colors(trendEX_variable$trend,
+    trendEX_variable$fill = get_colors(trendEX_variable$a_normalise,
                                   upBin=upBin,
                                   lowBin=lowBin,
                                   Palette=Palette)

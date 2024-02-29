@@ -48,7 +48,7 @@ sheet_map = function (list_df2plot, meta, shapefile_list,
     }
     
     # Get all different stations code
-    Code = rle(data$Code)$value
+    Code = rle(data$code)$value
     nCode = length(Code)
 
     if (mapType == 'trend' & !is.null(trend_period)) {
@@ -98,7 +98,7 @@ sheet_map = function (list_df2plot, meta, shapefile_list,
         nRegime = length(regimeColorSample)
         regimeColor = c()
         for (code in Code) {
-            regime = meta$regimeHydro[meta$Code == code]
+            regime = meta$regimeHydro[meta$code == code]
             color = regimeColorSample[regime]
             regimeColor = c(regimeColor, color)
         }
@@ -119,10 +119,10 @@ sheet_map = function (list_df2plot, meta, shapefile_list,
             }
             
             # Extracts the variable of the plot
-            variable = list_df2plot[[i]]$variable
+            variable = list_df2plot[[i]]$variable_en
             # Extracts the type of variable of the plot
             type = list_df2plot[[i]]$type
-            unit = list_df2plot[[i]]$unit
+            unit = list_df2plot[[i]]$unit_fr
             # Explanations about the variable
             glose = list_df2plot[[i]]$glose
             
@@ -230,7 +230,7 @@ sheet_map = function (list_df2plot, meta, shapefile_list,
                         size=sizefr)
             
             if (mapType == 'regime') {
-                # color = regimeColor[match(df_codeBasin$Code, Code)]
+                # color = regimeColor[match(df_codeBasin$code, Code)]
                 color = 'grey20'
                 map = map +
                     # Plot the hydrological code basins
@@ -403,14 +403,14 @@ sheet_map = function (list_df2plot, meta, shapefile_list,
                     data = list_df2plot[[i]]$data
                     # Extracts the trend corresponding to the
                     # current variable
-                    trend = list_df2plot[[i]]$trend
+                    trend = list_df2plot[[i]]$a_normalise
                     # Gets the risk of the test
                     level = list_df2plot[[i]]$level
                     # Extracts the data corresponding to the code
-                    data_code = data[data$Code == code,]
+                    data_code = data[data$code == code,]
 
                     # Extracts the trend corresponding to the code
-                    trend_code = trend[trend$Code == code,]
+                    trend_code = trend[trend$code == code,]
                     
                     # Extract start and end of trend periods
                     Start = trend_code$start[idPer_trend]
@@ -502,9 +502,9 @@ sheet_map = function (list_df2plot, meta, shapefile_list,
 
                 # Extracts the localisation of the current station
                 lontmp =
-                    meta$XL93_m[meta$Code == code]           
+                    meta$XL93_m[meta$code == code]           
                 lattmp =
-                    meta$YL93_m[meta$Code == code]
+                    meta$YL93_m[meta$code == code]
                 
                 # Stores all the parameters
                 lon = c(lon, lontmp)
@@ -955,9 +955,9 @@ peu altérés par les activités humaines."
                 if (!is.null(codeLight)) {
                     
                     # Extract data of all stations not to highlight
-                    plot_map_codeNo = plot_map[plot_map$Code != codeLight,]
+                    plot_map_codeNo = plot_map[plot_map$code != codeLight,]
                     # Extract data of the station to highlight
-                    plot_map_code = plot_map[plot_map$Code == codeLight,]
+                    plot_map_code = plot_map[plot_map$code == codeLight,]
                     # Plots only the localisation
                     map = map +
                         # For all stations not to highlight

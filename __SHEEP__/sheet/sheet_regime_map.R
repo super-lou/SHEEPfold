@@ -50,7 +50,7 @@ sheet_regime_map = function (meta,
                       ncol=2)
     }
 
-    Code = levels(factor(meta$Code))
+    Code = levels(factor(meta$code))
     nCode = length(Code)
         
     if (verbose) {

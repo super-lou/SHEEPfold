@@ -31,7 +31,7 @@ panel_info_station = function(data_code,
                               to_do='all',
                               zone_to_show='France',
                               verbose=FALSE) {
-    
+
     # If there is a data serie for the given code
     if (!is.null(QM_code)) {
         # Computes the hydrograph
@@ -61,7 +61,7 @@ panel_info_station = function(data_code,
     }
 
     # Gets the metadata about the station
-    meta_code = meta[meta$Code == codeLight,]    
+    meta_code = meta[meta$code == codeLight,]    
 
     if ('title' %in% to_do | 'all' %in% to_do) {
         # Converts all texts to graphical object in the right position
@@ -112,6 +112,7 @@ panel_info_station = function(data_code,
         gtext2 = void()
     }
 
+
     # Spatial info about station
     if ('spatial' %in% to_do | 'all' %in% to_do) {
         if (is.na(meta_code$surface_km2)) {
@@ -120,10 +121,10 @@ panel_info_station = function(data_code,
             surface = paste0(round(meta_code$surface_km2),
                              " km<sup>2</sup>")
         }
-        if (is.na(meta_code$Altitude_m)) {
+        if (is.na(meta_code$altitude_m)) {
             altitude = "inconnue"
         } else {
-            altitude = paste0(round(meta_code$Altitude_m), " m")
+            altitude = paste0(round(meta_code$altitude_m), " m")
         }
 
         text3 = paste0(

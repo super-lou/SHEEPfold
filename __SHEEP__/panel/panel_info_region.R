@@ -40,7 +40,7 @@ panel_info_region = function(meta,
 
     
     # Gets the metadata about the station
-    meta_region = meta[substr(meta$Code, 1, 1) == regionLight,]
+    meta_region = meta[substr(meta$code, 1, 1) == regionLight,]
 
     if ('title' %in% to_do | 'all' %in% to_do) {
         # Converts all texts to graphical object in the right position
@@ -64,7 +64,7 @@ panel_info_region = function(meta,
 
     # Subitle info
     if ('subtitle' %in% to_do | 'all' %in% to_do) {
-        text2 = paste0("<b>", length(meta_region$Code),
+        text2 = paste0("<b>", length(meta_region$code),
                        " stations de référence", "</b>")
         gtext2 = richtext_grob(text2,
                                x=0, y=1.1,
@@ -89,13 +89,13 @@ panel_info_region = function(meta,
                                            na.rm=TRUE)),
                                  " km<sup>2</sup>")
         }
-        if (all(is.na(meta_region$Altitude_m))) {
+        if (all(is.na(meta_region$altitude_m))) {
             altitude_min = "inconnue"
             altitude_max = "inconnue"
         } else {
-            altitude_min = paste0(round(min(meta_region$Altitude_m,
+            altitude_min = paste0(round(min(meta_region$altitude_m,
                                             na.rm=TRUE)), " m")
-            altitude_max = paste0(round(max(meta_region$Altitude_m,
+            altitude_max = paste0(round(max(meta_region$altitude_m,
                                             na.rm=TRUE)), " m")
         }
 

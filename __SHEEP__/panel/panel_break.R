@@ -27,7 +27,7 @@
 panel_break_histogram = function (df_break, meta, title='') {
 
     # Get all different stations code
-    Code = rle(data$Code)$value
+    Code = rle(data$code)$value
     nCode = length(Code)
 
     # Fix the major and minor date break between tick for axis
@@ -110,7 +110,7 @@ panel_break_histogram = function (df_break, meta, title='') {
 panel_break_cumulative = function (df_break, meta, title='', dyear=10) {
 
     # Get all different stations code
-    Code = rle(data$Code)$value
+    Code = rle(data$code)$value
     nCode = length(Code)
 
     # Fix the major and minor date break between tick for axis

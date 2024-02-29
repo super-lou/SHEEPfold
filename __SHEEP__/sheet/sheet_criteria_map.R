@@ -77,16 +77,16 @@ sheet_criteria_map = function (dataEX_criteria,
         Colors = rep(Colors, nHM)
     }
     
-    Code = levels(factor(data$Code))
-    CodeALL = levels(factor(dataEX_criteria$Code))
+    Code = levels(factor(data$code))
+    CodeALL = levels(factor(dataEX_criteria$code))
     nCode = length(Code)
 
-    Variable = metaEX_criteria$variable
+    Variable = metaEX_criteria$variable_en
     VariableTeX = convert2TeX(Variable)
     nVariable = length(Variable)
 
     # if (!is_warning) {
-    #     Unit = metaEX_criteria$unit
+    #     Unit = metaEX_criteria$unit_fr
     #     Unit[!grepl("jour de l", Unit) &
     #          !grepl("bool", Unit)] = "sans unité"
     #     Unit[grepl("jour de l", Unit)] = "en mois"
@@ -95,7 +95,7 @@ sheet_criteria_map = function (dataEX_criteria,
     # } else {
     #     UnitTeX = rep("\\small{proportion en %}", nVariable)
     # }
-    Unit = metaEX_criteria$unit
+    Unit = metaEX_criteria$unit_fr
     UnitTeX = convert2TeX(Unit, size="small", bold=FALSE)
     PX = get_alphabet_in_px()
     
@@ -189,7 +189,7 @@ sheet_criteria_map = function (dataEX_criteria,
                          color=IPCCgrey40)
 
             
-            glose = metaEX_criteria$glose[metaEX_criteria$variable == variable]
+            glose = metaEX_criteria$glose[metaEX_criteria$variable_en == variable]
             glose = guess_newline(glose, px=20, PX=PX)
             glose = unlist(strsplit(glose, "\n"))
             
@@ -217,7 +217,7 @@ sheet_criteria_map = function (dataEX_criteria,
                              verbose=verbose)
 
             dataEX_criteria_variable =
-                dplyr::select(dataEX_criteria, c("HM", "Code", variable))
+                dplyr::select(dataEX_criteria, c("HM", "code", variable))
 
             dataEX_criteria_hm_variable =
                 dataEX_criteria_variable[dataEX_criteria_variable$HM %in% hm,]

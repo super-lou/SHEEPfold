@@ -48,10 +48,10 @@ panel_criteria_map = function (dataEX_criteria_hm_variable,
     variable = names(dataEX_criteria_hm_variable)[which(sapply(dataEX_criteria_hm_variable,
                                                   is_numeric_logical))[1]]
     
-    unit = metaEX_criteria$unit[metaEX_criteria$variable == variable]
-    is_date = metaEX_criteria$is_date[metaEX_criteria$variable == variable]
-    is_normalize = metaEX_criteria$is_normalize[metaEX_criteria$variable == variable]
-    reverse_palette = metaEX_criteria$reverse_palette[metaEX_criteria$variable == variable]
+    unit = metaEX_criteria$unit_fr[metaEX_criteria$variable_en == variable]
+    is_date = metaEX_criteria$is_date[metaEX_criteria$variable_en == variable]
+    is_normalise = metaEX_criteria$is_normalise[metaEX_criteria$variable_en == variable]
+    reverse_palette = metaEX_criteria$reverse_palette[metaEX_criteria$variable_en == variable]
 
     
     # Extract shapefiles
@@ -160,7 +160,7 @@ panel_criteria_map = function (dataEX_criteria_hm_variable,
         } else {
             if (!grepl("(RAT)|(HYP)", variable)) {
                 dataEX_criteria_variable =
-                    dplyr::summarise(dplyr::group_by(dataEX_criteria_hm_variable, Code),
+                    dplyr::summarise(dplyr::group_by(dataEX_criteria_hm_variable, code),
                                      !!variable:=median(get(variable), na.rm=TRUE))
             } else {
                 if (nHM == 1) {
@@ -196,9 +196,9 @@ panel_criteria_map = function (dataEX_criteria_hm_variable,
 
         dataEX_criteria_variable = dplyr::left_join(dataEX_criteria_variable,
                                          dplyr::select(meta,
-                                                       c("Code",
+                                                       c("code",
                                                          "Secteur")),
-                                         by="Code")
+                                         by="code")
         
         if (is_warning) {
             dataEX_criteria_variable =
@@ -218,10 +218,10 @@ panel_criteria_map = function (dataEX_criteria_hm_variable,
         dataEX_criteria_variable =
             dplyr::left_join(dataEX_criteria_variable,
                              dplyr::select(meta,
-                                           c("Code",
+                                           c("code",
                                              "XL93_m",
                                              "YL93_m")),
-                             by="Code")
+                             by="code")
     }
 
     

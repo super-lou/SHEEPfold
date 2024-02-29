@@ -45,12 +45,12 @@ panel_trend = function (variable,
         is.na(rowSums(
             dplyr::mutate_all(dataEX_code_variable[variableEX], as.numeric)))
     
-    unit = metaEX$unit[metaEX$variable == variable]
-    is_date = metaEX$is_date[metaEX$variable == variable]
-    is_normalize = metaEX$is_normalize[metaEX$variable == variable]
-    Palette = metaEX$palette[metaEX$variable == variable]
+    unit = metaEX$unit_fr[metaEX$variable_en == variable]
+    is_date = metaEX$is_date[metaEX$variable_en == variable]
+    to_normalise = metaEX$to_normalise[metaEX$variable_en == variable]
+    Palette = metaEX$palette[metaEX$variable_en == variable]
     Palette = unlist(strsplit(Palette, " "))
-    sampling_period = metaEX$sampling_period[metaEX$variable == variable]
+    sampling_period = metaEX$sampling_period_fr[metaEX$variable_en == variable]
 
     
     Period = unique(trendEX_code_variable$period)
@@ -326,7 +326,7 @@ panel_trend = function (variable,
 
         xminR = x - gpct(1, codeDate)
         yminR = y - gpct(5, codeX, min_lim=ymin_lim)
-        if (is_normalize) {
+        if (to_normalise) {
             xmaxR = x + gpct(32.5, codeDate)
         } else {
             xmaxR = x + gpct(20.5, codeDate)
@@ -334,8 +334,8 @@ panel_trend = function (variable,
         ymaxR = y + gpct(5, codeX, min_lim=ymin_lim)
 
         if (trendEX_code_variable_period$H) {
-            res = compute_colorBin(trendEX_code_variable_period$trend_min,
-                                   trendEX_code_variable_period$trend_max,
+            res = compute_colorBin(trendEX_code_variable_period$a_normalise_min,
+                                   trendEX_code_variable_period$a_normalise_max,
                                    colorStep=length(Palette),
                                    center=0,
                                    include=FALSE)
@@ -343,7 +343,7 @@ panel_trend = function (variable,
             upBin = res$upBin
             lowBin = res$lowBin
 
-            color = get_colors(trendEX_code_variable_period$trend,
+            color = get_colors(trendEX_code_variable_period$a_normalise,
                                upBin=upBin,
                                lowBin=lowBin,
                                Palette=Palette)
@@ -374,7 +374,7 @@ panel_trend = function (variable,
         }
         
         aMeanC = as.character(format(round(
-            trendEX_code_variable_period$trend*100, 2),
+            trendEX_code_variable_period$a_normalise*100, 2),
             nsmall=2))
         if (aMeanC >= 0) {
             aMeanC = paste('  ', aMeanC, sep='')
@@ -439,7 +439,7 @@ panel_trend = function (variable,
             unitT = ".an^{-1}"
         }
         
-        if (is_normalize) {
+        if (to_normalise) {
             label = paste0("\\textbf{", aC,
                            " x 10$^{$", powerC,"}}",
                            spaceC,

@@ -132,25 +132,24 @@ panel_mini_map = function (meta, Shapefiles,
     }
 
     if (!is.null(codeLight)) {
-        Code = levels(factor(meta$Code))
-        L93X = meta$XL93_m[match(meta$Code, Code)]           
-        L93Y = meta$YL93_m[match(meta$Code, Code)]
+        Code = levels(factor(meta$code))
+        L93X = meta$XL93_m[match(meta$code, Code)]           
+        L93Y = meta$YL93_m[match(meta$code, Code)]
         
         # Creates a tibble to stores all the data to plot
-        plot_map = tibble(L93X=L93X, L93Y=L93Y, Code=Code)
-        
+        plot_map = tibble(L93X=L93X, L93Y=L93Y, code=Code)
         # Extract data of all stations not to highlight
-        plot_map_codeNo = plot_map[plot_map$Code != codeLight,]
+        plot_map_codeNo = plot_map[plot_map$code != codeLight,]
         # Extract data of the station to highlight
-        plot_map_code = plot_map[plot_map$Code == codeLight,]
+        plot_map_code = plot_map[plot_map$code == codeLight,]
         # Plots only the localisation
         
         map = map +
-            geom_sf(data=entiteHydro[entiteHydro$Code == codeLight,],
+            geom_sf(data=entiteHydro[entiteHydro$code == codeLight,],
                     color="white",
                     fill=NA,
                     linewidth=1) +
-            geom_sf(data=entiteHydro[entiteHydro$Code == codeLight,],
+            geom_sf(data=entiteHydro[entiteHydro$code == codeLight,],
                     color=INRAEdarkcyan,
                     fill=NA,
                     linewidth=0.3)
@@ -188,13 +187,13 @@ panel_mini_map = function (meta, Shapefiles,
     }
 
     if (!is.null(regimeCodeLight)) {
-        matchCode = match(meta$Code, regimeCodeLight)
+        matchCode = match(meta$code, regimeCodeLight)
         matchCode = matchCode[!is.na(matchCode)]
         L93X = meta$XL93_m[matchCode]           
         L93Y = meta$YL93_m[matchCode]
         
         # Creates a tibble to stores all the data to plot
-        plot_map = tibble(L93X=L93X, L93Y=L93Y, Code=regimeCodeLight)
+        plot_map = tibble(L93X=L93X, L93Y=L93Y, code=regimeCodeLight)
 
         map = map +
             geom_point(data=plot_map,

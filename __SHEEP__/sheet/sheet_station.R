@@ -50,7 +50,7 @@ sheet_station = function (list_df2plot, meta, trend_period,
     nVariable = length(list_df2plot)
     
     # Get all different stations code
-    Code = rle(data$Code)$value
+    Code = rle(data$code)$value
     nCode = length(Code)
 
     if (!is.null(trend_period)) {
@@ -94,7 +94,7 @@ sheet_station = function (list_df2plot, meta, trend_period,
             
             if ("data.frame" %in% class(info_header)) {
                 # Extracts the data serie corresponding to the code
-                info_header_code = info_header[info_header$Code == code,]
+                info_header_code = info_header[info_header$code == code,]
                 to_do = 'all'
             } else {
                 info_header_code = NULL
@@ -131,7 +131,7 @@ sheet_station = function (list_df2plot, meta, trend_period,
             print("Time header panel")
             
             # Extracts the data serie corresponding to the code
-            df_X_code = time_header[time_header$Code == code,]
+            df_X_code = time_header[time_header$code == code,]
             df_sqrtX_code = compute_sqrt(df_X_code)
             
             if (is.null(axis_xlim)) {
@@ -202,28 +202,28 @@ sheet_station = function (list_df2plot, meta, trend_period,
             data = list_df2plot[[i]]$data
             # Extracts the trend corresponding to the
             # current variable
-            trend = list_df2plot[[i]]$trend
+            trend = list_df2plot[[i]]$a_normalise
             
-            unit2day = list_df2plot[[i]]$unit2day
+            unit2day = list_df2plot[[i]]$unit_fr2day
             # Extract the variable of the plot
-            variable = list_df2plot[[i]]$variable
+            variable = list_df2plot[[i]]$variable_en
             variable_plotted = c(variable_plotted, variable)
             
             event = list_df2plot[[i]]$event
-            unit = list_df2plot[[i]]$unit
-            sampling_period = list_df2plot[[i]]$sampling_period
+            unit = list_df2plot[[i]]$unit_fr
+            sampling_period = list_df2plot[[i]]$sampling_period_fr
 
             if (is.tbl(sampling_period)) {
                 sampling_period_code =
-                    sampling_period$sp[sampling_period$Code == code]
+                    sampling_period$sp[sampling_period$code == code]
             } else {
                 sampling_period_code = sampling_period
             }
             
             # Extracts the data corresponding to the code
-            data_code = data[data$Code == code,]
+            data_code = data[data$code == code,]
             # Extracts the trend corresponding to the code
-            trend_code = trend[trend$Code == code,]
+            trend_code = trend[trend$code == code,]
 
             # Blank vector to store color
             color = c()

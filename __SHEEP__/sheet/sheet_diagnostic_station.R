@@ -84,24 +84,24 @@ sheet_diagnostic_station = function (data,
     #                                dataEX_seriePA_ratio)
 
     data_obs =
-        dplyr::summarise(dplyr::group_by(data, Code, date),
+        dplyr::summarise(dplyr::group_by(data, code, date),
                          Q=median(Q_obs, na.rm=TRUE),
                          .groups="drop")
 
     dataEX_serieQM_obs =
         dplyr::summarise(dplyr::group_by(dataEX_serie$QM,
-                                         Code, date),
+                                         code, date),
                          QM=median(QM_obs, na.rm=TRUE),
                          .groups="drop")
     
     dataEX_serieR_ratio =
         dplyr::full_join(dataEX_serie$Rl_ratio,
                          dataEX_serie$Rs_ratio,
-                         by=c("Code", "HM"))
+                         by=c("code", "HM"))
     dataEX_serieR_ratio =
         dplyr::summarise(
                    dplyr::group_by(dataEX_serieR_ratio,
-                                   Code),
+                                   code),
                    Rs_ratio=median(Rs_ratio_obs,
                                    na.rm=TRUE),
                    Rl_ratio=median(Rl_ratio_obs,
@@ -117,8 +117,8 @@ sheet_diagnostic_station = function (data,
     HM = levels(factor(dataEX_criteria$HM))
     nHM = length(HM)
                    
-    Code = levels(factor(data$Code))
-    CodeALL = levels(factor(dataEX_criteria$Code))
+    Code = levels(factor(data$code))
+    CodeALL = levels(factor(dataEX_criteria$code))
     nCode = length(Code)
 
     for (i in 1:nCode) {
@@ -128,23 +128,23 @@ sheet_diagnostic_station = function (data,
                          "   ", round(i/nCode*100, 1), "% done"))
         }
         
-        data_code = data[data$Code == code,]
+        data_code = data[data$code == code,]
 
         data_code =
             dplyr::filter(data_code,
                           HM %in%
-                          dataEX_criteria$HM[dataEX_criteria$Code == code])
+                          dataEX_criteria$HM[dataEX_criteria$code == code])
         
         
-        data_obs_code = data_obs[data_obs$Code == code,]
+        data_obs_code = data_obs[data_obs$code == code,]
         dataEX_serieQM_obs_code =
-            dataEX_serieQM_obs[dataEX_serieQM_obs$Code == code,]
+            dataEX_serieQM_obs[dataEX_serieQM_obs$code == code,]
 
         dataEX_serie_code = list()
         for (j in 1:length(dataEX_serie)) {
             dataEX_serie_code = append(
                 dataEX_serie_code,
-                list(dataEX_serie[[j]][dataEX_serie[[j]]$Code == code,]))
+                list(dataEX_serie[[j]][dataEX_serie[[j]]$code == code,]))
         }
         names(dataEX_serie_code) = names(dataEX_serie)
         
@@ -155,7 +155,7 @@ sheet_diagnostic_station = function (data,
         info = panel_info_station(
             data_obs_code,
             dataEX_serieQM_obs_code$QM,
-            regimeLight=regimeHydro$detail[regimeHydro$Code == code],
+            regimeLight=regimeHydro$detail[regimeHydro$code == code],
             meta=meta,
             Shapefiles=Shapefiles,
             codeLight=code,
@@ -262,7 +262,7 @@ sheet_diagnostic_station = function (data,
         dataMOD = dataEX_serie_code[["medQJC5"]]
         dataMOD =
             dplyr::mutate(dplyr::group_by(dataMOD,
-                                          HM, Code),
+                                          HM, code),
                           n=1:dplyr::n())
         dataMOD = filter(dataMOD, n <= 365)
         dataMOD = dplyr::rename(dataMOD,

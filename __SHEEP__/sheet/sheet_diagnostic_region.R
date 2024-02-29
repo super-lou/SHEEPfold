@@ -53,7 +53,7 @@ sheet_diagnostic_region = function (meta,
     HM = levels(factor(dataEX_criteria$HM))
     nHM = length(HM)
     
-    Code = levels(factor(dataEX_criteria$Code))
+    Code = levels(factor(dataEX_criteria$code))
     nCode = length(Code)
 
     Region = levels(factor(substr(Code, 1, 1)))
@@ -65,7 +65,7 @@ sheet_diagnostic_region = function (meta,
     for (i in 1:nRegion) {
         region = Region[i]
         Code_region = Code[substr(Code, 1, 1) == region]
-        meta_region = meta[substr(meta$Code, 1, 1) == region,]
+        meta_region = meta[substr(meta$code, 1, 1) == region,]
         region_disp = paste0(meta_region$hydrological_region[1],
                              " - ", region)
 
@@ -74,19 +74,19 @@ sheet_diagnostic_region = function (meta,
                          "   ", round(i/nRegion*100, 1), "% done"))
         }
         
-        dataEX_criteria_region = dataEX_criteria[dataEX_criteria$Code %in% Code_region,]
+        dataEX_criteria_region = dataEX_criteria[dataEX_criteria$code %in% Code_region,]
         
         dataEX_serie_region = list()
         for (j in 1:length(dataEX_serie)) {
             dataEX_serie_region = append(
                 dataEX_serie_region,
-                list(dataEX_serie[[j]][dataEX_serie[[j]]$Code %in% Code_region,]))
+                list(dataEX_serie[[j]][dataEX_serie[[j]]$code %in% Code_region,]))
         }
         names(dataEX_serie_region) = names(dataEX_serie)
         
         medKGEracine =
             dplyr::summarise(dplyr::group_by(dataEX_criteria_region,
-                                             Code),
+                                             code),
                              value=median(KGEracine,
                                           na.rm=TRUE),
                              .groups="drop")
@@ -102,7 +102,7 @@ sheet_diagnostic_region = function (meta,
             return (id)
         }
         Code_KGEprobs =
-            medKGEracine$Code[sapply(KGEq,
+            medKGEracine$code[sapply(KGEq,
                                      id_nearest,
                                      In=medKGEracine$value)]
         Code_KGEprobs[duplicated(Code_KGEprobs)] = NA
@@ -136,7 +136,7 @@ sheet_diagnostic_region = function (meta,
                 for (k in 1:length(dataEX_serie)) {
                     dataEX_serie_code = append(
                         dataEX_serie_code,
-                        list(dataEX_serie[[k]][dataEX_serie[[k]]$Code == code,]))
+                        list(dataEX_serie[[k]][dataEX_serie[[k]]$code == code,]))
                 }
                 names(dataEX_serie_code) = names(dataEX_serie)
 
@@ -153,7 +153,7 @@ sheet_diagnostic_region = function (meta,
                 dataMOD = dataEX_serie_code[["medQJC5"]]
                 dataMOD =
                     dplyr::mutate(dplyr::group_by(dataMOD,
-                                                  HM, Code),
+                                                  HM, code),
                                   n=1:dplyr::n())
                 dataMOD = filter(dataMOD, n <= 365)
                 dataMOD = dplyr::rename(dataMOD,

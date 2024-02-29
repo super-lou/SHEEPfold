@@ -40,7 +40,7 @@ sheet_table = function (list_df2plot, meta, trend_period,
     nVariable = length(list_df2plot)
     
     # Get all different stations code
-    Code = rle(data$Code)$value    
+    Code = rle(data$code)$value    
     nCode = length(Code)
 
     # Convert 'trend_period' to list
@@ -81,16 +81,16 @@ sheet_table = function (list_df2plot, meta, trend_period,
                 data = list_df2plot[[i]]$data
                 # Extracts the trend corresponding to the
                 # current variable
-                trend = list_df2plot[[i]]$trend
+                trend = list_df2plot[[i]]$a_normalise
                 level = list_df2plot[[i]]$level
                 # Extract the variable of the plot
-                variable = list_df2plot[[i]]$variable
+                variable = list_df2plot[[i]]$variable_en
                 # Extract the type of the variable to plot
                 type = list_df2plot[[i]]$type
                 # Extracts the data corresponding to the code
-                data_code = data[data$Code == code,]
+                data_code = data[data$code == code,]
                 # Extracts the trend corresponding to the code
-                trend_code = trend[trend$Code == code,]
+                trend_code = trend[trend$code == code,]
 
                 # Extract start and end of trend periods
                 Start = trend_code$start[j]
@@ -224,11 +224,11 @@ sheet_table = function (list_df2plot, meta, trend_period,
                     # the current variable
                     data = list_df2plot[[i]]$data
                     # Extract the variable of the plot
-                    variable = list_df2plot[[i]]$variable
+                    variable = list_df2plot[[i]]$variable_en
                     # Extract the type of the variable to plot
                     type = list_df2plot[[i]]$type
                     # Extracts the data corresponding to the code
-                    data_code = data[data$Code == code,] 
+                    data_code = data[data$code == code,] 
                     
                     # Get the current start and end of the sub period
                     Start_mean = mean_period[[j]][1]
@@ -714,7 +714,7 @@ sheet_table = function (list_df2plot, meta, trend_period,
 
                 # Extracts the name of the currently hydrological
                 # region plotted
-                title = meta[meta$Code == subCode[1],]$hydrological_region
+                title = meta[meta$code == subCode[1],]$hydrological_region
 
                 subtitle = paste(type, ' ', iMat, '/', nMat,
                                  sep='')    
@@ -1281,7 +1281,7 @@ sheet_table = function (list_df2plot, meta, trend_period,
                     # Gets the code
                     code = subCode[k]
                     # Gets the name of the station
-                    name = meta[meta$Code == code,]$name
+                    name = meta[meta$code == code,]$name
                     # Fixes a limit for the max number
                     # of characters available
                     ncharMax = 38

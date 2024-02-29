@@ -79,7 +79,7 @@ panel_info_couche = function(meta_couche,
 
     # Subitle info
     if ('subtitle' %in% to_do | 'all' %in% to_do) {
-        text2 = paste0("<b>", length(meta_couche$Code),
+        text2 = paste0("<b>", length(meta_couche$code),
                        " piézomètres de référence", "</b>")
         gtext2 = richtext_grob(text2,
                                x=0, y=1,
@@ -93,13 +93,13 @@ panel_info_couche = function(meta_couche,
 
     # Spatial info about station
     if ('spatial' %in% to_do | 'all' %in% to_do) {
-        if (all(is.na(meta_couche$Altitude_m))) {
+        if (all(is.na(meta_couche$altitude_m))) {
             altitude_min = "inconnue"
             altitude_max = "inconnue"
         } else {
-            altitude_min = paste0(round(min(meta_couche$Altitude_m,
+            altitude_min = paste0(round(min(meta_couche$altitude_m,
                                             na.rm=TRUE)), " m")
-            altitude_max = paste0(round(max(meta_couche$Altitude_m,
+            altitude_max = paste0(round(max(meta_couche$altitude_m,
                                             na.rm=TRUE)), " m")
         }
 

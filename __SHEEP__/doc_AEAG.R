@@ -255,7 +255,7 @@ layout_panel = function (data, meta,
     }
 
     if (pdf_chunk == 'by_code') {
-        Code = rle(dataEx[[1]]$Code)$value
+        Code = rle(dataEx[[1]]$code)$value
         for (code in Code) {
             listfile_code_path = listfile_path[grepl(code, listfile_path)]
             pdf_combine(input=listfile_code_path,

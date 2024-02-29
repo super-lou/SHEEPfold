@@ -55,7 +55,7 @@ sheet_diagnostic_regime = function (meta,
     HM = levels(factor(dataEX_criteria$HM))
     nHM = length(HM)
     
-    Code = levels(factor(dataEX_criteria$Code))
+    Code = levels(factor(dataEX_criteria$code))
     nCode = length(Code)
 
     # dataEX_serieQM_obs =
@@ -85,7 +85,7 @@ sheet_diagnostic_regime = function (meta,
 
     dataEX_serieQM_obs =
         dplyr::summarise(dplyr::group_by(dataEX_serie$QM,
-                                         Code, date),
+                                         code, date),
                          QM=median(QM_obs,
                                    na.rm=TRUE),
                          .groups="drop")
@@ -93,11 +93,11 @@ sheet_diagnostic_regime = function (meta,
     dataEXserieR_ratio =
         dplyr::full_join(dataEX_serie$Rl_ratio,
                          dataEX_serie$Rs_ratio,
-                         by=c("Code", "HM"))
+                         by=c("code", "HM"))
     dataEXserieR_ratio =
         dplyr::summarise(
                    dplyr::group_by(dataEXserieR_ratio,
-                                   Code),
+                                   code),
                    Rs_ratio=median(Rs_ratio_obs,
                                    na.rm=TRUE),
                    Rl_ratio=median(Rl_ratio_obs,
@@ -132,14 +132,14 @@ sheet_diagnostic_regime = function (meta,
                          "   ", round(i/nRegime*100, 1), "% done"))
         }
 
-        Code_regime = regimeHydro$Code[regimeHydro$typology_2 == regime]
-        dataEX_criteria_regime = dataEX_criteria[dataEX_criteria$Code %in% Code_regime,]
+        Code_regime = regimeHydro$code[regimeHydro$typology_2 == regime]
+        dataEX_criteria_regime = dataEX_criteria[dataEX_criteria$code %in% Code_regime,]
         
         dataEX_serie_regime = list()
         for (j in 1:length(dataEX_serie)) {
             dataEX_serie_regime = append(
                 dataEX_serie_regime,
-                list(dataEX_serie[[j]][dataEX_serie[[j]]$Code %in% Code_regime,]))
+                list(dataEX_serie[[j]][dataEX_serie[[j]]$code %in% Code_regime,]))
         }
         names(dataEX_serie_regime) = names(dataEX_serie)
 
@@ -149,7 +149,7 @@ sheet_diagnostic_regime = function (meta,
 
         medKGEracine =
             dplyr::summarise(dplyr::group_by(dataEX_criteria_regime,
-                                             Code),
+                                             code),
                              value=median(KGEracine,
                                           na.rm=TRUE),
                              .groups="drop")
@@ -165,7 +165,7 @@ sheet_diagnostic_regime = function (meta,
             return (id)
         }
         Code_KGEprobs =
-            medKGEracine$Code[sapply(KGEq,
+            medKGEracine$code[sapply(KGEq,
                                      id_nearest,
                                      In=medKGEracine$value)]
         Code_KGEprobs[duplicated(Code_KGEprobs)] = NA
@@ -175,10 +175,10 @@ sheet_diagnostic_regime = function (meta,
         QM_code = list()
         for (detail in Detail) {
             Code_detail =
-                regimeHydro$Code[regimeHydro$typology_2 == regime &
+                regimeHydro$code[regimeHydro$typology_2 == regime &
                                  regimeHydro$detail == detail]
             dataEX_serieQM_obs_detail =
-                dataEX_serieQM_obs[dataEX_serieQM_obs$Code %in%
+                dataEX_serieQM_obs[dataEX_serieQM_obs$code %in%
                                    Code_detail,]
 
             dataEX_serieQM_obs_detail$date = lubridate::month(dataEX_serieQM_obs_detail$date)
@@ -186,7 +186,7 @@ sheet_diagnostic_regime = function (meta,
             dataEX_serieQM_obs_detail =
                 dplyr::mutate(dplyr::group_by(
                                          dataEX_serieQM_obs_detail,
-                                         Code),
+                                         code),
                               QM=QM/sum(QM, na.rm=TRUE))
 
             dataEX_serieQM_obs_detail =
@@ -236,7 +236,7 @@ sheet_diagnostic_regime = function (meta,
                 for (k in 1:length(dataEX_serie)) {
                     dataEX_serie_code = append(
                         dataEX_serie_code,
-                        list(dataEX_serie[[k]][dataEX_serie[[k]]$Code ==
+                        list(dataEX_serie[[k]][dataEX_serie[[k]]$code ==
                                               code,]))
                 }
                 names(dataEX_serie_code) = names(dataEX_serie)
@@ -254,7 +254,7 @@ sheet_diagnostic_regime = function (meta,
                 dataMOD = dataEX_serie_code[["medQJC5"]]
                 dataMOD =
                     dplyr::mutate(dplyr::group_by(dataMOD,
-                                                  HM, Code),
+                                                  HM, code),
                                   n=1:dplyr::n())
                 dataMOD = filter(dataMOD, n <= 365)
                 dataMOD = dplyr::rename(dataMOD,

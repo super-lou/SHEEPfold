@@ -22,17 +22,30 @@
 
 sheet_stationnarity_station = function (data,
                                         meta,
-                                        trendEX_serie,
+                                        trendEX,
                                         dataEX_serie,
                                         metaEX_serie,
                                         period_trend_show=NULL,
+                                        code_selection=NULL,
                                         logo_path="",
                                         Pages=NULL,
                                         Shapefiles=NULL,
                                         figdir="",
                                         verbose=FALSE) {
 
-    Variable = metaEX_serie$variable
+
+    if (!is.null(code_selection)) {
+        data = data[data$code %in% code_selection,]
+        meta = meta[meta$code %in% code_selection,]
+        trendEX = trendEX[trendEX$code %in% code_selection,]
+        for (i in 1:length(dataEX_serie)) {
+            dataEX_serie[[i]] =
+                dplyr::filter(dataEX_serie[[i]],
+                              code %in% code_selection)
+        }
+    }
+    
+    Variable = metaEX_serie$variable_en
     Variable = Variable[Variable != "QM"]
     nVariable = length(Variable)
     
@@ -49,14 +62,15 @@ sheet_stationnarity_station = function (data,
         "info", "chronicle", Variable, "foot"
     ), ncol=1)
 
+
+    QM_name = names(dataEX_serie$QM)[grepl("QM", names(dataEX_serie$QM))]
     regimeHydro =
         find_regimeHydro(
             dplyr::rename(dplyr::select(dataEX_serie$QM,
-                                        c("Code", "date", "QM_obs")),
-                          QM=QM_obs))
+                                        dplyr::all_of(c("code", "date", QM_name))),
+                          QM=QM_name))
 
-    Code = levels(factor(data$Code))
-    CodeALL = levels(factor(dataEX_serie$Code))
+    Code = levels(factor(data$code))
     nCode = length(Code)
     
     for (i in 1:nCode) {
@@ -66,13 +80,13 @@ sheet_stationnarity_station = function (data,
                          "   ", round(i/nCode*100, 1), "% done"))
         }
         
-        data_code = data[data$Code == code,]
+        data_code = data[data$code == code,]
         
         dataEX_serie_code = list()
         for (j in 1:length(dataEX_serie)) {
             dataEX_serie_code = append(
                 dataEX_serie_code,
-                list(dataEX_serie[[j]][dataEX_serie[[j]]$Code == code,]))
+                list(dataEX_serie[[j]][dataEX_serie[[j]]$code == code,]))
         }
         names(dataEX_serie_code) = names(dataEX_serie)
 
@@ -83,8 +97,8 @@ sheet_stationnarity_station = function (data,
 
         info = panel_info_station(
             data_code,
-            dataEX_serie_code$QM$QM_obs,
-            regimeLight=regimeHydro$detail[regimeHydro$Code == code],
+            dataEX_serie_code$QM[[QM_name]],
+            regimeLight=regimeHydro$detail[regimeHydro$code == code],
             meta=meta,
             Shapefiles=Shapefiles,
             codeLight=code,
@@ -97,15 +111,15 @@ sheet_stationnarity_station = function (data,
                          height=info_height,
                          verbose=verbose)
 
-        data_code_chronicle = dplyr::rename(data_code, Q_sim=Q_nat)
-        data_code_chronicle$HM = "Naturalisé"
-        Colors = IPCCgold
-        names(Colors) = "Naturalisé"
+        # data_code_chronicle = dplyr::rename(data_code, Q_sim=Q)
+        # data_code_chronicle$HM = "Naturalisé"
+        # Colors = IPCCgold
+        # names(Colors) = "Naturalisé"
         
         limits = c(min(data_code$date), max(data_code$date))
-        
-        chronicle = panel_spaghetti(data_code_chronicle,
-                                    Colors=Colors,
+
+        chronicle = panel_spaghetti(data_code,
+                                    # Colors=Colors,
                                     title="Q",
                                     unit="m^{3}.s^{-1}",
                                     alpha=1,
@@ -125,8 +139,8 @@ sheet_stationnarity_station = function (data,
                                     isBackObsAbove=FALSE,
                                     lwObs=0.3,
                                     lwObs_back=0.7,
-                                    lwSim=0.5,
-                                    lwSim_back=0.9,
+                                    # lwSim=0.5,
+                                    # lwSim_back=0.9,
                                     grid=TRUE,
                                     ratio_title=1/4,
                                     margin_title=
@@ -136,7 +150,7 @@ sheet_stationnarity_station = function (data,
                                     first=FALSE,
                                     last=TRUE)
         herd = add_sheep(herd,
-                         sheep=chronicle,
+                         sheep=contour(),
                          id="chronicle",
                          height=chronicle_height,
                          verbose=verbose)
@@ -156,13 +170,13 @@ sheet_stationnarity_station = function (data,
 
             dataEX_serie_code_variable = dataEX_serie_code[[variable]]
 
-            trendEX_serie_code_variable =
-                trendEX_serie[trendEX_serie$Code == code &
-                              grepl(variable, trendEX_serie$variable, fixed=TRUE),]
-            
+            trendEX_code_variable =
+                trendEX[trendEX$code == code &
+                              grepl(variable, trendEX$variable_en, fixed=TRUE),]
+
             trend = panel_trend(variable,
                                 dataEX_serie_code_variable,
-                                trendEX_serie_code_variable,
+                                trendEX_code_variable,
                                 metaEX_serie,
                                 period_trend_show=period_trend_show,
                                 linetype='solid',
@@ -211,11 +225,15 @@ sheet_stationnarity_station = function (data,
                          height=foot_height,
                          verbose=verbose)
 
+
+        print("a")
         res = return_to_sheepfold(herd,
                                   page_margin=page_margin,
                                   paper_size="A4",
                                   hjust=0, vjust=1,
                                   verbose=verbose)
+
+        print("b")
         
         plot = res$plot
         paper_size = res$paper_size

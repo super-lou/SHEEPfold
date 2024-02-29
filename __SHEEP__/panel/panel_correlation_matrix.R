@@ -79,12 +79,12 @@ panel_correlation_matrix = function (dataEX,
 
     logicalCol = names(dataEX)[sapply(dataEX, class) == "logical"]
     dataEX = dataEX[!(names(dataEX) %in% logicalCol)]
-    metaEX = metaEX[!(metaEX$variable %in% logicalCol),]
+    metaEX = metaEX[!(metaEX$variable_en %in% logicalCol),]
     
     Topic = strsplit(metaEX$topic, "[|]")
     Topic = lapply(Topic, complete)
     mainTopicVAR = sapply(Topic, '[[', 2)
-    names(mainTopicVAR) = metaEX$variable
+    names(mainTopicVAR) = metaEX$variable_en
     lenMainTopic = rle(mainTopicVAR)$lengths
     nMainTopic = length(lenMainTopic)
     startMainTopic =
@@ -113,11 +113,11 @@ panel_correlation_matrix = function (dataEX,
     Pmat = c()
     for (i in 1:nHM) {
         dataEX_hm = dataEX[dataEX$HM == HM[i],]
-        nameRow = dataEX_hm$Code
+        nameRow = dataEX_hm$code
         
-        dataEX_hm = dplyr::select(dataEX_hm, -c(Code, HM))
+        dataEX_hm = dplyr::select(dataEX_hm, -c(code, HM))
 
-        matchVariable = match(names(dataEX_hm), metaEX$variable)
+        matchVariable = match(names(dataEX_hm), metaEX$variable_en)
         matchVariable = matchVariable[!is.na(matchVariable)]
         
         dataEX_hm = dataEX_hm[matchVariable]

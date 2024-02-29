@@ -36,13 +36,13 @@ sheet_stationnarity_short = function (meta, data,
 
     page_margin = c(t=0.5, r=0.5, b=0.5, l=0.5)
 
-    Code = levels(factor(dataEX$Code))
+    Code = levels(factor(dataEX$code))
     nCode = length(Code)
     Period = unique(trendEX$period)
     nPeriod = length(Period)
 
-    Variable = names(dataEX)[!(names(dataEX) %in% c("Code", "date"))]
-    # Variable =  levels(factor(trendEX$variable))
+    Variable = names(dataEX)[!(names(dataEX) %in% c("code", "date"))]
+    # Variable =  levels(factor(trendEX$variable_en))
     nVariable = length(Variable)
 
     title_height = 0.7
@@ -89,11 +89,11 @@ sheet_stationnarity_short = function (meta, data,
             }
 
             dataEX_code_variable =
-                dplyr::select(dataEX[dataEX$Code == code,],
-                              c("Code", "date", variable))
+                dplyr::select(dataEX[dataEX$code == code,],
+                              c("code", "date", variable))
 
-            trendEX_code_variable = trendEX[trendEX$Code == code &
-                                      trendEX$variable == variable,]
+            trendEX_code_variable = trendEX[trendEX$code == code &
+                                      trendEX$variable_en == variable,]
             
             trend = panel_trend(dataEX_code_variable,
                                 trendEX_code_variable,

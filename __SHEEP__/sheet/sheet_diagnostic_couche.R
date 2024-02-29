@@ -53,7 +53,7 @@ sheet_diagnostic_couche = function (data,
     HM = levels(factor(dataEX_criteria$HM))
     nHM = length(HM)
     
-    Code = levels(factor(dataEX_criteria$Code))
+    Code = levels(factor(dataEX_criteria$code))
     nCode = length(Code)
 
     Couche = levels(factor(unlist(meta$Couche)))
@@ -65,7 +65,7 @@ sheet_diagnostic_couche = function (data,
         couche = Couche[i]
         
         meta_couche = meta[is_in_couche(meta$Couche, couche),]
-        Code_couche = meta_couche$Code
+        Code_couche = meta_couche$code
         couche_disp = paste0(couche)
 
         if (verbose) {
@@ -74,20 +74,20 @@ sheet_diagnostic_couche = function (data,
                          round(i/nCouche*100, 1), "% done"))
         }
         
-        dataEX_criteria_couche = dataEX_criteria[dataEX_criteria$Code %in% Code_couche,]
+        dataEX_criteria_couche = dataEX_criteria[dataEX_criteria$code %in% Code_couche,]
         
         dataEX_serie_couche = list()
         for (j in 1:length(dataEX_serie)) {
             dataEX_serie_couche = append(
                 dataEX_serie_couche,
-                list(dataEX_serie[[j]][dataEX_serie[[j]]$Code %in%
+                list(dataEX_serie[[j]][dataEX_serie[[j]]$code %in%
                                       Code_couche,]))
         }
         names(dataEX_serie_couche) = names(dataEX_serie)
         
         medREF =
             dplyr::summarise(dplyr::group_by(dataEX_criteria_couche,
-                                             Code),
+                                             code),
                              value=median(get("NSEbiais"),
                                           na.rm=TRUE),
                              .groups="drop")
@@ -105,7 +105,7 @@ sheet_diagnostic_couche = function (data,
                 return (id)
             }
             Code_REFprobs =
-                medREF$Code[sapply(REFq,
+                medREF$code[sapply(REFq,
                                        id_nearest,
                                        In=medREF$value)]
             Code_REFprobs[duplicated(Code_REFprobs)] = NA
@@ -113,7 +113,7 @@ sheet_diagnostic_couche = function (data,
 
         } else {
             Code_REFprobs =
-                medREF$Code[order(medREF$value,
+                medREF$code[order(medREF$value,
                                       decreasing=TRUE)]
             Code_REFprobs[duplicated(Code_REFprobs)] = NA
             Code_REFprobs = c(Code_REFprobs,
@@ -150,7 +150,7 @@ sheet_diagnostic_couche = function (data,
                 for (k in 1:length(dataEX_serie)) {
                     dataEX_serie_code = append(
                         dataEX_serie_code,
-                        list(dataEX_serie[[k]][dataEX_serie[[k]]$Code == code,]))
+                        list(dataEX_serie[[k]][dataEX_serie[[k]]$code == code,]))
                 }
                 names(dataEX_serie_code) = names(dataEX_serie)
 
@@ -167,7 +167,7 @@ sheet_diagnostic_couche = function (data,
                 dataMOD = dataEX_serie_code[["medQJC5"]]
                 dataMOD =
                     dplyr::mutate(dplyr::group_by(dataMOD,
-                                                  HM, Code),
+                                                  HM, code),
                                   n=1:dplyr::n())
                 dataMOD = filter(dataMOD, n <= 365)
                 dataMOD = dplyr::rename(dataMOD,
@@ -177,7 +177,7 @@ sheet_diagnostic_couche = function (data,
                 
 
                 if (all(is.na(dataMOD$Q_obs))) {
-                    dataMOD =  data[data$HM == dataMOD$HM[1] & data$Code == code,]
+                    dataMOD =  data[data$HM == dataMOD$HM[1] & data$code == code,]
                     
                     dataMOD = dplyr::rename(dataMOD,
                                             date="date",

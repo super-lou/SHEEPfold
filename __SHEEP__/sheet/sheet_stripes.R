@@ -68,14 +68,14 @@ sheet_stripes = function (dataEX_serie,
                   ncol=3)
 
     
-    Code = levels(factor(dataEX_serie[[1]]$Code))
+    Code = levels(factor(dataEX_serie[[1]]$code))
     nCode = length(Code)
 
     Variable = names(dataEX_serie)
     VariableTeX = convert2TeX(Variable)
     nVariable = length(Variable)
     
-    Unit = metaEX_serie$unit
+    Unit = metaEX_serie$unit_fr
     UnitTeX = convert2TeX(Unit, size="small", bold=FALSE)
     PX = get_alphabet_in_px()
 
@@ -100,7 +100,7 @@ sheet_stripes = function (dataEX_serie,
 
         dataEX_variable_SAFRAN =
             dplyr::reframe(dplyr::group_by(dataEX_variable_SAFRAN,
-                                           HM, Code,
+                                           HM, code,
                                            date,
                                            !!!rlang::data_syms(variable)),
                            climateChain=!!climateChain)
@@ -123,17 +123,17 @@ sheet_stripes = function (dataEX_serie,
         maxDate = max(DateEX_variable$maxDate)
         
         dataEX_variable_mean =
-            dplyr::filter(dplyr::group_by(dataEX_variable, Code, Chain),
+            dplyr::filter(dplyr::group_by(dataEX_variable, code, Chain),
                           period_reference[1] <= date &
                           date <= period_reference[2])
         dataEX_variable_mean =
             dplyr::summarise(dplyr::group_by(dataEX_variable_mean,
-                                             Code, Chain),
+                                             code, Chain),
                              !!paste0("mean", variable):=mean(get(variable),
                                                          na.rm=TRUE),
                              .groups="drop")
         dataEX_variable = dplyr::left_join(dataEX_variable, dataEX_variable_mean,
-                                      by=c("Code", "Chain"))
+                                      by=c("code", "Chain"))
         dataEX_variable[[variable]] =
             dataEX_variable[[variable]] -
             dataEX_variable[[paste0("mean", variable)]]
@@ -141,7 +141,7 @@ sheet_stripes = function (dataEX_serie,
         dataEX_variable_med =
             dplyr::summarise(
                        dplyr::group_by(dataEX_variable,
-                                       date, Code, climateChain),
+                                       date, code, climateChain),
                        !!variable := median(get(variable),
                                        na.rm=FALSE))
         
@@ -153,13 +153,13 @@ sheet_stripes = function (dataEX_serie,
         
         for (j in 1:nCode) {
             code = Code[j]
-            Name = meta$name[meta$Code == code]
+            Name = meta$name[meta$code == code]
             
             print(code)
             print(Name)
             
             dataEX_variable_med_code =
-                dataEX_variable_med[dataEX_variable_med$Code == code,]
+                dataEX_variable_med[dataEX_variable_med$code == code,]
             
             herd = bring_grass(verbose=verbose)
             herd = plan_of_herd(herd, plan, verbose=verbose)
@@ -332,7 +332,7 @@ sheet_stripes = function (dataEX_serie,
                          size=5, hjust=0, vjust=1,
                          color=IPCCgrey40)
             
-            glose = metaEX_serie$glose[metaEX_serie$variable == variable]
+            glose = metaEX_serie$glose[metaEX_serie$variable_en == variable]
             glose = guess_newline(glose, px=20, PX=PX)
             glose = unlist(strsplit(glose, "\n"))
             

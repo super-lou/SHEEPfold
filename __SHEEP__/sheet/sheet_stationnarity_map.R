@@ -64,28 +64,28 @@ sheet_stationnarity_map = function (trendEX,
                       nrow=3, byrow=TRUE)
     }
 
-    Code = levels(factor(data$Code))
+    Code = levels(factor(data$code))
     nCode = length(Code)
 
-    Variable = metaEX_serie$variable
+    Variable = metaEX_serie$variable_en
     VariableTeX = convert2TeX(Variable)
     nVariable = length(Variable)
 
-    Unit = metaEX_serie$unit
+    Unit = metaEX_serie$unit_fr
     UnitTeX = convert2TeX(Unit, size="small", bold=FALSE)
     PX = get_alphabet_in_px()
     
     for (i in 1:nVariable) {
         variable = Variable[i]
 
-        trendEX_variable = trendEX[grepl(variable, trendEX$variable),]
-        metaEX_variable = metaEX_serie[metaEX_serie$variable == variable,]
+        trendEX_variable = trendEX[grepl(variable, trendEX$variable_en),]
+        metaEX_variable = metaEX_serie[metaEX_serie$variable_en == variable,]
 
         prob = 0.1
-        Palette = unlist(strsplit(metaEX_variable$palette[metaEX_variable$variable == variable], " "))
-        min_variable = quantile(trendEX_variable$trend,
+        Palette = unlist(strsplit(metaEX_variable$palette[metaEX_variable$variable_en == variable], " "))
+        min_variable = quantile(trendEX_variable$a_normalise,
                            prob, na.rm=TRUE)
-        max_variable = quantile(trendEX_variable$trend,
+        max_variable = quantile(trendEX_variable$a_normalise,
                            1-prob, na.rm=TRUE)
         
         if (is.null(suffix_names)) {
@@ -170,7 +170,7 @@ sheet_stationnarity_map = function (trendEX,
                              height=title_height,
                              verbose=verbose)
 
-            trendEX_variable_suffix = trendEX[trendEX$variable == variable_suffix,]
+            trendEX_variable_suffix = trendEX[trendEX$variable_en == variable_suffix,]
             
             map = panel_stationnarity_map(trendEX_variable_suffix,
                                           metaEX_variable,

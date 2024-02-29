@@ -73,7 +73,7 @@ panel_info_regime = function(QM_code,
         hyd2 = void()
     }
 
-    meta_regime = meta[meta$Code %in% Code_regime,]
+    meta_regime = meta[meta$code %in% Code_regime,]
     
     if (!is.null(Shapefiles)) {
         # Computes the map associated to the station
@@ -106,7 +106,7 @@ panel_info_regime = function(QM_code,
 
     # Subitle info
     if ('subtitle' %in% to_do | 'all' %in% to_do) {
-        text2 = paste0("<b>", length(meta_regime$Code),
+        text2 = paste0("<b>", length(meta_regime$code),
                        " stations de référence", "</b>")
         gtext2 = richtext_grob(text2,
                                x=0, y=1.1,
@@ -118,7 +118,7 @@ panel_info_regime = function(QM_code,
         gtext2 = void()
     }
 
-    # print(meta_regime$Code[is.na(meta_regime$surface_km2)])
+    # print(meta_regime$code[is.na(meta_regime$surface_km2)])
 
     # Spatial info about station
     if ('spatial' %in% to_do | 'all' %in% to_do) {
@@ -133,13 +133,13 @@ panel_info_regime = function(QM_code,
                                            na.rm=TRUE)),
                                  " km<sup>2</sup>")
         }
-        if (all(is.na(meta_regime$Altitude_m))) {
+        if (all(is.na(meta_regime$altitude_m))) {
             altitude_min = "inconnue"
             altitude_max = "inconnue"
         } else {
-            altitude_min = paste0(round(min(meta_regime$Altitude_m,
+            altitude_min = paste0(round(min(meta_regime$altitude_m,
                                             na.rm=TRUE)), " m")
-            altitude_max = paste0(round(max(meta_regime$Altitude_m,
+            altitude_max = paste0(round(max(meta_regime$altitude_m,
                                             na.rm=TRUE)), " m")
         }
 

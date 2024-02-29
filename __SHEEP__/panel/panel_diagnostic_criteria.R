@@ -224,12 +224,12 @@ panel_diagnostic_criteria = function (dataEX_criteria,
 
     logicalCol = names(dataEX_criteria)[sapply(dataEX_criteria, class) == "logical"]
     dataEX_criteria = dataEX_criteria[!(names(dataEX_criteria) %in% logicalCol)]
-    metaEX_criteria = metaEX_criteria[!(metaEX_criteria$variable %in% logicalCol),]
+    metaEX_criteria = metaEX_criteria[!(metaEX_criteria$variable_en %in% logicalCol),]
     
     Topic = strsplit(metaEX_criteria$topic, "[|]")
     Topic = lapply(Topic, complete)
     mainTopicVAR = sapply(Topic, '[[', 2)
-    names(mainTopicVAR) = metaEX_criteria$variable
+    names(mainTopicVAR) = metaEX_criteria$variable_en
     lenMainTopic = rle(mainTopicVAR)$lengths
     nMainTopic = length(lenMainTopic)
     startMainTopic =
@@ -255,10 +255,10 @@ panel_diagnostic_criteria = function (dataEX_criteria,
 
     CodeIN = c(codeLight, groupCode)
     
-    HM = levels(factor(dataEX_criteria$HM[dataEX_criteria$Code %in% CodeIN]))
+    HM = levels(factor(dataEX_criteria$HM[dataEX_criteria$code %in% CodeIN]))
     if (!is.null(codeLight)) {
         HM_codeLight =
-            levels(factor(dataEX_criteria$HM[dataEX_criteria$Code %in%
+            levels(factor(dataEX_criteria$HM[dataEX_criteria$code %in%
                                           codeLight]))
     } else {
         HM_codeLight = HM
@@ -267,9 +267,9 @@ panel_diagnostic_criteria = function (dataEX_criteria,
     nHM = length(HM)
     
     dataEX_criteria_tmp = dataEX_criteria
-    dataEX_criteria_tmp = dplyr::select(dataEX_criteria_tmp, -c(Code, HM))
+    dataEX_criteria_tmp = dplyr::select(dataEX_criteria_tmp, -c(code, HM))
 
-    matchVariable = match(names(dataEX_criteria_tmp), metaEX_criteria$variable)
+    matchVariable = match(names(dataEX_criteria_tmp), metaEX_criteria$variable_en)
     matchVariable = matchVariable[!is.na(matchVariable)]
 
     dataEX_criteria_tmp = dataEX_criteria_tmp[matchVariable]
@@ -280,7 +280,7 @@ panel_diagnostic_criteria = function (dataEX_criteria,
 
     VariableTeX = convert2TeX(Variable, is_it_small=TRUE)
         
-    Code = levels(factor(dataEX_criteria$Code))    
+    Code = levels(factor(dataEX_criteria$code))    
     perfect_tick_save = ""
     major_tick_save = Inf
     # major_tick_next = Inf
@@ -577,7 +577,7 @@ panel_diagnostic_criteria = function (dataEX_criteria,
             hm = HM[j]
             dataEX_criteria_hm = dataEX_criteria[dataEX_criteria$HM == hm,]
             dataEX_criteria_hm_group =
-                dataEX_criteria_hm[dataEX_criteria_hm$Code %in% groupCode,]
+                dataEX_criteria_hm[dataEX_criteria_hm$code %in% groupCode,]
 
             if (nrow(dataEX_criteria_hm_group) != 0) {
                 Q = (quantile(dataEX_criteria_hm_group[[variable]],
@@ -603,7 +603,7 @@ panel_diagnostic_criteria = function (dataEX_criteria,
             hm = HM[j]
             dataEX_criteria_hm = dataEX_criteria[dataEX_criteria$HM == hm,]
             dataEX_criteria_hm_group =
-                dataEX_criteria_hm[dataEX_criteria_hm$Code %in% groupCode,]
+                dataEX_criteria_hm[dataEX_criteria_hm$code %in% groupCode,]
             
             if (nrow(dataEX_criteria_hm_group) != 0) {
                 for (k in 1:NP) {
@@ -637,12 +637,12 @@ panel_diagnostic_criteria = function (dataEX_criteria,
 
             if (!is.null(codeLight)) {
                 dataEX_criteria_hm_code =
-                    dataEX_criteria_hm[dataEX_criteria_hm$Code ==
+                    dataEX_criteria_hm[dataEX_criteria_hm$code ==
                                     codeLight,]
                 value = dataEX_criteria_hm_code[[variable]]
             } else {
                 dataEX_criteria_hm_group =
-                    dataEX_criteria_hm[dataEX_criteria_hm$Code %in%
+                    dataEX_criteria_hm[dataEX_criteria_hm$code %in%
                                     groupCode,]
                 value = median(dataEX_criteria_hm_group[[variable]],
                                na.rm=TRUE)
@@ -706,12 +706,12 @@ panel_diagnostic_criteria = function (dataEX_criteria,
 
             if (!is.null(codeLight)) {
                 dataEX_criteria_hm_code =
-                    dataEX_criteria_hm[dataEX_criteria_hm$Code ==
+                    dataEX_criteria_hm[dataEX_criteria_hm$code ==
                                     codeLight,]
                 value = dataEX_criteria_hm_code[[variable]]
             } else {
                 dataEX_criteria_hm_group =
-                    dataEX_criteria_hm[dataEX_criteria_hm$Code %in%
+                    dataEX_criteria_hm[dataEX_criteria_hm$code %in%
                                     groupCode,]
                 value = median(dataEX_criteria_hm_group[[variable]],
                                na.rm=TRUE)
@@ -779,12 +779,12 @@ panel_diagnostic_criteria = function (dataEX_criteria,
 
             if (!is.null(codeLight)) {
                 dataEX_criteria_hm_code =
-                    dataEX_criteria_hm[dataEX_criteria_hm$Code ==
+                    dataEX_criteria_hm[dataEX_criteria_hm$code ==
                                     codeLight,]
                 value = dataEX_criteria_hm_code[[variable]]
             } else {
                 dataEX_criteria_hm_group =
-                    dataEX_criteria_hm[dataEX_criteria_hm$Code %in%
+                    dataEX_criteria_hm[dataEX_criteria_hm$code %in%
                                     groupCode,]
                 value = median(dataEX_criteria_hm_group[[variable]],
                                na.rm=TRUE)
@@ -1002,7 +1002,7 @@ panel_diagnostic_criteria = function (dataEX_criteria,
         if (!is.null(codeLight)) {
             S_code_hm =
                 round(
-                    meta[meta$Code == codeLight,][[paste0("surface_",
+                    meta[meta$code == codeLight,][[paste0("surface_",
                                                           HM[i],
                                                           "_km2")]])
 
@@ -1346,7 +1346,7 @@ panel_diagnostic_criteria = function (dataEX_criteria,
                      color=IPCCgrey25,
                      hjust=0, vjust=0, size=2.5)
 
-        Warnings_code = Warnings[Warnings$Code == codeLight,]
+        Warnings_code = Warnings[Warnings$code == codeLight,]
         nWar_lim = 8
         nWar = nrow(Warnings_code)
         nLine = 0
