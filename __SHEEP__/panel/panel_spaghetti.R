@@ -192,9 +192,11 @@ panel_spaghetti = function (data_code, Colors=NULL,
                                expand=c(0, 0))
     }
     
-   
-    isDate = inherits(data_code$date, 'date')
 
+    print(data_code)
+    isDate = lubridate::is.Date(data_code$date[1])
+
+    
     if (isNormLaw) {
         data_code = data_code[data_code$date != 0 &
                               data_code$date != 1,]
