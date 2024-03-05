@@ -27,7 +27,7 @@ sheet_stationnarity_station = function (data,
                                         metaEX_serie,
                                         period_trend_show=NULL,
                                         code_selection=NULL,
-                                        logo_path="",
+                                        logo_info=NULL,
                                         Pages=NULL,
                                         Shapefiles=NULL,
                                         figdir="",
@@ -56,7 +56,7 @@ sheet_stationnarity_station = function (data,
     foot_height = 1.25
     variable_height = (29.7 - 0.5*2 - info_height - chronicle_height - foot_height) / nVariable
     
-    variable_width = 21 - 0.5*2 
+    width = 21 - 0.5*2 
     
     plan = matrix(c(
         "info", "chronicle", Variable, "foot"
@@ -196,7 +196,7 @@ sheet_stationnarity_station = function (data,
                              id=variable,
                              label="align",
                              height=variable_height,
-                             width=variable_width,
+                             # width=variable_width,
                              verbose=verbose)
         }
 
@@ -217,23 +217,19 @@ sheet_stationnarity_station = function (data,
                        n=n_page))
         }
         
-        foot = panel_foot(footName, n_page,
-                          foot_height, logo_path)
+        foot = panel_foot(footName, n_page, foot_height, logo_info)
         herd = add_sheep(herd,
                          sheep=foot,
                          id="foot",
                          height=foot_height,
+                         width=width,
                          verbose=verbose)
 
-
-        print("a")
         res = return_to_sheepfold(herd,
                                   page_margin=page_margin,
                                   paper_size="A4",
                                   hjust=0, vjust=1,
                                   verbose=verbose)
-
-        print("b")
         
         plot = res$plot
         paper_size = res$paper_size

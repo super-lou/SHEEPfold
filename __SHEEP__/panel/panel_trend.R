@@ -44,13 +44,21 @@ panel_trend = function (variable,
     dataEX_code_variable$isNA =
         is.na(rowSums(
             dplyr::mutate_all(dataEX_code_variable[variableEX], as.numeric)))
+
+    ok = metaEX$variable_en == variable
+    if (any(names(metaEX) == "variable")) {
+        variable_to_display = metaEX$variable[ok]
+    } else {
+        variable_to_display = variable
+    }
     
-    unit = metaEX$unit_fr[metaEX$variable_en == variable]
-    is_date = metaEX$is_date[metaEX$variable_en == variable]
-    to_normalise = metaEX$to_normalise[metaEX$variable_en == variable]
-    Palette = metaEX$palette[metaEX$variable_en == variable]
+    unit = metaEX$unit_fr[ok]
+    is_date = metaEX$is_date[ok]
+    to_normalise = metaEX$to_normalise[ok]
+    Palette = metaEX$palette[ok]
     Palette = unlist(strsplit(Palette, " "))
-    sampling_period = metaEX$sampling_period_fr[metaEX$variable_en == variable]
+    sampling_period = metaEX$sampling_period_en[ok]
+    sampling_period = unlist(strsplit(sampling_period, ", "))
 
     
     Period = unique(trendEX_code_variable$period)
@@ -74,6 +82,151 @@ panel_trend = function (variable,
         codeDate = axis_xlim
     }
 
+    
+    plan = matrix(c("title", "plot"),
+                  nrow=2, 
+                  byrow=TRUE)
+    
+    herd = bring_grass(verbose=verbose)
+    herd = plan_of_herd(herd, plan,
+                        verbose=verbose)
+
+    
+## TITLE _____________________________________________________________
+    title = ggplot() + theme_void()
+
+    color_trend = c()
+    leg_trend = dplyr::tibble()
+
+    for (j in 1:nPeriod) {
+        if (trendEX_code_variable_period$H) {
+            res = compute_colorBin(trendEX_code_variable_period$a_normalise_min,
+                                   trendEX_code_variable_period$a_normalise_max,
+                                   colorStep=length(Palette),
+                                   center=0,
+                                   include=FALSE)
+            bin = res$bin
+            upBin = res$upBin
+            lowBin = res$lowBin
+            color = get_colors(trendEX_code_variable_period$a_normalise,
+                               upBin=upBin,
+                               lowBin=lowBin,
+                               Palette=Palette)
+
+            colorLine = color
+            colorLabel = switch_colorLabel(color)
+        } else {
+            colorLine = 'grey80'
+            colorLabel = 'grey80'
+        }
+
+        color_trend = c(color_trend, colorLine)
+        
+        power = get_power(trendEX_code_variable_period$a)
+        powerC = as.character(power)
+        if (powerC >= 0) {
+            spaceC = ' '
+        } else {
+            spaceC = ''
+        }
+
+        brk = 10^power
+        aC = as.character(format(round(
+            trendEX_code_variable_period$a / brk, 2),
+            nsmall=2))
+        if (aC >= 0) {
+            aC = paste('  ', aC, sep='')
+        }
+        
+        aMeanC = as.character(format(round(
+            trendEX_code_variable_period$a_normalise*100, 2),
+            nsmall=2))
+        if (aMeanC >= 0) {
+            aMeanC = paste('  ', aMeanC, sep='')
+        }
+
+        leg_trendtmp = tibble(colorLine=colorLine,
+                              colorLabel=colorLabel,
+                              aC=aC,
+                              powerC=powerC,
+                              spaceC=spaceC,
+                              aMeanC=aMeanC,
+                              period=j)
+        leg_trend = bind_rows(leg_trend, leg_trendtmp)  
+    }
+
+    
+    if (length(linetype) < nPeriod) {
+        linetype = rep(linetype, times=nPeriod)
+    }
+    linetypeLeg_per = linetype
+    linetypeLeg_per[linetype == 'longdash'] = '33'
+    linetypeLeg_per[linetype == 'dashed'] = '22'
+    linetypeLeg_per[linetype == 'dotted'] = '11'
+
+    for (j in 1:nPeriod) {
+        leg_trend_per = leg_trend[leg_trend$period == j,]
+        
+        colorLine = leg_trend_per$colorLine
+        colorLabel = leg_trend_per$colorLabel
+        aC = leg_trend_per$aC
+        powerC = leg_trend_per$powerC
+        spaceC = leg_trend_per$spaceC
+        aMeanC = leg_trend_per$aMeanC
+
+        unitF = gsub(" ", "\\\\,", unit)
+        unitF = gsub("°", "\\textbf{^\\degree}", unitF, fixed=TRUE)
+        
+        if (grepl(".an^{-1}", unitF, fixed=TRUE)) {
+            unitF = gsub(".an^{-1}", "", unitF, fixed=TRUE)
+            unitT = ".an^{-2}"
+        } else {
+            unitT = ".an^{-1}"
+        }
+        
+        if (to_normalise) {
+            label = paste0("\\textbf{", aC,
+                           " x 10$^{$", powerC,"}}",
+                           spaceC,
+                           " ", "\\[$", unitF, unitT, "$\\]",
+                           "\\;", "\\textbf{", aMeanC, "}",
+                           " ", "\\[%$.an^{-1}$\\]")
+        } else {
+            label = paste0("\\textbf{", aC,
+                           " x 10$^{$", powerC,"}}",
+                           spaceC,
+                           " ", "\\[$", unitF, unitT, "$\\]")
+        }
+
+
+        title = title +
+            annotate("segment",
+                     x=leg_trend_per$x,
+                     xend=leg_trend_per$xend,
+                     y=leg_trend_per$y,
+                     yend=leg_trend_per$yend,
+                     color=colorLine,
+                     linetype=linetypeLeg_per[j],
+                     lwd=0.8,
+                     lineend="round") +
+            annotate("text",
+                     label=TeX(label), size=2.8,
+                     x=leg_trend_per$xt,
+                     y=leg_trend_per$y, 
+                     hjust=0, vjust=0.5,
+                     color=colorLabel)
+        
+    }
+    herd = add_sheep(herd,
+                     sheep=title,
+                     id="title",
+                     height=0.1,
+                     verbose=verbose)
+
+
+
+
+## PLOT ______________________________________________________________
     p = ggplot() + theme_IPCC(isBack=FALSE,
                               isGridX=FALSE, isGridY=FALSE,
                               isTitle=FALSE,
@@ -267,10 +420,6 @@ panel_trend = function (variable,
     
     ### Trend ###
     plot_trend = dplyr::tibble()
-    leg_trend = dplyr::tibble()
-
-    color_trend = c()
-
     for (j in 1:nPeriod) {
         period = Period[[j]]
         start = period[1]
@@ -278,11 +427,11 @@ panel_trend = function (variable,
 
         dataEX_code_variable_period =
             dataEX_code_variable[dataEX_code_variable$date >= start &
-                            dataEX_code_variable$date <= end,]
+                                 dataEX_code_variable$date <= end,]
 
         trendEX_code_variable_period =
             trendEX_code_variable[trendEX_code_variable$period ==
-                             paste0(period, collapse=" "),]
+                                  paste0(period, collapse=" "),]
 
         Ntrend = nrow(trendEX_code_variable_period)
         if (Ntrend > 1) {
@@ -310,190 +459,15 @@ panel_trend = function (variable,
         abs_num = as.numeric(abs, origin="1970-01-01") / 365.25
         ord = abs_num * trendEX_code_variable_period$a +
             trendEX_code_variable_period$b
-        
+        if (is_date) {
+            ord = ord + as.Date("1970-01-01")
+        }
         plot_trendtmp = tibble(abs=abs, ord=ord, period=j)
         plot_trend = bind_rows(plot_trend, plot_trendtmp)
-
-        x = gpct(1.5, codeDate, shift=TRUE)
-        xend = x + gpct(3, codeDate)
-
-        dy = gpct(9, codeX, min_lim=ymin_lim)
-        y = gpct(100, codeX,
-                 min_lim=ymin_lim, shift=TRUE) - (j-1)*dy
-        yend = y
-
-        xt = xend + gpct(1, codeDate)
-
-        xminR = x - gpct(1, codeDate)
-        yminR = y - gpct(5, codeX, min_lim=ymin_lim)
-        if (to_normalise) {
-            xmaxR = x + gpct(32.5, codeDate)
-        } else {
-            xmaxR = x + gpct(20.5, codeDate)
-        }
-        ymaxR = y + gpct(5, codeX, min_lim=ymin_lim)
-
-        if (trendEX_code_variable_period$H) {
-            res = compute_colorBin(trendEX_code_variable_period$a_normalise_min,
-                                   trendEX_code_variable_period$a_normalise_max,
-                                   colorStep=length(Palette),
-                                   center=0,
-                                   include=FALSE)
-            bin = res$bin
-            upBin = res$upBin
-            lowBin = res$lowBin
-
-            color = get_colors(trendEX_code_variable_period$a_normalise,
-                               upBin=upBin,
-                               lowBin=lowBin,
-                               Palette=Palette)
-
-            colorLine = color
-            colorLabel = switch_colorLabel(color)
-        } else {
-            colorLine = 'grey80'
-            colorLabel = 'grey80'
-        }
-
-        color_trend = c(color_trend, colorLine)
-        
-        power = get_power(trendEX_code_variable_period$a)
-        powerC = as.character(power)
-        if (powerC >= 0) {
-            spaceC = ' '
-        } else {
-            spaceC = ''
-        }
-
-        brk = 10^power
-        aC = as.character(format(round(
-            trendEX_code_variable_period$a / brk, 2),
-            nsmall=2))
-        if (aC >= 0) {
-            aC = paste('  ', aC, sep='')
-        }
-        
-        aMeanC = as.character(format(round(
-            trendEX_code_variable_period$a_normalise*100, 2),
-            nsmall=2))
-        if (aMeanC >= 0) {
-            aMeanC = paste('  ', aMeanC, sep='')
-        }
-
-        leg_trendtmp = tibble(x=x, xend=xend, 
-                              y=y, yend=yend, 
-                              xt=xt,
-                              colorLine=colorLine,
-                              colorLabel=colorLabel,
-                              aC=aC,
-                              powerC=powerC,
-                              spaceC=spaceC,
-                              aMeanC=aMeanC,
-                              xminR=xminR, yminR=yminR,
-                              xmaxR=xmaxR, ymaxR=ymaxR,
-                              period=j)
-        leg_trend = bind_rows(leg_trend, leg_trendtmp)  
     }
-
-    if (length(linetype) < nPeriod) {
-        linetype = rep(linetype, times=nPeriod)
-    }
-
-    linetypeLeg_per = linetype
-    linetypeLeg_per[linetype == 'longdash'] = '33'
-    linetypeLeg_per[linetype == 'dashed'] = '22'
-    linetypeLeg_per[linetype == 'dotted'] = '11'
-
-    for (j in 1:nPeriod) {
-        leg_trend_per = leg_trend[leg_trend$period == j,]
-
-        if (nPeriod > 1) {
-            if (is_date) {
-                leg_trend_per$yminR = leg_trend_per$yminR +
-                    as.Date("1970-01-01")
-                leg_trend_per$ymaxR = leg_trend_per$ymaxR +
-                    as.Date("1970-01-01")
-            }
-            p = p +
-                geom_rect(aes(xmin=leg_trend_per$xminR,
-                              ymin=leg_trend_per$yminR,
-                              xmax=leg_trend_per$xmaxR,
-                              ymax=leg_trend_per$ymaxR),
-                          linetype=0, fill='white', alpha=0.3)
-        }
-        
-        colorLine = leg_trend_per$colorLine
-        colorLabel = leg_trend_per$colorLabel
-        aC = leg_trend_per$aC
-        powerC = leg_trend_per$powerC
-        spaceC = leg_trend_per$spaceC
-        aMeanC = leg_trend_per$aMeanC
-
-        unitF = gsub(" ", "\\\\,", unit)
-        unitF = gsub("°", "\\textbf{^\\degree}", unitF, fixed=TRUE)
-        
-        if (grepl(".an^{-1}", unitF, fixed=TRUE)) {
-            unitF = gsub(".an^{-1}", "", unitF, fixed=TRUE)
-            unitT = ".an^{-2}"
-        } else {
-            unitT = ".an^{-1}"
-        }
-        
-        if (to_normalise) {
-            label = paste0("\\textbf{", aC,
-                           " x 10$^{$", powerC,"}}",
-                           spaceC,
-                           " ", "\\[$", unitF, unitT, "$\\]",
-                           "\\;", "\\textbf{", aMeanC, "}",
-                           " ", "\\[%$.an^{-1}$\\]")
-        } else {
-            label = paste0("\\textbf{", aC,
-                           " x 10$^{$", powerC,"}}",
-                           spaceC,
-                           " ", "\\[$", unitF, unitT, "$\\]")
-        }
-
-        if (nPeriod > 1) {
-            if (is_date) {
-                leg_trend_per$y = leg_trend_per$y +
-                    as.Date("1970-01-01")
-                leg_trend_per$yend = leg_trend_per$yend +
-                    as.Date("1970-01-01")
-            }
-            p = p +
-                annotate("segment",
-                         x=leg_trend_per$x,
-                         xend=leg_trend_per$xend,
-                         y=leg_trend_per$y,
-                         yend=leg_trend_per$yend,
-                         color=colorLine,
-                         linetype=linetypeLeg_per[j],
-                         lwd=0.8,
-                         lineend="round") +
-                annotate("text",
-                         label=TeX(label), size=2.8,
-                         x=leg_trend_per$xt,
-                         y=leg_trend_per$y, 
-                         hjust=0, vjust=0.5,
-                         color=colorLabel)
-        } else {
-            p = p +
-                theme(plot.title=element_text(size=7,
-                                              vjust=-1.5, 
-                                              hjust=0,
-                                              color=colorLabel)) + 
-                ggtitle(TeX(label))
-        }
-    }
-
 
     for (j in 1:nPeriod) {
         plot_trend_per = plot_trend[plot_trend$period == j,]
-        if (is_date) {
-            plot_trend_per$ord = plot_trend_per$ord +
-                as.Date("1970-01-01")
-        }
-        
         p = p + 
             annotate("line",
                      x=plot_trend_per$abs,
@@ -506,11 +480,6 @@ panel_trend = function (variable,
 
     for (j in 1:nPeriod) {
         plot_trend_per = plot_trend[plot_trend$period == j,]
-        if (is_date) {
-            plot_trend_per$ord = plot_trend_per$ord +
-                as.Date("1970-01-01")
-        }
-        
         p = p + 
             annotate("line",
                      x=plot_trend_per$abs,
@@ -520,6 +489,7 @@ panel_trend = function (variable,
                      size=0.75,
                      lineend="round")
     }
+    
 
     if (!is.null(sampling_period)) {
         hPx = gpct(0, codeDate, shift=TRUE)
@@ -551,7 +521,7 @@ panel_trend = function (variable,
         }
     }
 
-    variableF = gsub("etiage", "étiage", variable)  
+    variableF = gsub("etiage", "étiage", variable_to_display)  
     if (grepl("[_]", variableF)) {
         variableF = gsub("[_]", "$_{$", variableF)
         variableF = paste0(variableF, "}")
@@ -705,6 +675,13 @@ panel_trend = function (variable,
                                      unit="mm") + margin_trend,
                   axis.text.x=element_blank())
     }
+
+
+    herd = add_sheep(herd,
+                     sheep=p,
+                     id="plot",
+                     height=0.9,
+                     verbose=verbose)
     
-    return (p)
+    return (herd)
 } 
