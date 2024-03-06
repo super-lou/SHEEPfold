@@ -25,15 +25,25 @@ sheet_stationnarity_station = function (data,
                                         trendEX,
                                         dataEX_serie,
                                         metaEX_serie,
-                                        period_trend_show=NULL,
+                                        axis_xlim=NULL,
                                         code_selection=NULL,
+                                        subtitle=NULL,
                                         logo_info=NULL,
-                                        Pages=NULL,
                                         Shapefiles=NULL,
+                                        zoom=NULL,
+                                        map_limits=NULL,
+                                        x_echelle_pct=62,
+                                        y_echelle_pct=5,
+                                        echelle=c(0, 50, 100, 250),
                                         figdir="",
+                                        suffix=NULL,
+                                        Pages=NULL,
                                         verbose=FALSE) {
 
-
+    if (!is.null(suffix)) {
+        suffix = paste0(" ", suffix)
+    }
+    
     if (!is.null(code_selection)) {
         data = data[data$code %in% code_selection,]
         meta = meta[meta$code %in% code_selection,]
@@ -62,15 +72,9 @@ sheet_stationnarity_station = function (data,
         "info", "chronicle", Variable, "foot"
     ), ncol=1)
 
-
-    QM_name = names(dataEX_serie$QM)[grepl("QM", names(dataEX_serie$QM))]
     regimeHydro =
-        find_regimeHydro(
-            dplyr::rename(dplyr::select(dataEX_serie$QM,
-                                        dplyr::all_of(c("code", "date", QM_name))),
-                          QM=QM_name))
-
-    Code = levels(factor(data$code))
+        find_regimeHydro(dplyr::select(dataEX_serie$QM,
+                                       dplyr::all_of(c("code", "date", "QM"))))
     nCode = length(Code)
     
     for (i in 1:nCode) {
@@ -97,13 +101,22 @@ sheet_stationnarity_station = function (data,
 
         info = panel_info_station(
             data_code,
-            dataEX_serie_code$QM[[QM_name]],
+            dataEX_serie_code$QM$QM,
             regimeLight=regimeHydro$detail[regimeHydro$code == code],
             meta=meta,
             Shapefiles=Shapefiles,
             codeLight=code,
-            to_do='all',
-            zone_to_show='France')
+            to_do="all",
+            subtitle=subtitle,
+            if_NA_unkowned=FALSE,
+            show_regime_info=FALSE,
+            zoom=zoom,
+            map_limits=map_limits,
+            x_echelle_pct=x_echelle_pct,
+            y_echelle_pct=y_echelle_pct,
+            echelle=echelle,
+            size_codeLight=2,
+            stroke_codeLight=0.6)
 
         herd = add_sheep(herd,
                          sheep=info,
@@ -116,7 +129,8 @@ sheet_stationnarity_station = function (data,
         # Colors = IPCCgold
         # names(Colors) = "Naturalisé"
         
-        limits = c(min(data_code$date), max(data_code$date))
+        # limits = c(min(data_code$date), max(data_code$date))
+        # limits = period
 
         chronicle = panel_spaghetti(data_code,
                                     # Colors=Colors,
@@ -128,8 +142,9 @@ sheet_stationnarity_station = function (data,
                                     isBack=FALSE,
                                     isTitleAbove=FALSE,
                                     isLegend=TRUE,
-                                    obsLegend="Observé",
-                                    addHMLegend=TRUE,
+                                    obsLegend=NULL,
+                                    simLegend=NULL,
+                                    addHMLegend=FALSE,
                                     sizeYticks=6,
                                     date_labels="%Y",
                                     breaks="5 years",
@@ -139,8 +154,7 @@ sheet_stationnarity_station = function (data,
                                     isBackObsAbove=FALSE,
                                     lwObs=0.3,
                                     lwObs_back=0.7,
-                                    # lwSim=0.5,
-                                    # lwSim_back=0.9,
+                                    axis_xlim=axis_xlim,
                                     grid=TRUE,
                                     ratio_title=1/4,
                                     margin_title=
@@ -153,11 +167,14 @@ sheet_stationnarity_station = function (data,
                          sheep=chronicle,
                          id="chronicle",
                          height=chronicle_height,
+                         width=width,
                          verbose=verbose)
+        # herd$sheep$label[herd$sheep$id == "chronicle.title"] = "align"
         herd$sheep$label[herd$sheep$id == "chronicle.spag"] = "align"
 
         for (j in 1:nVariable) {
             variable = Variable[j]
+            
             print(paste0("Time panel for ", variable))
 
             if (j == nVariable) {
@@ -178,10 +195,10 @@ sheet_stationnarity_station = function (data,
                                 dataEX_serie_code_variable,
                                 trendEX_code_variable,
                                 metaEX_serie,
-                                period_trend_show=period_trend_show,
+                                period_trend_show=NULL,
                                 linetype='solid',
                                 missRect=FALSE,
-                                axis_xlim=limits,
+                                axis_xlim=axis_xlim,
                                 grid=FALSE,
                                 ymin_lim=NULL,
                                 breaks="5 years",
@@ -194,14 +211,16 @@ sheet_stationnarity_station = function (data,
             herd = add_sheep(herd,
                              sheep=trend,
                              id=variable,
-                             label="align",
                              height=variable_height,
-                             # width=variable_width,
                              verbose=verbose)
+
+            herd$sheep$label[herd$sheep$id == paste0(variable, ".title")] = "align"
+            herd$sheep$label[herd$sheep$id == paste0(variable, ".plot")] = "align"
+            
         }
 
-        
-        footName = 'Fiche station'
+
+        footName = paste0('Fiche station', suffix)
         if (is.null(Pages)) {
             n_page = i
         } else {
@@ -234,7 +253,7 @@ sheet_stationnarity_station = function (data,
         plot = res$plot
         paper_size = res$paper_size
 
-        filename = paste0(code, "_stationnarity_datasheet.pdf")
+        filename = paste0(code, to_link(suffix), "_stationnarity_datasheet.pdf")
 
         if (!(file.exists(figdir))) {
             dir.create(figdir, recursive=TRUE)

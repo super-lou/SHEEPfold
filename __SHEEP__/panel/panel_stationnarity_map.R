@@ -32,6 +32,7 @@ panel_stationnarity_map = function (trendEX_variable,
                                     prob=0.1,
                                     is_secteur=FALSE,
                                     zoom=NULL,
+                                    map_limits=NULL,
                                     x_echelle_pct=62,
                                     y_echelle_pct=5,
                                     echelle=c(0, 50, 100, 250),
@@ -74,6 +75,9 @@ panel_stationnarity_map = function (trendEX_variable,
     if (!is.null(zoom)) {
         xlim = c(min(meta$XL93_m)*(1-zoom[1]), max(meta$XL93_m)*(1+zoom[2]))
         ylim = c(min(meta$YL93_m)*(1-zoom[3]), max(meta$YL93_m)*(1+zoom[4]))
+    } else if (!is.null(map_limits)) {
+        xlim = map_limits[1:2]
+        ylim = map_limits[3:4]
     } else {
         xlim = c(90000, 1250000)
         ylim = c(6040000, 7120000)

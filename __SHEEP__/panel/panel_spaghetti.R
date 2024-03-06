@@ -57,6 +57,7 @@ panel_spaghetti = function (data_code, Colors=NULL,
                             first=FALSE, last=FALSE,
                             verbose=FALSE) {
 
+    axis_xlim = as.Date(axis_xlim)
     
     # unitTeX = convert2TeX(unit, bold=FALSE)    
     unitTeX = gsub(" ", "\\\\,", unit)
@@ -91,11 +92,13 @@ panel_spaghetti = function (data_code, Colors=NULL,
         title = ggplot() + theme_void() +
             theme(plot.margin=margin_title)
 
+        dx0 = 0.05
+        
         if (isTitleAbove) {
             dx_title = 0.25
             title = title +
                 annotate("text",
-                         x=0,
+                         x=dx0,
                          y=1,
                          label=TeX(titleTeX),
                          size=3, hjust=0, vjust=1,
@@ -111,73 +114,80 @@ panel_spaghetti = function (data_code, Colors=NULL,
                              color=IPCCgrey25)
             }
         } else {
-            dx_title = 0.05
+            dx_title = 0
         }
 
         if (isLegend) {
-            dx_obs = 0.12
-            title = title +
-                annotate("line",
-                         x=c(dx_title,
-                             dx_title+0.02),
-                         y=rep(0.25, 2),
-                         color=IPCCgrey23,
-                         linewidth=0.7,
-                         lineend="round") +
-                annotate("text",
-                         x=dx_title+0.027,
-                         y=0.5,
-                         label=obsLegend,
-                         size=2.5, hjust=0, vjust=1,
-                         color=IPCCgrey50)
+
+            if (!is.null(obsLegend)) {
+                dx_obs = 0.12
+                title = title +
+                    annotate("line",
+                             x=dx0 + c(dx_title,
+                                       dx_title+0.02),
+                             y=rep(0.25, 2),
+                             color=IPCCgrey23,
+                             linewidth=0.7,
+                             lineend="round") +
+                    annotate("text",
+                             x=dx_title+0.027,
+                             y=0.5,
+                             label=obsLegend,
+                             size=2.5, hjust=0, vjust=1,
+                             color=IPCCgrey50)
+            } else {
+                dx_obs = 0 
+            }
 
             if (addHMLegend & length(Colors) == 1) {
                 dx_hm = 0.14
                 title = title +
                     annotate("line",
-                             x=c(dx_title+dx_obs,
-                                 dx_title+dx_obs+0.02),
+                             x=dx0 + c(dx_title+dx_obs,
+                                       dx_title+dx_obs+0.02),
                              y=rep(0.25, 2),
                              color=Colors,
                              linewidth=0.7,
                              lineend="round") +
                     annotate("text",
-                             x=dx_title+dx_obs+0.027,
+                             x=dx0 + dx_title+dx_obs+0.027,
                              y=0.5,
                              label=names(Colors),
                              size=2.5, hjust=0, vjust=1,
                              color=IPCCgrey50)
-            } else {
+            } else if (!is.null(simLegend)) {
                 dx_hm = 0.11
                 title = title +
                     annotate("line",
-                             x=c(dx_title+dx_obs,
-                                 dx_title+dx_obs+0.02),
+                             x=dx0 + c(dx_title+dx_obs,
+                                       dx_title+dx_obs+0.02),
                              y=rep(0.25, 2),
                              color=IPCCgrey67,
                              linewidth=0.7,
                              alpha=alpha,
                              lineend="round") +
                     annotate("text",
-                             x=dx_title+dx_obs+0.027,
+                             x=dx0 + dx_title+dx_obs+0.027,
                              y=0.5,
                              label=simLegend,
                              size=2.5, hjust=0, vjust=1,
                              color=IPCCgrey50)
+            } else {
+                dx_hm = 0
             }
             
             if (missRect) {
                 title = title +
                     annotate("rect",
-                             xmin=dx_title+dx_obs+dx_hm, 
+                             xmin=dx0+ dx_title+dx_obs+dx_hm, 
                              ymin=0, 
-                             xmax=dx_title+dx_obs+dx_hm+0.005, 
+                             xmax=dx0 + dx_title+dx_obs+dx_hm+0.005, 
                              ymax=0.55,
                              linetype=0,
                              fill=INRAElightcyan,
                              alpha=0.4) +
                     annotate("text",
-                             x=dx_title+dx_obs+dx_hm+0.01,
+                             x=dx0 + dx_title+dx_obs+dx_hm+0.01,
                              y=0.5,
                              label="Lacunes",
                              size=2.5, hjust=0, vjust=1,
@@ -192,10 +202,7 @@ panel_spaghetti = function (data_code, Colors=NULL,
                                expand=c(0, 0))
     }
     
-
-    print(data_code)
     isDate = lubridate::is.Date(data_code$date[1])
-
     
     if (isNormLaw) {
         data_code = data_code[data_code$date != 0 &

@@ -29,15 +29,28 @@ panel_info_station = function(data_code,
                               Shapefiles=NULL,
                               codeLight=NULL,
                               to_do='all',
-                              zone_to_show='France',
+                              if_NA_unkowned=TRUE,
+                              subtitle=NULL,
+                              show_regime_info=TRUE,
+                              zoom=NULL,
+                              map_limits=NULL,
+                              x_echelle_pct=62,
+                              y_echelle_pct=5,
+                              echelle=c(0, 50, 100, 250),
+                              size_codeLight=1.4, stroke_codeLight=0.3,
                               verbose=FALSE) {
 
     # If there is a data serie for the given code
-    if (!is.null(QM_code)) {
+    if (!is.null(QM_code) & ('regime' %in% to_do | 'all' %in% to_do)) {
         # Computes the hydrograph
+        if (show_regime_info) {
+            ratio_title = 1/7
+        } else {
+            ratio_title = 0
+        }
         hyd = panel_hydrograph(QM_code,
                                regimeLight,
-                               ratio_title=1/7,
+                               ratio_title=ratio_title,
                                margin_title=margin(t=0, r=0, b=0, l=14,
                                                    unit="mm"),
                                margin_hyd=margin(t=1, r=0, b=0, l=5,
@@ -49,11 +62,18 @@ panel_info_station = function(data_code,
         hyd = void()
     }
 
-    if (!is.null(Shapefiles)) {
+    if (!is.null(Shapefiles) & ('map' %in% to_do | 'all' %in% to_do)) {
         # Computes the map associated to the station
         map =  panel_mini_map(meta,
                               Shapefiles=Shapefiles,
-                              codeLight=codeLight)
+                              codeLight=codeLight,
+                              zoom=zoom,
+                              map_limits=map_limits,
+                              x_echelle_pct=x_echelle_pct,
+                              y_echelle_pct= y_echelle_pct,
+                              echelle=echelle,
+                              size_codeLight=size_codeLight,
+                              stroke_codeLight=stroke_codeLight)
     # Otherwise
     } else {
         # Puts it blank
@@ -96,12 +116,10 @@ panel_info_station = function(data_code,
 
     # Subitle info
     if ('subtitle' %in% to_do | 'all' %in% to_do) {
-        text2 = paste(
-            "<b>",
-            # "Gestionnaire : ", meta_code$Gestionnaire, "<br>",
-            "Région hydrographique : ", meta_code$hydrological_region,
-            "</b>",
-            sep='')
+        if (is.null(subtitle)) {
+            subtitle = paste0("Région hydrographique : ", meta_code$hydrological_region)
+        }
+        text2 = paste0("<b>", subtitle, "</b>")
         gtext2 = richtext_grob(text2,
                                x=0, y=1.1,
                                margin=unit(c(t=0, r=0, b=0, l=0),
@@ -111,25 +129,31 @@ panel_info_station = function(data_code,
     } else {
         gtext2 = void()
     }
-
-
+    
     # Spatial info about station
     if ('spatial' %in% to_do | 'all' %in% to_do) {
-        if (is.na(meta_code$surface_km2)) {
-            surface = "inconnue"
+        if (is.na(meta_code$surface_km2) & if_NA_unkowned) {
+            surface = paste0("Superficie : inconnue<br>")
+        } else if (is.na(meta_code$surface_km2) & !if_NA_unkowned) {
+            surface = NULL
         } else {
-            surface = paste0(round(meta_code$surface_km2),
-                             " km<sup>2</sup>")
+            surface = paste0("Superficie : ",
+                             round(meta_code$surface_km2),
+                             " km<sup>2</sup><br>")
         }
-        if (is.na(meta_code$altitude_m)) {
-            altitude = "inconnue"
+        if (is.na(meta_code$altitude_m) & if_NA_unkowned) {
+            altitude = paste0("Altitude : inconnue<br>")
+        } else if (is.na(meta_code$altitude_m) & !if_NA_unkowned) {
+            altitude = NULL
         } else {
-            altitude = paste0(round(meta_code$altitude_m), " m")
+            altitude = paste0("Altitude : ",
+                              round(meta_code$altitude_m),
+                              " m<br>")
         }
 
         text3 = paste0(
-            "Superficie : ", surface, "<br>",
-            "Altitude : ", altitude, "<br>",
+            surface,
+            altitude,
             "X = ", round(meta_code$XL93_m), " m (Lambert93)<br>",
             "Y = ", round(meta_code$YL93_m), " m (Lambert93)")
         gtext3 = richtext_grob(text3,

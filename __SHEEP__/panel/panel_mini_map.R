@@ -29,6 +29,12 @@ panel_mini_map = function (meta, Shapefiles,
                            regionLight=NULL,
                            regimeCodeLight=NULL,
                            coucheLight=NULL,
+                           zoom=NULL,
+                           map_limits=NULL,
+                           x_echelle_pct=62,
+                           y_echelle_pct=5,
+                           echelle=c(0, 50, 100, 250),
+                           size_codeLight=1.4, stroke_codeLight=0.3,
                            verbose=FALSE) {
     
     # Extract shapefiles
@@ -94,18 +100,26 @@ panel_mini_map = function (meta, Shapefiles,
                 color=IPCCgrey40,
                 fill=NA,
                 linewidth=0.35)
+
+    if (!is.null(zoom)) {
+        xlim = c(min(meta$XL93_m)*(1-zoom[1]), max(meta$XL93_m)*(1+zoom[2]))
+        ylim = c(min(meta$YL93_m)*(1-zoom[3]), max(meta$YL93_m)*(1+zoom[4]))
+    } else if (!is.null(map_limits)) {
+        xlim = map_limits[1:2]
+        ylim = map_limits[3:4]
+    } else {
+        xlim = c(90000, 1250000)
+        ylim = c(6040000, 7120000)
+    }
     
-    # Leaves space around the France
-    xlim = c(90000, 1250000)
-    ylim = c(6040000, 7120000)
-    
-    # Same but with less graduation and smaller size
-    xmin = gpct(2, xlim, shift=TRUE)
-    xint = c(0, 250*1E3)
-    ymin = gpct(1, ylim, shift=TRUE)
-    ymax = ymin + gpct(3, ylim)
-    size = 2
-    sizekm = 1.5
+    xmin = gpct(x_echelle_pct, xlim, shift=TRUE)
+    xint = echelle*1E3
+    ymin = gpct(y_echelle_pct, ylim, shift=TRUE)
+    ymin_km = gpct(max(c(y_echelle_pct-5, 0)), ylim, shift=TRUE)
+    ymax = ymin + gpct(1.3, ylim)
+    size = 2.6
+    sizekm = 2.5
+    linewidth = 0.4
 
     map = map +
         # Adds the base line of the scale
@@ -114,7 +128,7 @@ panel_mini_map = function (meta, Shapefiles,
                   color=IPCCgrey40, size=0.2) +
         # Adds the 'km' unit
         annotate("text",
-                 x=max(xint)+xmin+gpct(1, xlim), y=ymin,
+                 x=max(xint)+xmin+gpct(1, xlim), y=ymin_km,
                  vjust=0, hjust=0, label="km",
                  color=IPCCgrey40, size=sizekm)
     # For all graduations
@@ -157,7 +171,7 @@ panel_mini_map = function (meta, Shapefiles,
         map = map +
             geom_point(data=plot_map_code,
                        aes(x=L93X, y=L93Y),
-                       shape=21, size=1.4, stroke=0.3,
+                       shape=21, size=size_codeLight, stroke=stroke_codeLight,
                        color="white",
                        fill=refCOL)
     }

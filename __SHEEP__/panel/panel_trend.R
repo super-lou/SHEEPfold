@@ -37,7 +37,8 @@ panel_trend = function (variable,
                         margin_trend=
                             margin(t=0, r=0, b=0, l=0, "mm"),
                         first=FALSE, last=FALSE) {
-    
+
+    axis_xlim = as.Date(axis_xlim)
 
     variableEX = grep(variable, names(dataEX_code_variable), fixed=TRUE, value=TRUE)
 
@@ -60,7 +61,6 @@ panel_trend = function (variable,
     sampling_period = metaEX$sampling_period_en[ok]
     sampling_period = unlist(strsplit(sampling_period, ", "))
 
-    
     Period = unique(trendEX_code_variable$period)
     Period = strsplit(Period, " ")
     Period = lapply(Period, as.Date)
@@ -96,9 +96,25 @@ panel_trend = function (variable,
     title = ggplot() + theme_void()
 
     color_trend = c()
-    leg_trend = dplyr::tibble()
+
+    if (length(linetype) < nPeriod) {
+        linetype = rep(linetype, times=nPeriod)
+    }
+    linetypeLeg_per = linetype
+    linetypeLeg_per[linetype == 'longdash'] = '33'
+    linetypeLeg_per[linetype == 'dashed'] = '22'
+    linetypeLeg_per[linetype == 'dotted'] = '11'
 
     for (j in 1:nPeriod) {
+        period = Period[[j]]
+        trendEX_code_variable_period =
+            trendEX_code_variable[trendEX_code_variable$period ==
+                                  paste0(period, collapse=" "),]
+        Ntrend = nrow(trendEX_code_variable_period)
+        if (Ntrend > 1) {
+            trendEX_code_variable_period = trendEX_code_variable_period[1,]
+        }
+
         if (trendEX_code_variable_period$H) {
             res = compute_colorBin(trendEX_code_variable_period$a_normalise_min,
                                    trendEX_code_variable_period$a_normalise_max,
@@ -119,24 +135,7 @@ panel_trend = function (variable,
             colorLine = 'grey80'
             colorLabel = 'grey80'
         }
-
         color_trend = c(color_trend, colorLine)
-        
-        power = get_power(trendEX_code_variable_period$a)
-        powerC = as.character(power)
-        if (powerC >= 0) {
-            spaceC = ' '
-        } else {
-            spaceC = ''
-        }
-
-        brk = 10^power
-        aC = as.character(format(round(
-            trendEX_code_variable_period$a / brk, 2),
-            nsmall=2))
-        if (aC >= 0) {
-            aC = paste('  ', aC, sep='')
-        }
         
         aMeanC = as.character(format(round(
             trendEX_code_variable_period$a_normalise*100, 2),
@@ -144,35 +143,6 @@ panel_trend = function (variable,
         if (aMeanC >= 0) {
             aMeanC = paste('  ', aMeanC, sep='')
         }
-
-        leg_trendtmp = tibble(colorLine=colorLine,
-                              colorLabel=colorLabel,
-                              aC=aC,
-                              powerC=powerC,
-                              spaceC=spaceC,
-                              aMeanC=aMeanC,
-                              period=j)
-        leg_trend = bind_rows(leg_trend, leg_trendtmp)  
-    }
-
-    
-    if (length(linetype) < nPeriod) {
-        linetype = rep(linetype, times=nPeriod)
-    }
-    linetypeLeg_per = linetype
-    linetypeLeg_per[linetype == 'longdash'] = '33'
-    linetypeLeg_per[linetype == 'dashed'] = '22'
-    linetypeLeg_per[linetype == 'dotted'] = '11'
-
-    for (j in 1:nPeriod) {
-        leg_trend_per = leg_trend[leg_trend$period == j,]
-        
-        colorLine = leg_trend_per$colorLine
-        colorLabel = leg_trend_per$colorLabel
-        aC = leg_trend_per$aC
-        powerC = leg_trend_per$powerC
-        spaceC = leg_trend_per$spaceC
-        aMeanC = leg_trend_per$aMeanC
 
         unitF = gsub(" ", "\\\\,", unit)
         unitF = gsub("°", "\\textbf{^\\degree}", unitF, fixed=TRUE)
@@ -183,46 +153,104 @@ panel_trend = function (variable,
         } else {
             unitT = ".an^{-1}"
         }
-        
-        if (to_normalise) {
-            label = paste0("\\textbf{", aC,
-                           " x 10$^{$", powerC,"}}",
-                           spaceC,
-                           " ", "\\[$", unitF, unitT, "$\\]",
-                           "\\;", "\\textbf{", aMeanC, "}",
-                           " ", "\\[%$.an^{-1}$\\]")
+
+        power = get_power(trendEX_code_variable_period$a)
+
+        if (-1 <= power & power <= 1) {
+            aC = as.character(format(signif(
+                trendEX_code_variable_period$a, 3),
+                nsmall=3))
+            if (aC >= 0) {
+                aC = paste0('  ', aC)
+            }
+            
+            if (to_normalise) {
+                label = paste0("\\textbf{", aC, "}",
+                               " ", "\\[$", unitF, unitT, "$\\]",
+                               "\\;", "\\textbf{", aMeanC, "}",
+                               " ", "\\[%$.an^{-1}$\\]")
+            } else {
+                label = paste0("\\textbf{", aC, "}",
+                               " ", "\\[$", unitF, unitT, "$\\]")
+            }
+            
         } else {
-            label = paste0("\\textbf{", aC,
-                           " x 10$^{$", powerC,"}}",
-                           spaceC,
-                           " ", "\\[$", unitF, unitT, "$\\]")
+            powerC = as.character(power)
+            if (powerC >= 0) {
+                spaceC = ' '
+            } else {
+                spaceC = ''
+            }
+            brk = 10^power
+            aC = as.character(format(round(
+                trendEX_code_variable_period$a / brk, 2),
+                nsmall=2))
+            if (aC >= 0) {
+                aC = paste0('  ', aC)
+            }
+            
+            if (to_normalise) {
+                label = paste0("\\textbf{", aC,
+                               " x 10$^{$", powerC,"}}",
+                               spaceC,
+                               " ", "\\[$", unitF, unitT, "$\\]",
+                               "\\;", "\\textbf{", aMeanC, "}",
+                               " ", "\\[%$.an^{-1}$\\]")
+            } else {
+                label = paste0("\\textbf{", aC,
+                               " x 10$^{$", powerC,"}}",
+                               spaceC,
+                               " ", "\\[$", unitF, unitT, "$\\]")
+            }
         }
 
+        dx0 = 0.05
+        dx_space = 2
+        dx_line = 0.2
+        dx_text = 0.1
 
         title = title +
             annotate("segment",
-                     x=leg_trend_per$x,
-                     xend=leg_trend_per$xend,
-                     y=leg_trend_per$y,
-                     yend=leg_trend_per$yend,
+                     x=dx0 + dx_space*(j-1),
+                     xend=dx0 + dx_space*(j-1) + dx_line,
+                     y=0,
+                     yend=0,
                      color=colorLine,
                      linetype=linetypeLeg_per[j],
                      lwd=0.8,
                      lineend="round") +
             annotate("text",
                      label=TeX(label), size=2.8,
-                     x=leg_trend_per$xt,
-                     y=leg_trend_per$y, 
+                     x=dx0 + dx_space*(j-1) + dx_line + dx_text,
+                     y=0, 
                      hjust=0, vjust=0.5,
                      color=colorLabel)
         
+        if (!trendEX_code_variable_period$H) {
+            title = title +
+                annotate("text",
+                         label=paste0("non significatif à un risque de ",
+                                      trendEX_code_variable_period$level*100,
+                                      " %"),
+                         size=2.4,
+                         x=10,
+                         y=0, 
+                         hjust=1, vjust=0.5,
+                         color=colorLabel)
+        }
     }
+
+    title = title +
+        scale_x_continuous(limits=c(0, 10),
+                           expand=c(0, 0)) +
+        scale_y_continuous(limits=c(-0.5, 1),
+                           expand=c(0, 0))
+
     herd = add_sheep(herd,
                      sheep=title,
                      id="title",
-                     height=0.1,
+                     height=0.15,
                      verbose=verbose)
-
 
 
 
@@ -432,7 +460,6 @@ panel_trend = function (variable,
         trendEX_code_variable_period =
             trendEX_code_variable[trendEX_code_variable$period ==
                                   paste0(period, collapse=" "),]
-
         Ntrend = nrow(trendEX_code_variable_period)
         if (Ntrend > 1) {
             trendEX_code_variable_period = trendEX_code_variable_period[1,]
@@ -680,7 +707,7 @@ panel_trend = function (variable,
     herd = add_sheep(herd,
                      sheep=p,
                      id="plot",
-                     height=0.9,
+                     height=0.85,
                      verbose=verbose)
     
     return (herd)

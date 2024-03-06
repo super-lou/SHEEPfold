@@ -23,17 +23,39 @@
 ### 4.1. Summary _____________________________________________________
 #' @title Summary panel
 #' @export
-sheet_summary = function (Pages, title="title", subtitle="subtitle", logo_path=NULL, figdir="") {
+sheet_summary = function (Pages,
+                          title="title",
+                          subtitle="subtitle",
+                          logo_info=NULL,
+                          figdir="") {
 
 
-    if (is.null(title)) {
-        title = ""
-    }
+    page_margin = c(t=0.5, r=0.5, b=0.5, l=0.5)
+
+    title_height = 1
     if (is.null(subtitle)) {
-        subtitle = ""
+        subtitle_height = 0
+    } else {
+        subtitle_height = 1
     }
-    
     foot_height = 1.25
+    sum_height = 29.7 - title_height - subtitle_height - foot_height - 0.5*2 
+
+    page_width = 2
+    sum_width = (21 - page_width*2 - 0.5*2)/2
+    foot_width = 21 - 0.5*2
+    
+    
+    plan = matrix(c("title", "title", "title", "title",
+                    "subtitle", "subtitle", "subtitle", "subtitle",
+                    "sum1", "page1", "sum2", "page2",
+                    "foot", "foot", "foot", "foot"),
+                  nrow=4, byrow=TRUE)
+
+    herd = bring_grass(verbose=verbose)
+    herd = plan_of_herd(herd, plan,
+                        verbose=verbose)
+
     
     text_title = paste0("<b>", title, "</b>")
     text_subtitle = subtitle
@@ -110,116 +132,105 @@ sheet_summary = function (Pages, title="title", subtitle="subtitle", logo_path=N
 
     
     # Converts all texts to graphical object in the right position
-    gtitle = richtext_grob(text_title,
-                           x=0, y=1,
-                           margin=unit(c(t=0, r=0, b=0, l=0), "mm"),
-                           hjust=0, vjust=1,
-                           gp=gpar(col=refCOL, fontsize=20))
+    title = richtext_grob(text_title,
+                          x=0, y=1,
+                          margin=unit(c(t=0, r=0, b=0, l=0), "mm"),
+                          hjust=0, vjust=1,
+                          gp=gpar(col=refCOL, fontsize=20))
+    herd = add_sheep(herd,
+                     sheep=title,
+                     id="title",
+                     height=title_height,
+                     verbose=verbose)
 
-    gsubtitle = richtext_grob(text_subtitle,
-                              x=0, y=1,
-                              margin=unit(c(t=0, r=0, b=0, l=0), "mm"),
+    subtitle = richtext_grob(text_subtitle,
+                             x=0, y=1,
+                             margin=unit(c(t=0, r=0, b=0, l=0), "mm"),
+                             hjust=0, vjust=1,
+                             gp=gpar(col=refCOL, fontsize=15))
+    herd = add_sheep(herd,
+                     sheep=subtitle,
+                     id="subtitle",
+                     height=subtitle_height,
+                     verbose=verbose)
+
+    sum1 = richtext_grob(text_sum1,
+                         x=0, y=1,
+                         margin=unit(c(t=0, r=0, b=0, l=0), "mm"),
+                         hjust=0, vjust=1,
+                         gp=gpar(col=refCOL, fontsize=10))
+    herd = add_sheep(herd,
+                     sheep=sum1,
+                     id="sum1",
+                     height=sum_height,
+                     width=sum_width,
+                     verbose=verbose)
+    
+    page1 = richtext_grob(text_page1,
+                          x=0, y=1,
+                          margin=unit(c(t=0, r=0, b=0, l=0), "mm"),
+                          hjust=0, vjust=1,
+                          gp=gpar(col=refCOL, fontsize=10))
+    herd = add_sheep(herd,
+                     sheep=page1,
+                     id="page1",
+                     height=sum_height,
+                     width=page_width,
+                     verbose=verbose)
+
+    sum2 = richtext_grob(text_sum2,
+                         x=0, y=1,
+                         margin=unit(c(t=0, r=0, b=0, l=0), "mm"),
+                         hjust=0, vjust=1,
+                         gp=gpar(col=refCOL, fontsize=10))
+    herd = add_sheep(herd,
+                     sheep=sum2,
+                     id="sum2",
+                     height=sum_height,
+                     width=sum_width,
+                     verbose=verbose)
+    
+    page2 = richtext_grob(text_page2,
+                          x=0, y=1,
+                          margin=unit(c(t=0, r=0, b=0, l=0), "mm"),
+                          hjust=0, vjust=1,
+                          gp=gpar(col=refCOL, fontsize=10))
+    herd = add_sheep(herd,
+                     sheep=page2,
+                     id="page2",
+                     height=sum_height,
+                     width=page_width, 
+                     verbose=verbose)
+
+
+    
+    foot = panel_foot('Sommaire', 1, foot_height, logo_info)
+    herd = add_sheep(herd,
+                     sheep=foot,
+                     id="foot",
+                     height=foot_height,
+                     width=foot_width,
+                     verbose=verbose)
+
+    res = return_to_sheepfold(herd,
+                              page_margin=page_margin,
+                              paper_size="A4",
                               hjust=0, vjust=1,
-                              gp=gpar(col=refCOL, fontsize=15))
-
-    gsum1 = richtext_grob(text_sum1,
-                          x=0, y=1,
-                          margin=unit(c(t=0, r=0, b=0, l=0), "mm"),
-                          hjust=0, vjust=1,
-                          gp=gpar(col=refCOL, fontsize=10))
+                              verbose=verbose)
     
-    gpage1 = richtext_grob(text_page1,
-                           x=0, y=1,
-                           margin=unit(c(t=0, r=0, b=0, l=0), "mm"),
-                           hjust=0, vjust=1,
-                           gp=gpar(col=refCOL, fontsize=10))
+    plot = res$plot
+    paper_size = res$paper_size
 
-    gsum2 = richtext_grob(text_sum2,
-                          x=0, y=1,
-                          margin=unit(c(t=0, r=0, b=0, l=0), "mm"),
-                          hjust=0, vjust=1,
-                          gp=gpar(col=refCOL, fontsize=10))
-    
-    gpage2 = richtext_grob(text_page2,
-                           x=0, y=1,
-                           margin=unit(c(t=0, r=0, b=0, l=0), "mm"),
-                           hjust=0, vjust=1,
-                           gp=gpar(col=refCOL, fontsize=10))
-    
-    
-    # If there is a foot note
-    if (!is.null(logo_path)) {
-        footName = 'sommaire'
-        foot = panel_foot(footName,
-                          1, foot_height, logo_path)
+    filename = paste0("summary.pdf")
 
-        P = list(gtitle, gsubtitle, gsum1, gpage1, gsum2, gpage2, foot)
-        LM = matrix(c(1, 1, 1, 1,
-                      2, 2, 2, 2,
-                      3, 4, 5, 6,
-                      7, 7, 7, 7),
-                    nrow=4, byrow=TRUE)
-    } else {
-        foot_height = 0
-        P = list(gtitle, gsubtitle, gsum1, gpage1, gsum2, gpage2)
-        LM = matrix(c(1, 1, 1, 1,
-                      2, 2, 2, 2,
-                      3, 4, 5, 6),
-                    nrow=3, byrow=TRUE)
-    }
-    id_title = 1
-    id_subtitle = 2
-    id_page1 = 4
-    id_page2 = 6
-    id_foot = 7
-
-    LMcol = ncol(LM)
-    LMrow = nrow(LM)
-    
-    LM = rbind(rep(99, times=LMcol), LM, rep(99, times=LMcol))
-    LMrow = nrow(LM)
-    LM = cbind(rep(99, times=LMrow), LM, rep(99, times=LMrow))
-    LMcol = ncol(LM)
-
-    title_height = 0.75
-    subtitle_height = 1.25
-    margin_size = 0.5
-    page_width = 2
-    height = 29.7
-    width = 21
-
-    row_height = (height - 2*margin_size - foot_height - title_height - subtitle_height) / (LMrow - 5)
-
-    Hcut = LM[, 2]
-    heightLM = rep(row_height, times=LMrow)
-    heightLM[Hcut == id_title] = title_height
-    heightLM[Hcut == id_subtitle] = subtitle_height
-    heightLM[Hcut == id_foot] = foot_height
-    heightLM[Hcut == 99] = margin_size
-
-    col_width = (width - 2*margin_size - 2*page_width) / (LMcol - 4)
-    
-    Wcut = LM[4,]
-    widthLM = rep(col_width, times=LMcol)
-    widthLM[Wcut ==  id_page1 | Wcut ==  id_page2] = page_width
-    widthLM[Wcut == 99] = margin_size
-
-    print(LM)
-    print(heightLM)
-    print(widthLM)
-    
-    # Arranges the graphical object
-    plot = grid.arrange(grobs=P, layout_matrix=LM,
-                        heights=heightLM, widths=widthLM)
-
-    print(figdir)
-    
     if (!(file.exists(figdir))) {
         dir.create(figdir, recursive=TRUE)
     }
-    # Saves the plot
-    ggsave(plot=plot,
-           path=figdir,
-           filename=paste0('sommaire', '.pdf'),
-           width=width, height=height, units='cm', dpi=100)
+    ggplot2::ggsave(plot=plot,
+                    path=figdir,
+                    filename=filename,
+                    width=paper_size[1],
+                    height=paper_size[2], units='cm',
+                    dpi=300,
+                    device=cairo_pdf)
 } 
