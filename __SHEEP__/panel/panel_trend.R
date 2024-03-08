@@ -34,6 +34,7 @@ panel_trend = function (variable,
                         breaks="10 years",
                         minor_breaks="2 years",
                         date_labels="%Y",
+                        color_to_switch=NULL,
                         margin_trend=
                             margin(t=0, r=0, b=0, l=0, "mm"),
                         first=FALSE, last=FALSE) {
@@ -130,7 +131,7 @@ panel_trend = function (variable,
                                Palette=Palette)
 
             colorLine = color
-            colorLabel = switch_colorLabel(color)
+            colorLabel = switch_color(color, color_to_switch)
         } else {
             colorLine = 'grey80'
             colorLabel = 'grey80'
@@ -157,9 +158,8 @@ panel_trend = function (variable,
         power = get_power(trendEX_code_variable_period$a)
 
         if (-1 <= power & power <= 1) {
-            aC = as.character(format(signif(
-                trendEX_code_variable_period$a, 3),
-                nsmall=3))
+            aC = as.character(signif(
+                trendEX_code_variable_period$a, 3))
             if (aC >= 0) {
                 aC = paste0('  ', aC)
             }
@@ -227,17 +227,23 @@ panel_trend = function (variable,
                      color=colorLabel)
         
         if (!trendEX_code_variable_period$H) {
-            title = title +
+            label = paste0("Non significatif à un risque de ",
+                           trendEX_code_variable_period$level*100,
+                           " %")
+        } else {
+            label = paste0("Significatif à un risque de ",
+                           trendEX_code_variable_period$level*100,
+                           " %")       
+        }
+        title = title +
                 annotate("text",
-                         label=paste0("non significatif à un risque de ",
-                                      trendEX_code_variable_period$level*100,
-                                      " %"),
+                         label=label,
                          size=2.4,
                          x=10,
                          y=0, 
                          hjust=1, vjust=0.5,
                          color=colorLabel)
-        }
+        
     }
 
     title = title +

@@ -129,7 +129,7 @@ panel_info_station = function(data_code,
     } else {
         gtext2 = void()
     }
-    
+
     # Spatial info about station
     if ('spatial' %in% to_do | 'all' %in% to_do) {
         if (is.na(meta_code$surface_km2) & if_NA_unkowned) {

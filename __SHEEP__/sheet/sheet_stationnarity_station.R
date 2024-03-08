@@ -35,14 +35,12 @@ sheet_stationnarity_station = function (data,
                                         x_echelle_pct=62,
                                         y_echelle_pct=5,
                                         echelle=c(0, 50, 100, 250),
+                                        foot_resume=TRUE,
+                                        color_to_switch=NULL,
                                         figdir="",
                                         suffix=NULL,
                                         Pages=NULL,
                                         verbose=FALSE) {
-
-    if (!is.null(suffix)) {
-        suffix = paste0(" ", suffix)
-    }
     
     if (!is.null(code_selection)) {
         data = data[data$code %in% code_selection,]
@@ -53,6 +51,9 @@ sheet_stationnarity_station = function (data,
                 dplyr::filter(dataEX_serie[[i]],
                               code %in% code_selection)
         }
+        Code = code_selection
+    } else {
+        Code = levels(factor(meta$code))
     }
     
     Variable = metaEX_serie$variable_en
@@ -76,7 +77,7 @@ sheet_stationnarity_station = function (data,
         find_regimeHydro(dplyr::select(dataEX_serie$QM,
                                        dplyr::all_of(c("code", "date", "QM"))))
     nCode = length(Code)
-    
+
     for (i in 1:nCode) {
         code = Code[i]
         if (verbose) {
@@ -204,6 +205,7 @@ sheet_stationnarity_station = function (data,
                                 breaks="5 years",
                                 minor_breaks="1 years",
                                 date_labels="%Y",
+                                color_to_switch=color_to_switch,
                                 margin_trend=
                                     margin(t=1, r=0, b=0, l=0, "mm"),
                                 first=first, last=last)
@@ -220,7 +222,11 @@ sheet_stationnarity_station = function (data,
         }
 
 
-        footName = paste0('Fiche station', suffix)
+        if (!is.null(suffix)) {
+            footName = paste0('Fiche station - ', suffix)
+        } else {
+            footName = 'Fiche station'
+        }
         if (is.null(Pages)) {
             n_page = i
         } else {
@@ -235,8 +241,12 @@ sheet_stationnarity_station = function (data,
                        subsection=code,
                        n=n_page))
         }
-        
-        foot = panel_foot(footName, n_page, foot_height, logo_info)
+
+        if (foot_resume) {
+            foot = panel_foot(footName, n_page, foot_height, logo_info)
+        } else {
+            foot = panel_foot("", n_page, foot_height, logo_info)
+        }
         herd = add_sheep(herd,
                          sheep=foot,
                          id="foot",
@@ -253,7 +263,12 @@ sheet_stationnarity_station = function (data,
         plot = res$plot
         paper_size = res$paper_size
 
-        filename = paste0(code, to_link(suffix), "_stationnarity_datasheet.pdf")
+        if (!is.null(suffix)) {
+            filename = paste0(code, "_", to_link(suffix), "_stationnarity_datasheet.pdf")
+        } else {
+            filename = paste0(code, "_stationnarity_datasheet.pdf")
+        }
+        
 
         if (!(file.exists(figdir))) {
             dir.create(figdir, recursive=TRUE)

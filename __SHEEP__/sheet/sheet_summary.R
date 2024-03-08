@@ -27,10 +27,8 @@ sheet_summary = function (Pages,
                           title="title",
                           subtitle="subtitle",
                           logo_info=NULL,
+                          page_margin=c(t=0.5, r=0.5, b=0.5, l=0.5),
                           figdir="") {
-
-
-    page_margin = c(t=0.5, r=0.5, b=0.5, l=0.5)
 
     title_height = 1
     if (is.null(subtitle)) {
@@ -39,11 +37,11 @@ sheet_summary = function (Pages,
         subtitle_height = 1
     }
     foot_height = 1.25
-    sum_height = 29.7 - title_height - subtitle_height - foot_height - 0.5*2 
+    sum_height = 29.7 - title_height - subtitle_height - foot_height - page_margin["t"] - page_margin["b"]
 
-    page_width = 2
-    sum_width = (21 - page_width*2 - 0.5*2)/2
-    foot_width = 21 - 0.5*2
+    p_width = 2
+    sec_width = (21 - p_width*2 - page_margin["l"] - page_margin["r"])/2
+    width = 21 - page_margin["l"] - page_margin["r"]
     
     
     plan = matrix(c("title", "title", "title", "title",
@@ -163,7 +161,7 @@ sheet_summary = function (Pages,
                      sheep=sum1,
                      id="sum1",
                      height=sum_height,
-                     width=sum_width,
+                     width=sec_width,
                      verbose=verbose)
     
     page1 = richtext_grob(text_page1,
@@ -175,7 +173,7 @@ sheet_summary = function (Pages,
                      sheep=page1,
                      id="page1",
                      height=sum_height,
-                     width=page_width,
+                     width=p_width,
                      verbose=verbose)
 
     sum2 = richtext_grob(text_sum2,
@@ -187,7 +185,7 @@ sheet_summary = function (Pages,
                      sheep=sum2,
                      id="sum2",
                      height=sum_height,
-                     width=sum_width,
+                     width=sec_width,
                      verbose=verbose)
     
     page2 = richtext_grob(text_page2,
@@ -199,7 +197,7 @@ sheet_summary = function (Pages,
                      sheep=page2,
                      id="page2",
                      height=sum_height,
-                     width=page_width, 
+                     width=p_width, 
                      verbose=verbose)
 
 
@@ -209,7 +207,7 @@ sheet_summary = function (Pages,
                      sheep=foot,
                      id="foot",
                      height=foot_height,
-                     width=foot_width,
+                     width=width,
                      verbose=verbose)
 
     res = return_to_sheepfold(herd,
