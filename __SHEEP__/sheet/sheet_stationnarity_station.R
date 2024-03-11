@@ -43,18 +43,12 @@ sheet_stationnarity_station = function (data,
                                         verbose=FALSE) {
     
     if (!is.null(code_selection)) {
-        data = data[data$code %in% code_selection,]
-        meta = meta[meta$code %in% code_selection,]
-        trendEX = trendEX[trendEX$code %in% code_selection,]
-        for (i in 1:length(dataEX_serie)) {
-            dataEX_serie[[i]] =
-                dplyr::filter(dataEX_serie[[i]],
-                              code %in% code_selection)
-        }
         Code = code_selection
     } else {
         Code = levels(factor(meta$code))
     }
+    nCode = length(Code)
+
     
     Variable = metaEX_serie$variable_en
     Variable = Variable[Variable != "QM"]
@@ -76,7 +70,6 @@ sheet_stationnarity_station = function (data,
     regimeHydro =
         find_regimeHydro(dplyr::select(dataEX_serie$QM,
                                        dplyr::all_of(c("code", "date", "QM"))))
-    nCode = length(Code)
 
     for (i in 1:nCode) {
         code = Code[i]

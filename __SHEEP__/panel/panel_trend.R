@@ -61,6 +61,7 @@ panel_trend = function (variable,
     Palette = unlist(strsplit(Palette, " "))
     sampling_period = metaEX$sampling_period_en[ok]
     sampling_period = unlist(strsplit(sampling_period, ", "))
+    
 
     Period = unique(trendEX_code_variable$period)
     Period = strsplit(Period, " ")
@@ -139,7 +140,7 @@ panel_trend = function (variable,
         color_trend = c(color_trend, colorLine)
         
         aMeanC = as.character(format(round(
-            trendEX_code_variable_period$a_normalise*100, 2),
+            trendEX_code_variable_period$a_normalise, 2),
             nsmall=2))
         if (aMeanC >= 0) {
             aMeanC = paste('  ', aMeanC, sep='')

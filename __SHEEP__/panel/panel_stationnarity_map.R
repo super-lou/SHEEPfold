@@ -27,10 +27,8 @@
 panel_stationnarity_map = function (trendEX_variable,
                                     metaEX_variable,
                                     meta,
-                                    min_variable=NULL,
-                                    max_variable=NULL,
-                                    prob=0.1,
                                     is_secteur=FALSE,
+                                    show_MK=TRUE,
                                     zoom=NULL,
                                     map_limits=NULL,
                                     x_echelle_pct=62,
@@ -49,12 +47,21 @@ panel_stationnarity_map = function (trendEX_variable,
         return (is.logical(x) | is.numeric(x))
     }
 
+    if (any(names(metaEX_variable) == "variable")) {
+        variable_to_display = metaEX_variable$variable
+    } else {
+        variable_to_display = variable
+    }
     variable = metaEX_variable$variable_en
-    unit = metaEX_variable$unit_fr[metaEX_variable$variable_en == variable]
-    is_date = metaEX_variable$is_date[metaEX_variable$variable_en == variable]
-    is_normalise = metaEX_variable$is_normalise[metaEX_variable$variable_en == variable]
-    Palette = unlist(strsplit(metaEX_variable$palette[metaEX_variable$variable_en == variable], " "))
+    unit = metaEX_variable$unit_fr
+    is_date = metaEX_variable$is_date
+    to_normalise = metaEX_variable$to_normalise
+    Palette = metaEX_variable$palette
+    Palette = unlist(strsplit(Palette, " "))
+    sampling_period = metaEX_variable$sampling_period_en
+    sampling_period = unlist(strsplit(sampling_period, ", "))
 
+    
     # Extract shapefiles
     france = Shapefiles$france
     basinHydro = Shapefiles$basinHydro
@@ -154,10 +161,10 @@ panel_stationnarity_map = function (trendEX_variable,
         trendEX_variable =
             dplyr::left_join(trendEX_variable,
                              dplyr::select(meta,
-                                           c("Code",
+                                           c("code",
                                              "XL93_m",
                                              "YL93_m")),
-                             by="Code")
+                             by="code")
     }
 
     
@@ -165,29 +172,20 @@ panel_stationnarity_map = function (trendEX_variable,
     Palette_level = 1:(length(Palette)/2)
     Palette_level = c(rev(Palette_level), Palette_level)
     
-    # Palette = get_IPCC_Palette(name, reverse=reverse)
-    if (is.null(min_variable)) {
-        min_variable = quantile(trendEX_variable$a_normalise,
-                           prob, na.rm=TRUE)
-    }
-    if (is.null(max_variable)) {
-        max_variable = quantile(trendEX_variable$a_normalise,
-                           1-prob, na.rm=TRUE)
-    }
 
-    res = compute_colorBin(min_variable,
-                           max_variable,
+    res = compute_colorBin(trendEX_variable$a_normalise_min,
+                           trendEX_variable$a_normalise_max,
                            colorStep=length(Palette),
                            center=0,
                            include=FALSE)
     bin = res$bin
     upBin = res$upBin
     lowBin = res$lowBin
-    
+
     trendEX_variable$fill = get_colors(trendEX_variable$a_normalise,
-                                  upBin=upBin,
-                                  lowBin=lowBin,
-                                  Palette=Palette)
+                                       upBin=upBin,
+                                       lowBin=lowBin,
+                                       Palette=Palette)
 
     palette_match = match(trendEX_variable$fill, Palette)
     palette_matchNoNA = palette_match[!is.na(palette_match)]
@@ -198,13 +196,19 @@ panel_stationnarity_map = function (trendEX_variable,
 
     trendEX_variable$stroke = 0.6
     trendEX_variable$color = IPCCgrey40
-    trendEX_variable$color[!trendEX_variable$H] = IPCCgrey67
-    trendEX_variable$size = 4
-    trendEX_variable$size[!trendEX_variable$H] = 3
+    if (show_MK) {
+        trendEX_variable$color[!trendEX_variable$H] = IPCCgrey67
+    }
+    trendEX_variable$size = 3
+    if (show_MK) {
+        trendEX_variable$size[trendEX_variable$H] = 4
+    }
     trendEX_variable$shape = 21
-    trendEX_variable$shape[trendEX_variable$H & trendEX_variable$a > 0] = 24
-    trendEX_variable$shape[trendEX_variable$H & trendEX_variable$a < 0] = 25
-
+    if (show_MK) {
+        trendEX_variable$shape[trendEX_variable$H & trendEX_variable$a > 0] = 24
+        trendEX_variable$shape[trendEX_variable$H & trendEX_variable$a < 0] = 25
+    }
+    
     trendEX_variable$color[is.na(trendEX_variable$fill)] = NA
     # trendEX_variable$color[is.na(trendEX_variable$fill)] = "grey75"
     # trendEX_variable$level[is.na(trendEX_variable$fill)] = 0
@@ -276,67 +280,6 @@ panel_stationnarity_map = function (trendEX_variable,
         coord_sf(xlim=xlim, ylim=ylim,
                  expand=FALSE)
 
-
-    # plan = matrix(c("map", "fill",
-                    # "map", "fill",
-                    # "map", "shape"),
-                  # nrow=2, byrow=TRUE)
-
-    # herd = bring_grass(verbose=verbose)
-    # herd = plan_of_herd(herd, plan, verbose=verbose)
-
-    # herd = add_sheep(herd,
-                     # sheep=map,
-                     # id="map",
-                     # height=0.7,
-                     # verbose=verbose)
-
-    # shape = panel_colorbar_circle(c(0, 0.5, 1),
-                               # c("transparent",
-                                 # "transparent",
-                                 # "transparent"),
-                               # size_circle=2.2,
-                               # d_line=0.1,
-                               # linewidth=0.35,
-                               # d_space=0,
-                               # d_text=0.5,
-                               # text_size=2.8,
-                               # stroke=c(0.5, 0.5, 0.5),
-                               # color=c("grey30",
-                                       # "grey30",
-                                       # "grey30"),
-                               # label=c("Baisse significative à 10%",
-                                       # "Non significatif à 10%",
-                                       # "Hausse significative à 10%"),
-                               # shape=c(25, 21, 24),
-                               # on_circle=TRUE,
-                               # margin=margin_shape)
-    # herd = add_sheep(herd,
-                     # sheep=contour(),
-                     # id="shape",
-                     # height=0.2,
-                     # verbose=verbose)
-    
-    # fill = panel_colorbar_circle(bin*100,
-                               # Palette,
-                               # size_circle=3.3,
-                               # d_line=0.2,
-                               # linewidth=0.35,
-                               # d_space=0.15,
-                               # d_text=0.5,
-                               # text_size=3,
-                               # label=NULL,
-                               # ncharLim=4,
-                               # colorText=IPCCgrey50,
-                               # colorLine=IPCCgrey50,
-                               # on_circle=FALSE,
-                               # margin=margin_fill)
-    
-    # herd = add_sheep(herd,
-                     # sheep=contour(),
-                     # id="fill",
-                     # height=1,
-                     # verbose=verbose)
 
     return (map)
 }
