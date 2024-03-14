@@ -27,8 +27,10 @@ sheet_summary = function (Pages,
                           title="title",
                           subtitle="subtitle",
                           logo_info=NULL,
+                          one_column_width=NULL,
                           page_margin=c(t=0.5, r=0.5, b=0.5, l=0.5),
-                          figdir="") {
+                          figdir="",
+                          verbose=FALSE) {
 
     title_height = 1
     if (is.null(subtitle)) {
@@ -39,16 +41,28 @@ sheet_summary = function (Pages,
     foot_height = 1.25
     sum_height = 29.7 - title_height - subtitle_height - foot_height - page_margin["t"] - page_margin["b"]
 
-    p_width = 2
-    sec_width = (21 - p_width*2 - page_margin["l"] - page_margin["r"])/2
-    width = 21 - page_margin["l"] - page_margin["r"]
+    if (is.null(one_column_width)) {
+        p_width = 2
+        sec_width = (21 - p_width*2 - page_margin["l"] - page_margin["r"])/2
+        width = 21 - page_margin["l"] - page_margin["r"]
     
-    
-    plan = matrix(c("title", "title", "title", "title",
-                    "subtitle", "subtitle", "subtitle", "subtitle",
-                    "sum1", "page1", "sum2", "page2",
-                    "foot", "foot", "foot", "foot"),
-                  nrow=4, byrow=TRUE)
+        plan = matrix(c("title", "title", "title", "title",
+                        "subtitle", "subtitle", "subtitle", "subtitle",
+                        "sum1", "page1", "sum2", "page2",
+                        "foot", "foot", "foot", "foot"),
+                      nrow=4, byrow=TRUE)
+    } else {
+        p_width = 2
+        sec_width = one_column_width
+        void_width = 21 - page_margin["l"] - page_margin["r"] - p_width - sec_width
+        width = 21 - page_margin["l"] - page_margin["r"]
+        
+        plan = matrix(c("title", "title", "title",
+                        "subtitle", "subtitle", "subtitle",
+                        "sum1", "page1", "void",
+                        "foot", "foot", "foot"),
+                      nrow=4, byrow=TRUE)
+    }
 
     herd = bring_grass(verbose=verbose)
     herd = plan_of_herd(herd, plan,
@@ -176,30 +190,38 @@ sheet_summary = function (Pages,
                      width=p_width,
                      verbose=verbose)
 
-    sum2 = richtext_grob(text_sum2,
-                         x=0, y=1,
-                         margin=unit(c(t=0, r=0, b=0, l=0), "mm"),
-                         hjust=0, vjust=1,
-                         gp=gpar(col=refCOL, fontsize=10))
-    herd = add_sheep(herd,
-                     sheep=sum2,
-                     id="sum2",
-                     height=sum_height,
-                     width=sec_width,
-                     verbose=verbose)
-    
-    page2 = richtext_grob(text_page2,
-                          x=0, y=1,
-                          margin=unit(c(t=0, r=0, b=0, l=0), "mm"),
-                          hjust=0, vjust=1,
-                          gp=gpar(col=refCOL, fontsize=10))
-    herd = add_sheep(herd,
-                     sheep=page2,
-                     id="page2",
-                     height=sum_height,
-                     width=p_width, 
-                     verbose=verbose)
-
+    if (is.null(one_column_width)) {
+        sum2 = richtext_grob(text_sum2,
+                             x=0, y=1,
+                             margin=unit(c(t=0, r=0, b=0, l=0), "mm"),
+                             hjust=0, vjust=1,
+                             gp=gpar(col=refCOL, fontsize=10))
+        herd = add_sheep(herd,
+                         sheep=sum2,
+                         id="sum2",
+                         height=sum_height,
+                         width=sec_width,
+                         verbose=verbose)
+        
+        page2 = richtext_grob(text_page2,
+                              x=0, y=1,
+                              margin=unit(c(t=0, r=0, b=0, l=0), "mm"),
+                              hjust=0, vjust=1,
+                              gp=gpar(col=refCOL, fontsize=10))
+        herd = add_sheep(herd,
+                         sheep=page2,
+                         id="page2",
+                         height=sum_height,
+                         width=p_width, 
+                         verbose=verbose)
+    } else {
+        herd = add_sheep(herd,
+                         sheep=void(),
+                         id="void",
+                         height=sum_height,
+                         width=void_width,
+                         verbose=verbose)
+    }
 
     
     foot = panel_foot('Sommaire', 1, foot_height, logo_info)

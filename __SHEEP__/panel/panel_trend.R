@@ -63,7 +63,7 @@ panel_trend = function (variable,
     sampling_period = unlist(strsplit(sampling_period, ", "))
     
 
-    Period = unique(trendEX_code_variable$period)
+    Period = unique(trendEX_code_variable$period_trend)
     Period = strsplit(Period, " ")
     Period = lapply(Period, as.Date)
     nPeriod = length(Period)
@@ -110,7 +110,7 @@ panel_trend = function (variable,
     for (j in 1:nPeriod) {
         period = Period[[j]]
         trendEX_code_variable_period =
-            trendEX_code_variable[trendEX_code_variable$period ==
+            trendEX_code_variable[trendEX_code_variable$period_trend ==
                                   paste0(period, collapse=" "),]
         Ntrend = nrow(trendEX_code_variable_period)
         if (Ntrend > 1) {
@@ -465,7 +465,7 @@ panel_trend = function (variable,
                                  dataEX_code_variable$date <= end,]
 
         trendEX_code_variable_period =
-            trendEX_code_variable[trendEX_code_variable$period ==
+            trendEX_code_variable[trendEX_code_variable$period_trend ==
                                   paste0(period, collapse=" "),]
         Ntrend = nrow(trendEX_code_variable_period)
         if (Ntrend > 1) {

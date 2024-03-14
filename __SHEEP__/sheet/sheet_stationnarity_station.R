@@ -79,6 +79,10 @@ sheet_stationnarity_station = function (data,
         }
         
         data_code = data[data$code == code,]
+
+        if (all(is.na(data_code$Q))) {
+            next
+        }
         
         dataEX_serie_code = list()
         for (j in 1:length(dataEX_serie)) {
