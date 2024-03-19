@@ -25,6 +25,7 @@ sheet_stationnarity_map = function (trendEX,
                                     meta,
                                     code_selection=NULL,
                                     show_MK=TRUE,
+                                    period_to_show=NULL,
                                     icon_path="",
                                     logo_path="",
                                     is_foot=TRUE,
@@ -112,13 +113,18 @@ sheet_stationnarity_map = function (trendEX,
             theme(plot.margin=margin(t=0, r=0, b=0, l=0, "cm"))
 
         if (is_foot) {
-            y1 = 0.98
-            y3 = 0.63
-            y4 = y3 - 0.24
+            y_top = 0.98
+            dy_name = 0.35
+            dy_unit = 0.15
+            dy_period = 0.23
+            # y3 = 0.63
+            # y4 = y3 - 0.22
+            # y5 = y4 - 0.16
         } else {
-            y1 = 0.98
-            y3 = 0.63
-            y4 = y3 - 0.26
+            # y1 = 0.98
+            # y3 = 0.63
+            # y4 = y3 - 0.26
+            # y5 = y4 - 0.26
         }
        
         newline = 0.12
@@ -128,26 +134,11 @@ sheet_stationnarity_map = function (trendEX,
         title = title +
             annotate("text",
                      x=x_off,
-                     y=y1,
+                     y=y_top,
                      label=TeX(paste0("\\textbf{", VariableTeX[i], "}")),
                      size=7, hjust=0, vjust=1,
                      color=INRAEcyan)
 
-        if (to_normalise) {
-            label = TeX(paste0("Tendances en %\\.an$^{-1}$"))
-        } else {
-            label = TeX(paste0("Tendances en ", UnitTeX[i], ".an$^{-1}$"))
-        }
-        
-        title = title +
-            annotate("text",
-                     x=x_off,
-                     y=y3,
-                     label=label,
-                     size=4, hjust=0, vjust=1,
-                     color=INRAEcyan)
-
-        
         name = metaEX_variable$name_fr
         name = guess_newline(name, px=50, PX=PX)
         name = unlist(strsplit(name, "\n"))
@@ -155,12 +146,40 @@ sheet_stationnarity_map = function (trendEX,
         for (k in 1:length(name)) {
             title = title +
                 annotate("text",
-                         x=x_off+0.005,
-                         y=y4-(k-1)*newline,
+                         x=x_off,
+                         y=y_top - dy_name - (k-1)*newline,
                          label=name[k],
                          size=2.5, hjust=0, vjust=1,
                          color=INRAEcyan)
         }
+        dy_name = dy_name - (length(name)-1)*newline
+
+        if (to_normalise) {
+            label = TeX(paste0("Tendances en %\\.an$^{-1}$"))
+        } else {
+            label = TeX(paste0("Tendances en ", UnitTeX[i], ".an$^{-1}$"))
+        }
+
+        title = title +
+            annotate("text",
+                     x=x_off,
+                     y=y_top - dy_name - dy_unit,
+                     label=label,
+                     size=4, hjust=0, vjust=1,
+                     color=INRAEcyan)
+
+        if (!is.null(period_to_show)) {
+            label = TeX(paste0("Période du ", paste0(period_to_show, collapse=" au ")))
+            title = title +
+                annotate("text",
+                         x=x_off,
+                         y=y_top - dy_name - dy_unit - dy_period,
+                         label=label,
+                         size=4, hjust=0, vjust=1,
+                         color=INRAEcyan)
+        }
+        
+
         
         title = title +
             scale_x_continuous(limits=c(0, 1),
@@ -186,7 +205,7 @@ sheet_stationnarity_map = function (trendEX,
                                       y_echelle_pct=y_echelle_pct,
                                       echelle=echelle, 
                                       Shapefiles=Shapefiles,
-                                      margin_map=margin(t=-2, r=0,
+                                      margin_map=margin(t=1, r=0,
                                                         b=0, l=0, "mm"),
                                       verbose=verbose)
         
@@ -228,8 +247,8 @@ sheet_stationnarity_map = function (trendEX,
                                      colorText=IPCCgrey50,
                                      colorLine=IPCCgrey50,
                                      on_circle=FALSE,
-                                     margin=margin(t=-0.9, r=0,
-                                                   b=-1, l=0.8, "cm"))
+                                     margin=margin(t=-0.9, r=0.4,
+                                                   b=-1, l=0.6, "cm"))
         herd = add_sheep(herd,
                          sheep=fill,
                          id="fill",
