@@ -23,7 +23,8 @@
 ### 4.2. Foot note panel______________________________________________
 #' @title Foot panel
 #' @export
-panel_foot = function (name, n_page, foot_height, logo_info) {
+panel_foot = function (name, n_page, foot_height, logo_info,
+                       verbose=FALSE) {
     
     plan = matrix(names(logo_info),
                   nrow=1,

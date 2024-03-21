@@ -26,18 +26,25 @@ panel_info_station = function(data_code,
                               QM_code=NULL,
                               regimeLight="",
                               meta=NULL,
+                              nProjections=NULL,
                               Shapefiles=NULL,
                               codeLight=NULL,
                               to_do='all',
                               if_NA_unkowned=TRUE,
                               subtitle=NULL,
+                              subtitle_height=0.35,
                               show_regime_info=TRUE,
                               zoom=NULL,
                               map_limits=NULL,
                               x_echelle_pct=62,
                               y_echelle_pct=5,
                               echelle=c(0, 50, 100, 250),
-                              size_codeLight=1.4, stroke_codeLight=0.3,
+                              echelle_size=2.6,
+                              echelle_km_size=2.5,
+                              echelle_tick_height=1.3,
+                              size_codeLight=1.4,
+                              stroke_codeLight=0.3,
+                              margin_map=margin(t=0, r=0, b=0, l=0, unit="mm"),
                               verbose=FALSE) {
 
     # If there is a data serie for the given code
@@ -56,9 +63,7 @@ panel_info_station = function(data_code,
                                margin_hyd=margin(t=1, r=0, b=0, l=5,
                                                  unit="mm"),
                                verbose=verbose)
-    # Otherwise
     } else {
-        # Puts it blank
         hyd = void()
     }
 
@@ -72,8 +77,12 @@ panel_info_station = function(data_code,
                               x_echelle_pct=x_echelle_pct,
                               y_echelle_pct= y_echelle_pct,
                               echelle=echelle,
+                              echelle_size=echelle_size,
+                              echelle_km_size=echelle_km_size,
+                              echelle_tick_height=echelle_tick_height,
                               size_codeLight=size_codeLight,
-                              stroke_codeLight=stroke_codeLight)
+                              stroke_codeLight=stroke_codeLight,
+                              margin_map=margin_map)
     # Otherwise
     } else {
         # Puts it blank
@@ -81,8 +90,9 @@ panel_info_station = function(data_code,
     }
 
     # Gets the metadata about the station
-    meta_code = meta[meta$code == codeLight,]    
+    meta_code = meta[meta$code == codeLight,]
 
+    
     if ('title' %in% to_do | 'all' %in% to_do) {
         # Converts all texts to graphical object in the right position
         gtext1 = richtext_grob(
@@ -121,7 +131,7 @@ panel_info_station = function(data_code,
         }
         text2 = paste0("<b>", subtitle, "</b>")
         gtext2 = richtext_grob(text2,
-                               x=0, y=1.1,
+                               x=0, y=1,
                                margin=unit(c(t=0, r=0, b=0, l=0),
                                            "mm"),
                                hjust=0, vjust=1,
@@ -141,21 +151,39 @@ panel_info_station = function(data_code,
                              round(meta_code$surface_km2),
                              " km<sup>2</sup><br>")
         }
-        if (is.na(meta_code$altitude_m) & if_NA_unkowned) {
-            altitude = paste0("Altitude : inconnue<br>")
-        } else if (is.na(meta_code$altitude_m) & !if_NA_unkowned) {
-            altitude = NULL
+        
+        if ("altitude_m" %in% names(meta_code)) {
+            if (is.na(meta_code$altitude_m) & if_NA_unkowned) {
+                altitude = paste0("Altitude : inconnue<br>")
+            } else if (is.na(meta_code$altitude_m) & !if_NA_unkowned) {
+                altitude = NULL
+            } else {
+                altitude = paste0("Altitude : ",
+                                  round(meta_code$altitude_m),
+                                  " m<br>")
+            }
         } else {
-            altitude = paste0("Altitude : ",
-                              round(meta_code$altitude_m),
-                              " m<br>")
+            if (if_NA_unkowned) {
+                altitude = paste0("Altitude : inconnue<br>")
+            } else {
+                altitude = NULL
+            } 
+        }
+
+        if ('projection' %in% to_do & !is.null(nProjections) | !is.null(nProjections)) {
+            projection = paste0(
+                "<br>Nombre de projection : ", nProjections, "<br>",
+                "Nombre de modéle hydrologique : ", meta_code$n)
+        } else {
+            NULL
         }
 
         text3 = paste0(
             surface,
             altitude,
             "X = ", round(meta_code$XL93_m), " m (Lambert93)<br>",
-            "Y = ", round(meta_code$YL93_m), " m (Lambert93)")
+            "Y = ", round(meta_code$YL93_m), " m (Lambert93)",
+            projection)
         gtext3 = richtext_grob(text3,
                                x=0, y=1,
                                margin=unit(c(t=0, r=0, b=0, l=0),
@@ -186,6 +214,18 @@ panel_info_station = function(data_code,
                                            "mm"),
                                hjust=0, vjust=1,
                                gp=gpar(col=IPCCgrey13, fontsize=9))
+
+    # } else if ('projection' %in% to_do & !is.null(nProjections) | !is.null(nProjections)) {
+    #     text4 = paste0(
+    #         "Nombre de projection : ", nProjections, "<br>",
+    #         "Nombre de modéle hydrologique : ", meta_code$n)
+    #     gtext4 = richtext_grob(text4,
+    #                            x=0, y=1,
+    #                            margin=unit(c(t=0, r=0, b=0, l=0),
+    #                                        "mm"),
+    #                            hjust=0, vjust=1,
+    #                            gp=gpar(col=IPCCgrey13, fontsize=9))
+        
     } else {
         gtext4 = void()
     }
@@ -204,32 +244,38 @@ panel_info_station = function(data_code,
     herd = add_sheep(herd,
                      sheep=gtext1,
                      id="text1",
-                     height=0.35,
+                     height=0.3,
+                     width=1,
                      verbose=verbose)
     herd = add_sheep(herd,
                      sheep=gtext2,
                      id="text2",
-                     height=0.35,
+                     height=subtitle_height,
+                     width=1,
                      verbose=verbose)
     herd = add_sheep(herd,
                      sheep=gtext3,
                      id="text3",
                      height=1,
+                     width=1,
                      verbose=verbose)
     herd = add_sheep(herd,
                      sheep=gtext4,
                      id="text4",
                      height=1,
+                     width=1,
                      verbose=verbose)
     herd = add_sheep(herd,
                      sheep=hyd,
                      id="hyd",
                      height=1,
+                     width=1,
                      verbose=verbose)
     herd = add_sheep(herd,
                      sheep=map,
                      id="map",
                      height=1,
+                     width=1.1,
                      verbose=verbose)    
     
     return (herd)

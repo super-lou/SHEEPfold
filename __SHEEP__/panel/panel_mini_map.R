@@ -34,7 +34,12 @@ panel_mini_map = function (meta, Shapefiles,
                            x_echelle_pct=62,
                            y_echelle_pct=5,
                            echelle=c(0, 50, 100, 250),
-                           size_codeLight=1.4, stroke_codeLight=0.3,
+                           echelle_size=2.6,
+                           echelle_km_size=2.5,
+                           echelle_tick_height=1.3,
+                           size_codeLight=1.4,
+                           stroke_codeLight=0.3,
+                           margin_map=margin(t=0, r=0, b=0, l=0, unit="mm"),
                            verbose=FALSE) {
     
     # Extract shapefiles
@@ -55,8 +60,7 @@ panel_mini_map = function (meta, Shapefiles,
         # Fixed coordinate system (remove useless warning)
         cf +
         
-        theme(plot.margin=margin(t=0, r=0, b=0, l=0,
-                                 unit="mm")) +
+        theme(plot.margin=margin_map) +
         
         # Plot the background of France
         geom_sf(data=france,
@@ -116,9 +120,9 @@ panel_mini_map = function (meta, Shapefiles,
     xint = echelle*1E3
     ymin = gpct(y_echelle_pct, ylim, shift=TRUE)
     ymin_km = gpct(max(c(y_echelle_pct-5, 0)), ylim, shift=TRUE)
-    ymax = ymin + gpct(1.3, ylim)
-    size = 2.6
-    sizekm = 2.5
+    ymax = ymin + gpct(echelle_tick_height, ylim)
+    # size = 2.6
+    # sizekm = 2.5
     linewidth = 0.4
 
     map = map +
@@ -130,7 +134,7 @@ panel_mini_map = function (meta, Shapefiles,
         annotate("text",
                  x=max(xint)+xmin+gpct(1, xlim), y=ymin_km,
                  vjust=0, hjust=0, label="km",
-                 color=IPCCgrey40, size=sizekm)
+                 color=IPCCgrey40, size=echelle_km_size)
     # For all graduations
     for (x in xint) {
         map = map +
@@ -142,7 +146,7 @@ panel_mini_map = function (meta, Shapefiles,
             annotate("text",
                      x=x+xmin, y=ymax+gpct(0.5, ylim),
                      vjust=0, hjust=0.5, label=x/1E3,
-                     color=IPCCgrey40, size=size)
+                     color=IPCCgrey40, size=echelle_size)
     }
 
     if (!is.null(codeLight)) {

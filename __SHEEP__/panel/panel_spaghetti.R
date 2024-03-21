@@ -27,6 +27,7 @@ panel_spaghetti = function (data_code, Colors=NULL,
                             subtitle=NULL,
                             unit="m^{3}.s^{-1}",
                             alpha=0.7,
+                            alpha_non_color=0.3,
                             isSqrt=FALSE, missRect=FALSE,
                             isBack=TRUE,
                             isTitleAbove=TRUE,
@@ -45,25 +46,38 @@ panel_spaghetti = function (data_code, Colors=NULL,
                             Xlabel=NULL,
                             isZeroLine=TRUE,
                             limits_ymin=NA,
+                            limits_ymax=NA,
+                            # ymax_expand=0.1,
                             isBackObsAbove=TRUE,
                             lwObs=0.55,
                             lwObs_back=1.7,
                             lwSim=0.4,
                             lwSim_back=0.7,
+                            lwSim_non_color=0.2,
                             axis_xlim=NULL, grid=TRUE,
+                            useTeX=TRUE,
+                            dx0_title=0.05,
+                            dx0_subtitle=0.1,
                             ratio_title=1/5,
                             margin_title=margin(t=0, r=0, b=0, l=0, "mm"),
                             margin_spag=margin(t=0, r=0, b=0, l=0, "mm"),
                             first=FALSE, last=FALSE,
+                            hide_y_axis=FALSE,
                             verbose=FALSE) {
 
-    axis_xlim = as.Date(axis_xlim)
+    if (!is.null(axis_xlim))  {
+        axis_xlim = as.Date(axis_xlim)
+    }
     
     # unitTeX = convert2TeX(unit, bold=FALSE)    
     unitTeX = gsub(" ", "\\\\,", unit)
-    
-    titleTeX = convert2TeX(title, bold=FALSE)
 
+    if (useTeX) {
+        titleTeX = convert2TeX(title, bold=FALSE) 
+    } else {
+        titleTeX = title
+    }
+    
     if (isTitleAbove) {
         if (grepl("[*]unit[*]", titleTeX)) {
             titleTeX = gsub("[*]unit[*]",
@@ -84,21 +98,23 @@ panel_spaghetti = function (data_code, Colors=NULL,
     }
 
     
-    if (!is.null(subtitle)) {
+    if (!is.null(subtitle) & useTeX) {
         subtitleTeX = convert2TeX(subtitle, bold=FALSE)
+    } else {
+        subtitleTeX = subtitle
     }
 
     if (isTitleAbove | isLegend) {
         title = ggplot() + theme_void() +
             theme(plot.margin=margin_title)
 
-        dx0 = 0.05
+        # dx0 = 0.05
         
         if (isTitleAbove) {
             dx_title = 0.25
             title = title +
                 annotate("text",
-                         x=dx0,
+                         x=dx0_title,
                          y=1,
                          label=TeX(titleTeX),
                          size=3, hjust=0, vjust=1,
@@ -107,10 +123,10 @@ panel_spaghetti = function (data_code, Colors=NULL,
             if (!is.null(subtitle)) {
                 title = title +
                     annotate("text",
-                             x=0,
+                             x=dx0_subtitle,
                              y=0,
                              label=TeX(subtitleTeX),
-                             size=3, hjust=0, vjust=0,
+                             size=2.5, hjust=0, vjust=0,
                              color=IPCCgrey25)
             }
         } else {
@@ -210,7 +226,7 @@ panel_spaghetti = function (data_code, Colors=NULL,
     }
     
     if ("HM" %in% names(data_code)) {
-        HM = levels(factor(data_code$HM))
+        HM = sort(unique(names(Colors)))
         nHM = length(HM)
         
         select_good = function (X) {
@@ -317,18 +333,36 @@ panel_spaghetti = function (data_code, Colors=NULL,
                               linewidth=lwObs_back,#0.4,
                               lineend="round")
     }
+
+
+    HM_ALL = unique(data_code$HM)
     
+    if (!is.null(Colors) & length(HM_ALL) > 0) {
+        data_nHM_code = data_code[!(data_code$HM %in% HM),]
+        spag = spag +
+            ggplot2::geom_line(data=data_nHM_code,
+                               aes(x=date,
+                                   y=Q_sim,
+                                   group=HM),
+                               color=IPCCgrey67,
+                               linewidth=lwSim_non_color,
+                               alpha=alpha_non_color,
+                               lineend="round")
+    }
+    
+
     if ("HM" %in% names(data_code)) {
         for (i in 1:nHM) {
             hm = HM[i]
-            data_hm_code = data_code[data_code$HM == hm,] 
+            data_hm_code = data_code[data_code$HM == hm,]
+
             # Plot the data as line
             spag = spag +
                 ggplot2::annotate("line",
                                   x=data_hm_code$date,
                                   y=data_hm_code$Q_sim,
                                   color="white",
-                                  linewidth=lwSim_back,#0.7,
+                                  linewidth=lwSim_back,
                                   lineend="round")
         }
         if (is.null(Colors)) {
@@ -355,13 +389,13 @@ panel_spaghetti = function (data_code, Colors=NULL,
                               x=data_code_obs$date,
                               y=data_code_obs$Q,
                               color="white",
-                              linewidth=lwObs_back,#1.7,
+                              linewidth=lwObs_back,
                               lineend="round") +
             ggplot2::annotate("line",
                               x=data_code_obs$date,
                               y=data_code_obs$Q,
                               color=IPCCgrey23,
-                              linewidth=lwObs,#0.55,
+                              linewidth=lwObs,
                               lineend="round")
     } else {
         spag = spag +
@@ -369,7 +403,7 @@ panel_spaghetti = function (data_code, Colors=NULL,
                               x=data_code_obs$date,
                               y=data_code_obs$Q,
                               color=IPCCgrey23,
-                              linewidth=lwObs,#0.2,
+                              linewidth=lwObs,
                               lineend="round") 
     }
 
@@ -488,12 +522,12 @@ panel_spaghetti = function (data_code, Colors=NULL,
         labels = waiver()
     }
 
-    if (is.na(limits_ymin)) {
+    if (is.na(limits_ymin) & is.na(limits_ymax)) {
         limits = NULL
         expand = expansion(mult=c(0.2, 0.1))
     } else {
-        limits = c(limits_ymin, NA)
-        expand = expansion(mult=c(0, 0.1))
+        limits = c(limits_ymin, limits_ymax)
+        expand = expansion(mult=c(0, NA))
     }
 
     if (isSqrt) {
@@ -511,33 +545,39 @@ panel_spaghetti = function (data_code, Colors=NULL,
     }    
 
     # Margins
-    tt = 2.5
-    t = 2
-    tb = 3
-    b = 2
+    # tt = 2.5
+    # t = 2
+    # tb = 3
+    # b = 2
 
     if (first & !last) {
         spag = spag +
             theme(plot.margin=
-                      margin(t=tt, r=0, b=tb, l=0, unit="mm")+
+                      # margin(t=tt, r=0, b=tb, l=0, unit="mm")+
                       margin_spag)
     } else if (!first & last) {
         spag = spag + 
             theme(plot.margin=
-                      margin(t=t, r=0, b=0, l=0, unit="mm")+
+                      # margin(t=t, r=0, b=0, l=0, unit="mm")+
                       margin_spag)
     } else if (first & last) {
         spag = spag + 
             theme(plot.margin=
-                      margin(t=tt, r=0, b=0, l=0, unit="mm")+
+                      # margin(t=tt, r=0, b=0, l=0, unit="mm")+
                       margin_spag)
     } else if (!first & !last){
         spag = spag + 
             theme(plot.margin=
-                      margin(t=t, r=0, b=b, l=0, unit="mm")+
+                      # margin(t=t, r=0, b=b, l=0, unit="mm")+
                       margin_spag,
                   axis.text.x=element_blank())
     }
+
+    if (hide_y_axis) {
+        spag = spag + 
+            theme(axis.ticks.y=element_blank(),
+                  axis.text.y=element_blank())
+    }    
 
 
     if (isTitleAbove | isLegend) {
