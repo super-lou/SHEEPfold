@@ -55,7 +55,7 @@ panel_spaghetti = function (data_code, Colors=NULL,
                             lwSim_back=0.7,
                             lwSim_non_color=0.2,
                             axis_xlim=NULL, grid=TRUE,
-                            useTeX=TRUE,
+                            convertTeX=TRUE,
                             dx0_title=0.05,
                             dx0_subtitle=0.1,
                             ratio_title=1/5,
@@ -72,7 +72,7 @@ panel_spaghetti = function (data_code, Colors=NULL,
     # unitTeX = convert2TeX(unit, bold=FALSE)    
     unitTeX = gsub(" ", "\\\\,", unit)
 
-    if (useTeX) {
+    if (convertTeX) {
         titleTeX = convert2TeX(title, bold=FALSE) 
     } else {
         titleTeX = title
@@ -98,7 +98,7 @@ panel_spaghetti = function (data_code, Colors=NULL,
     }
 
     
-    if (!is.null(subtitle) & useTeX) {
+    if (!is.null(subtitle) & convertTeX) {
         subtitleTeX = convert2TeX(subtitle, bold=FALSE)
     } else {
         subtitleTeX = subtitle
@@ -320,7 +320,7 @@ panel_spaghetti = function (data_code, Colors=NULL,
         spag = spag + 
             theme(axis.line.x=element_line(color=IPCCgrey60,
                                            size=0.5,
-                                           lineend="round"))
+                                           lineend="square"))
     }
     
     ### Data ###

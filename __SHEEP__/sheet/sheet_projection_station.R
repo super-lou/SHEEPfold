@@ -38,16 +38,21 @@ sheet_projection_station = function (meta,
 
     info_height = 3
     medQJ_height = 7
-    axis_height = 0.63
     foot_height = 1.25
 
-    free_height = 29.7 - page_margin["t"] - page_margin["b"] -
-        info_height - medQJ_height - axis_height*3 - foot_height
-    
-    
-    spread_height = free_height/3 * 6/10
-    signe_height = free_height/3 * 1/10
-    stripes_height = free_height/3 * 3/10
+    block_height = (29.7 - page_margin["t"] - page_margin["b"] -
+                    info_height - medQJ_height -
+                    foot_height) / 3
+
+    variable_info_width = 0.2
+    variable_graph_width = 0.8
+
+    variable_title_height = 0.05
+    variable_spread_height = 0.46
+    variable_signe_height = 0.1
+    variable_stripes_height = 0.25
+    variable_axis_height = 0.1
+    variable_void_height = 0.04
     
     width = 21 - page_margin["l"] - page_margin["r"]
     medQJ_width = width/3
@@ -57,22 +62,29 @@ sheet_projection_station = function (meta,
         
         "medQJ_H0", "medQJ_H2", "medQJ_H3",
         
-        "spread_QJXA", "spread_QJXA", "spread_QJXA",
-        "signe_QJXA", "signe_QJXA", "signe_QJXA",
-        "stripes_QJXA", "stripes_QJXA", "stripes_QJXA",
-        "axis_QJXA", "axis_QJXA", "axis_QJXA",
+        "QJXA", "QJXA", "QJXA",
+        # "axis_QJXA", "axis_QJXA", "axis_QJXA",
         
-        "spread_QA", "spread_QA", "spread_QA",
-        "signe_QA", "signe_QA", "signe_QA",
-        "stripes_QA", "stripes_QA", "stripes_QA",
-        "axis_QA", "axis_QA", "axis_QA",
+        "QA", "QA", "QA",
+        # "axis_QA", "axis_QA", "axis_QA",
         
-        "spread_VCN10_summer", "spread_VCN10_summer", "spread_VCN10_summer",
-        "signe_VCN10_summer", "signe_VCN10_summer", "signe_VCN10_summer",
-        "stripes_VCN10_summer", "stripes_VCN10_summer", "stripes_VCN10_summer", 
+        "VCN10_summer", "VCN10_summer", "VCN10_summer",
+        # "axis_VCN10_summer", "axis_VCN10_summer", "axis_VCN10_summer",
+        
+        # "spread_JQXA", "spread_QJXA", "spread_QJXA",
+        # "signe_QJXA", "signe_QJXA", "signe_QJXA",
+        # "stripes_QJXA", "stripes_QJXA", "stripes_QJXA",
+        # "axis_QJXA", "axis_QJXA", "axis_QJXA",
+        
+        # "spread_QA", "spread_QA", "spread_QA",
+        # "signe_QA", "signe_QA", "signe_QA",
+        # "stripes_QA", "stripes_QA", "stripes_QA",
+        # "axis_QA", "axis_QA", "axis_QA",
+        
+        # "spread_VCN10_summer", "spread_VCN10_summer", "spread_VCN10_summer",
+        # "signe_VCN10_summer", "signe_VCN10_summer", "signe_VCN10_summer",
+        # "stripes_VC1N0_summer", "stripes_VCN10_summer", "stripes_VCN10_summer", 
 
-        "axis_VCN10_summer", "axis_VCN10_summer", "axis_VCN10_summer",
-        
         "foot", "foot", "foot"
     ), ncol=3, byrow=TRUE)
 
@@ -97,13 +109,16 @@ sheet_projection_station = function (meta,
     Code = levels(factor(dataEX_serie[[1]]$code))
     nCode = length(Code)
     
-    Horizons = c("Période de référence 1976-2005",
-                 "Horizon moyen 2041-2070",
-                 "Horizon lointain 2070-2099")
+    Horizons = c("\\textbf{Période de référence} 1976-2005",
+                 "\\textbf{Horizon moyen} 2041-2070",
+                 "\\textbf{Horizon lointain} 2070-2099")
+    
     Variables_medQJ = c("medQJ_H0", "medQJ_H2", "medQJ_H3")
+    nVariables_medQJ = length(Variables_medQJ)
+    
     Variables = unique(metaEX_serie$variable_en)
     Variables = Variables[!grepl("medQJ", Variables)]
-
+    nVariables = length(Variables)
     
     Storylines = names(Colors)
     nStorylines = length(Storylines)
@@ -128,9 +143,8 @@ sheet_projection_station = function (meta,
         herd = bring_grass(verbose=verbose)
         herd = plan_of_herd(herd, plan,
                             verbose=verbose)
-
         
-        nProjections = length(unique(dataEX_serie[[1]]$Chain))
+        nProjections = length(unique(dataEX_serie_code[[1]]$Chain))
         info = panel_info_station(
             meta=meta,
             Shapefiles=Shapefiles,
@@ -155,8 +169,6 @@ sheet_projection_station = function (meta,
                          width=width,
                          verbose=verbose)
 
-
-
         limits_ymax = quantile(c(dataEX_serie_code$medQJ_H0$medQJ_H0,
                                  dataEX_serie_code$medQJ_H2$medQJ_H2,
                                  dataEX_serie_code$medQJ_H3$medQJ_H3),
@@ -165,7 +177,7 @@ sheet_projection_station = function (meta,
 
         hide_y_axis = FALSE
         
-        for (j in 1:length(Variables_medQJ)) {
+        for (j in 1:nVariables_medQJ) {
 
             variable = Variables_medQJ[j]
             print(variable)
@@ -250,7 +262,7 @@ sheet_projection_station = function (meta,
                                     lwSim_back=0.7,
                                     lwSim_non_color=0.2,
                                     grid=TRUE,
-                                    useTeX=FALSE,
+                                    convertTeX=FALSE,
                                     dx0_title=0.03,
                                     dx0_subtitle=0.105,
                                     ratio_title=1/6.6,
@@ -274,10 +286,106 @@ sheet_projection_station = function (meta,
             hide_y_axis = TRUE
         }
 
-        
-        for (variable in Variables) {
 
+
+
+
+        Date =
+            as.Date(paste0(
+                lubridate::year(unique(dataEX_serie[["QA"]]$date)),
+                "-01-01"))
+
+        Labels = c("1976", "2005",
+                   paste0("<b style='color:", IPCCgrey35, "'>2020</b>"),
+                   "2040",
+                   paste0("<b style='color:", IPCCgrey35, "'>2050</b>"),
+                   "2070",
+                   paste0("<b style='color:", IPCCgrey35, "'>2099</b>"))
+        majorDate = as.Date(c("1976-01-01", "2005-01-01", "2020-01-01",
+                              "2040-01-01", "2050-01-01",
+                              "2070-01-01", "2099-01-01"))
+        minorDate = seq.Date(as.Date("1980-01-01"),
+                             as.Date("2090-01-01"),
+                             "10 years")
+        minorDate = minorDate[!(minorDate %in% majorDate)]
+        
+        axis = ggplot2::ggplot() +
+            ggplot2::theme(plot.margin=margin(t=0.0, r=0,
+                                              b=0.0, l=0, "mm")) +
+            theme_IPCC(isGridY=FALSE,
+                       tick_y=FALSE,
+                       label_y=FALSE,
+                       size_axis.text.x=9,
+                       zeroLine=TRUE) +
+            
+            ggplot2::annotate("point",
+                              x=Date, y=0,
+                              color=NA, fill=NA) +
+            ggplot2::scale_x_date(
+                         breaks=majorDate,
+                         minor_breaks=minorDate, 
+                         labels=Labels,
+                         guide="axis_minor",
+                         expand=c(0, 0)) +
+            ggplot2::scale_y_continuous(limits=c(0, 1),
+                                        expand=c(0, 0))
+
+        
+        for (j in 1:nVariables) {
+            variable = Variables[j]
             print(variable)
+            
+            variable_to_display =
+                metaEX_serie$variable_fr[metaEX_serie$variable_en == variable]
+            
+            name_to_display =
+                metaEX_serie$name_fr[metaEX_serie$variable_en == variable]
+            
+            block_plan = matrix(c("info", "title",
+                                  "info", "spread",
+                                  "info", "signe", 
+                                  "info", "stripes",
+                                  "info", "axis",
+                                  "info", "void"),
+                                ncol=2, byrow=TRUE)
+            block = bring_grass(verbose=verbose)
+            block = plan_of_herd(block, block_plan,
+                                 verbose=verbose)
+
+            
+            titleTeX = TeX(paste0("(", letters[j+nVariables_medQJ], ") ",
+                              convert2TeX(variable_to_display, bold=TRUE),
+                              " $-$ ", name_to_display))
+            
+            title = ggplot() + theme_void() +
+                theme(plot.margin=margin(t=0, r=0,
+                                         b=0, l=0, "mm")) + 
+                annotate("text",
+                         x=0,
+                         y=1,
+                         label=titleTeX,
+                         size=3, hjust=0, vjust=1,
+                         color=IPCCgrey25) +
+                scale_x_continuous(limits=c(0, 1),
+                                   expand=c(0, 0)) +
+                scale_y_continuous(limits=c(0, 1),
+                                   expand=c(0, 0))
+    
+            block = add_sheep(block,
+                              sheep=title,
+                              id="title",
+                              height=variable_title_height,
+                              width=variable_graph_width,
+                              verbose=verbose)
+
+
+            block = add_sheep(block,
+                              sheep=void(),
+                              id="info",
+                              height=1,
+                              width=variable_info_width,
+                              verbose=verbose)
+            
             dataMOD = dataEX_serie_code[[variable]]
             dataMOD_SAFRAN = dplyr::filter(dataMOD, EXP == "SAFRAN")
             dataMOD = dplyr::filter(dataMOD, climateChain %in% Storylines)     
@@ -296,41 +404,13 @@ sheet_projection_station = function (meta,
                                        by="Chain")
 
             dataMOD$delta =
-                dataMOD[[variable]] - dataMOD[[paste0("mean", variable)]]
+                (dataMOD[[variable]] - dataMOD[[paste0("mean", variable)]]) /
+                dataMOD[[paste0("mean", variable)]]
 
-            dataMOD = dplyr::mutate(dplyr::group_by(dataMOD, Chain),
-                                    spline_to_date(.data, "date", "delta",
-                                                   spar=0.15))
-            
-            # if (!(file.exists(file.path(figdir, "tmp")))) {
-            #     dir.create(file.path(figdir, "tmp"), recursive=TRUE)
-            # }
-            # for (chain in unique(dataMOD$Chain)) {
-            #     dataMOD_chain = filter(dataMOD, Chain == chain)
-            #     dataMOD_ss_chain = filter(dataMOD_ss, Chain == chain)
-                
-            #     plot = ggplot2::ggplot() + theme_minimal() +
-            #         annotate("line",
-            #                  dataMOD_chain$date,
-            #                  dataMOD_chain$delta,
-            #                  color="blue") +
-            #         annotate("line",
-            #                  dataMOD_ss_chain$date,
-            #                  dataMOD_ss_chain$delta,
-            #                  color="black")
-                
-            #     ggplot2::ggsave(plot=plot,
-            #                     path=file.path(figdir, "tmp"),
-            #                     filename=paste0(variable, "_", chain),
-            #                     width=21,
-            #                     height=15, units='cm',
-            #                     dpi=300,
-            #                     device=cairo_pdf)
-            # }
-            # dataMOD = dataMOD_ss
-            
+            colorStep = 256
             Palette = metaEX_serie$palette[metaEX_serie$variable_en == variable]
             Palette = unlist(strsplit(Palette, " "))
+            Palette = colorRampPalette(Palette)(colorStep)
 
             min_value = quantile(dataMOD$delta, prob, na.rm=TRUE)
             max_value = quantile(dataMOD$delta, 1-prob, na.rm=TRUE)
@@ -342,24 +422,25 @@ sheet_projection_station = function (meta,
             dataMOD$fill = get_colors(dataMOD$delta,
                                       res$upBin, res$lowBin, Palette)
 
+            stripes_plan = matrix(c(
+                # "margin_top",
+                            1:nStorylines
+                # "margin_bottom"
+            ))
             stripes = bring_grass(verbose=verbose)
-            stripes = plan_of_herd(stripes,
-                                   as.matrix(c("margin_top",
-                                               paste0("stripes_", variable,
-                                                      "_", 1:nStorylines),
-                                               "margin_bottom")),
+            stripes = plan_of_herd(stripes, stripes_plan,
                                    verbose=verbose)
             
-            stripes = add_sheep(stripes,
-                                sheep=void(),
-                                id="margin_top",
-                                height=0,
-                                verbose=verbose)
-            stripes = add_sheep(stripes,
-                                sheep=void(),
-                                id="margin_bottom",
-                                height=0,
-                                verbose=verbose)
+            # stripes = add_sheep(stripes,
+            #                     sheep=void(),
+            #                     id="margin_top",
+            #                     height=0,
+            #                     verbose=verbose)
+            # stripes = add_sheep(stripes,
+            #                     sheep=void(),
+            #                     id="margin_bottom",
+            #                     height=0,
+            #                     verbose=verbose)
                 
             for (k in 1:nStorylines) {
                 dataMOD_storyline = dplyr::filter(dataMOD, climateChain == Storylines[k])
@@ -379,67 +460,62 @@ sheet_projection_station = function (meta,
 
                 stripes = add_sheep(stripes,
                                     sheep=stripes_k,
-                                    id=paste0("stripes_", variable, "_", k),
+                                    id=k,
                                     # label="align",
                                     height=1,
                                     verbose=verbose)
             }
 
-            herd = add_sheep(herd,
-                             sheep=stripes,
-                             id=paste0("stripes_", variable),
-                             # label="align",
-                             height=stripes_height,
-                             verbose=verbose)
+            block = add_sheep(block,
+                              sheep=stripes,
+                              id="stripes",
+                              # label="align",
+                              height=variable_stripes_height,
+                              width=variable_graph_width,
+                              verbose=verbose)
 
             # spread = panel_spread(verbose=verbose)
             spread = contour()
-            herd = add_sheep(herd,
-                             sheep=spread,
-                             id=paste0("spread_", variable),
-                             # label="align",
-                             height=spread_height,
-                             verbose=verbose)
+            block = add_sheep(block,
+                              sheep=spread,
+                              id="spread",
+                              # label="align",
+                              height=variable_spread_height,
+                              width=variable_graph_width,
+                              verbose=verbose)
 
             # signe = panel_signe(verbose=verbose)
             signe = contour()
+            block = add_sheep(block,
+                              sheep=signe,
+                              id="signe",
+                              # label="align",
+                              height=variable_signe_height,
+                              width=variable_graph_width,
+                              verbose=verbose)
+
+            block = add_sheep(block,
+                              sheep=axis,
+                              id="axis",
+                              height=variable_axis_height,
+                              width=variable_graph_width,
+                              verbose=verbose)
+
+            block = add_sheep(block,
+                              sheep=void(),
+                              id="void",
+                              height=variable_void_height,
+                              width=1,
+                              verbose=verbose)
+
             herd = add_sheep(herd,
-                             sheep=signe,
-                             id=paste0("signe_", variable),
-                             # label="align",
-                             height=signe_height,
+                             sheep=block,
+                             id=variable,
+                             height=block_height,
+                             width=width,
                              verbose=verbose)
         }
 
-
-        axis = ggplot2::ggplot() +
-            ggplot2::theme(plot.margin=margin(t=0.0, r=0,
-                                              b=0.0, l=0, "mm")) +
-            theme_IPCC(isGridY=FALSE,
-                       tick_y=FALSE,
-                       label_y=FALSE,
-                       zeroLine=TRUE) + 
-            ggplot2::annotate("point",
-                              x=unique(dataEX_serie[["QA"]]$date),
-                              y=0, color=NA, fill=NA) +
-            ggplot2::scale_x_date(expand=c(0, 0)) +
-            ggplot2::scale_y_continuous(limits=c(0, 1),
-                                        expand=c(0, 0))
-        herd = add_sheep(herd,
-                         sheep=axis,
-                         id="axis_QJXA",
-                         height=axis_height,
-                         verbose=verbose)
-        herd = add_sheep(herd,
-                         sheep=axis,
-                         id="axis_QA",
-                         height=axis_height,
-                         verbose=verbose)
-        herd = add_sheep(herd,
-                         sheep=axis,
-                         id="axis_VCN10_summer",
-                         height=axis_height,
-                         verbose=verbose)
         
 
         footName = 'Fiche résultats projection'
