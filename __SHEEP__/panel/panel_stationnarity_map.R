@@ -64,7 +64,7 @@ panel_stationnarity_map = function (trendEX_variable,
     
     # Extract shapefiles
     france = Shapefiles$france
-    basinHydro = Shapefiles$basinHydro
+    bassinHydro = Shapefiles$bassinHydro
     regionHydro = Shapefiles$regionHydro
     secteurHydro = Shapefiles$secteurHydro
     entiteHydro = Shapefiles$entiteHydro
@@ -221,7 +221,7 @@ panel_stationnarity_map = function (trendEX_variable,
                 fill=IPCCgrey99)
 
     map = map +
-        geom_sf(data=basinHydro,
+        geom_sf(data=bassinHydro,
                 color=IPCCgrey85,
                 fill=NA,
                 size=0.2)

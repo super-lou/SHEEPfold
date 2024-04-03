@@ -23,6 +23,8 @@
 sheet_projection_station = function (meta,
                                      dataEX_serie,
                                      metaEX_serie,
+                                     dataEX_criteria,
+                                     metaEX_criteria,
                                      Colors,
                                      historical=c("1976-01-01", "2005-08-31"),
                                      prob=0.01, 
@@ -36,13 +38,14 @@ sheet_projection_station = function (meta,
     
     page_margin = c(t=0.5, r=0.5, b=0.5, l=0.5)
 
+    height = 29.7 - page_margin["t"] - page_margin["b"]
+    width = 21 - page_margin["l"] - page_margin["r"]
+    
     info_height = 3
     medQJ_height = 7
     foot_height = 1.25
 
-    block_height = (29.7 - page_margin["t"] - page_margin["b"] -
-                    info_height - medQJ_height -
-                    foot_height) / 3
+    block_height = (height - info_height - medQJ_height - foot_height) / 3
 
     variable_info_width = 0.2
     variable_graph_width = 0.8
@@ -54,46 +57,35 @@ sheet_projection_station = function (meta,
     variable_axis_height = 0.1
     variable_void_height = 0.04
     
-    width = 21 - page_margin["l"] - page_margin["r"]
     medQJ_width = width/3
 
-    plan = matrix(c(
+    plan_1 = matrix(c(
         "info", "info", "info",
-        
         "medQJ_H0", "medQJ_H2", "medQJ_H3",
-        
         "QJXA", "QJXA", "QJXA",
-        # "axis_QJXA", "axis_QJXA", "axis_QJXA",
-        
         "QA", "QA", "QA",
-        # "axis_QA", "axis_QA", "axis_QA",
-        
         "VCN10_summer", "VCN10_summer", "VCN10_summer",
-        # "axis_VCN10_summer", "axis_VCN10_summer", "axis_VCN10_summer",
-        
-        # "spread_JQXA", "spread_QJXA", "spread_QJXA",
-        # "signe_QJXA", "signe_QJXA", "signe_QJXA",
-        # "stripes_QJXA", "stripes_QJXA", "stripes_QJXA",
-        # "axis_QJXA", "axis_QJXA", "axis_QJXA",
-        
-        # "spread_QA", "spread_QA", "spread_QA",
-        # "signe_QA", "signe_QA", "signe_QA",
-        # "stripes_QA", "stripes_QA", "stripes_QA",
-        # "axis_QA", "axis_QA", "axis_QA",
-        
-        # "spread_VCN10_summer", "spread_VCN10_summer", "spread_VCN10_summer",
-        # "signe_VCN10_summer", "signe_VCN10_summer", "signe_VCN10_summer",
-        # "stripes_VC1N0_summer", "stripes_VCN10_summer", "stripes_VCN10_summer", 
-
         "foot", "foot", "foot"
     ), ncol=3, byrow=TRUE)
 
-    
-    # data_obs =
-    #     dplyr::summarise(dplyr::group_by(data, code, date),
-    #                      Q=median(Q_obs, na.rm=TRUE),
-    #                      .groups="drop")
+    plan_2 = matrix(c(
+        "HF", "HF", 
+        "MF", "MF",
+        "LF", "LF",
+        "QJXA-10", "VCN10-5", 
+        "foot", "foot"
+    ), ncol=2, byrow=TRUE)
 
+    extreme_height = 12
+    extreme_title_height = 0.048
+    extreme_graph_height = 0.952
+
+    bar_height = (height - extreme_height- foot_height) / 3
+    bar_title_height = 0.07
+    bar_graph_height = 0.93
+    
+    extreme_width = width/2
+    
 
     for (k in 1:length(dataEX_serie)) {
         dataEX_serie[[k]]$climateChain = paste(dataEX_serie[[k]]$GCM,
@@ -103,6 +95,14 @@ sheet_projection_station = function (meta,
         dataEX_serie[[k]]$Chain = paste(dataEX_serie[[k]]$climateChain,
                                         dataEX_serie[[k]]$HM, sep="|")
     }
+
+    dataEX_criteria$climateChain = paste(dataEX_criteria$GCM,
+                                         dataEX_criteria$EXP,
+                                         dataEX_criteria$RCM,
+                                         dataEX_criteria$BC, sep="|")
+    dataEX_criteria$Chain = paste(dataEX_criteria$climateChain,
+                                  dataEX_criteria$HM, sep="|")
+    
     Chain = unique(dataEX_serie[[1]]$Chain)
     nChain = length(Chain)
     
@@ -116,13 +116,39 @@ sheet_projection_station = function (meta,
     Variables_medQJ = c("medQJ_H0", "medQJ_H2", "medQJ_H3")
     nVariables_medQJ = length(Variables_medQJ)
     
-    Variables = unique(metaEX_serie$variable_en)
-    Variables = Variables[!grepl("medQJ", Variables)]
-    nVariables = length(Variables)
+    Variables_serie = unique(metaEX_serie$variable_en)
+    Variables_serie = Variables_serie[!grepl("medQJ", Variables_serie)]
+    nVariables_serie = length(Variables_serie)
     
     Storylines = names(Colors)
     nStorylines = length(Storylines)
     names(Colors) = paste0(names(Colors), "|median")
+
+
+    Titles_extreme = c("Crues extrèmes",
+                       "Étiages extrèmes")
+    Subtitles_extreme = c("Période de retour 10 ans", "Période de retour 5 ans")
+    Variables_extreme = c("QJXA-10", "VCN10-5")
+    nVariables_extreme = length(Variables_extreme)
+
+    Variables_delta = unique(metaEX_criteria$variable_en)
+    Variables_delta = Variables_delta[!grepl(paste0("(",
+                                                    paste0(gsub("[-]", "[-]",
+                                                                Variables_extreme),
+                                                           collapse=")|("),
+                                                    ")"),
+                                             Variables_delta)]
+    nVariables_delta = length(Variables_delta)
+
+
+
+    
+    TypesALL = sapply(strsplit(metaEX_criteria$topic_fr, ", "), "[", 2)
+    Types = unique(TypesALL)
+    nTypes = length(Types)
+    Types_plan = c("HF", "MF", "LF")
+    
+    
     
     for (i in 1:nCode) {
         code = Code[i]
@@ -130,6 +156,8 @@ sheet_projection_station = function (meta,
             print(paste0("diagnostic station datasheet for ", code,
                          "   ", round(i/nCode*100, 1), "% done"))
         }
+
+        id_letter = 0
         
         dataEX_serie_code = list()
         for (j in 1:length(dataEX_serie)) {
@@ -140,8 +168,9 @@ sheet_projection_station = function (meta,
         names(dataEX_serie_code) = names(dataEX_serie)
 
         
+## 1. PAGE 1 _________________________________________________________
         herd = bring_grass(verbose=verbose)
-        herd = plan_of_herd(herd, plan,
+        herd = plan_of_herd(herd, plan_1,
                             verbose=verbose)
         
         nProjections = length(unique(dataEX_serie_code[[1]]$Chain))
@@ -213,9 +242,6 @@ sheet_projection_station = function (meta,
                                                                  na.rm=TRUE),
                            .groups="drop")
 
-            # dataMOD_SAFRAN_med =
-                # dplyr::mutate(dataMOD_SAFRAN_med,
-                              # date=start_year + lubridate::yday(date)-1)
             
             dataMOD = dplyr::left_join(dataMOD,
                                        dplyr::select(dataMOD_SAFRAN_med,
@@ -239,7 +265,7 @@ sheet_projection_station = function (meta,
             
             medQJ = panel_spaghetti(dataMOD,
                                     Colors,
-                                    title=paste0("(", letters[j], ") Régime hydrologique"),
+                                    title=paste0("(", letters[id_letter+j], ") Régime hydrologique"),
                                     unit="m^{3}.s^{-1}",
                                     subtitle=Horizons[j],
                                     alpha=0.85,
@@ -285,54 +311,22 @@ sheet_projection_station = function (meta,
                              verbose=verbose)
             hide_y_axis = TRUE
         }
-
-
-
-
+        id_letter = id_letter + nVariables_medQJ
 
         Date =
             as.Date(paste0(
                 lubridate::year(unique(dataEX_serie[["QA"]]$date)),
                 "-01-01"))
 
-        Labels = c("1976", "2005",
-                   paste0("<b style='color:", IPCCgrey35, "'>2020</b>"),
-                   "2040",
-                   paste0("<b style='color:", IPCCgrey35, "'>2050</b>"),
-                   "2070",
-                   paste0("<b style='color:", IPCCgrey35, "'>2099</b>"))
-        majorDate = as.Date(c("1976-01-01", "2005-01-01", "2020-01-01",
-                              "2040-01-01", "2050-01-01",
-                              "2070-01-01", "2099-01-01"))
-        minorDate = seq.Date(as.Date("1980-01-01"),
-                             as.Date("2090-01-01"),
-                             "10 years")
-        minorDate = minorDate[!(minorDate %in% majorDate)]
+        axis = panel_axis(Date,
+                          size_axis.text.x=9,
+                          date_labels="%Y",
+                          breaks="10 years",
+                          minor_breaks="5 years")
         
-        axis = ggplot2::ggplot() +
-            ggplot2::theme(plot.margin=margin(t=0.0, r=0,
-                                              b=0.0, l=0, "mm")) +
-            theme_IPCC(isGridY=FALSE,
-                       tick_y=FALSE,
-                       label_y=FALSE,
-                       size_axis.text.x=9,
-                       zeroLine=TRUE) +
-            
-            ggplot2::annotate("point",
-                              x=Date, y=0,
-                              color=NA, fill=NA) +
-            ggplot2::scale_x_date(
-                         breaks=majorDate,
-                         minor_breaks=minorDate, 
-                         labels=Labels,
-                         guide="axis_minor",
-                         expand=c(0, 0)) +
-            ggplot2::scale_y_continuous(limits=c(0, 1),
-                                        expand=c(0, 0))
-
         
-        for (j in 1:nVariables) {
-            variable = Variables[j]
+        for (j in 1:nVariables_serie) {
+            variable = Variables_serie[j]
             print(variable)
             
             variable_to_display =
@@ -353,7 +347,7 @@ sheet_projection_station = function (meta,
                                  verbose=verbose)
 
             
-            titleTeX = TeX(paste0("(", letters[j+nVariables_medQJ], ") ",
+            titleTeX = TeX(paste0("(", letters[id_letter+j], ") ",
                               convert2TeX(variable_to_display, bold=TRUE),
                               " $-$ ", name_to_display))
             
@@ -515,7 +509,7 @@ sheet_projection_station = function (meta,
                              width=width,
                              verbose=verbose)
         }
-
+        id_letter = id_letter + nVariables_serie
         
 
         footName = 'Fiche résultats projection'
@@ -552,7 +546,7 @@ sheet_projection_station = function (meta,
         plot = res$plot
         paper_size = res$paper_size
 
-        filename = paste0(code, "_projection_datasheet.pdf")
+        filename = paste0(code, "_projection_datasheet_1.pdf")
 
         if (!(file.exists(figdir))) {
             dir.create(figdir, recursive=TRUE)
@@ -564,6 +558,171 @@ sheet_projection_station = function (meta,
                         height=paper_size[2], units='cm',
                         dpi=300,
                         device=cairo_pdf)
+
+
+## 2. PAGE 2 _________________________________________________________
+        herd = bring_grass(verbose=verbose)
+        herd = plan_of_herd(herd, plan_2,
+                            verbose=verbose)
+
+        for (j in 1:nTypes) {
+            type = Types[j]
+            type_plan = Types_plan[j]
+
+            print(type)
+            bar_plan = matrix(c("title",
+                                "graph"),
+                              ncol=1, byrow=TRUE)
+            bar = bring_grass(verbose=verbose)
+            bar = plan_of_herd(bar, bar_plan,
+                               verbose=verbose)
+            
+            titleTeX = TeX(paste0("(", letters[id_letter+j], ") ",
+                                  type))
+
+            title = ggplot() + theme_void() +
+                theme(plot.margin=margin(t=0, r=0,
+                                         b=0, l=0, "mm")) + 
+                annotate("text",
+                         x=0,
+                         y=1,
+                         label=titleTeX,
+                         size=3, hjust=0, vjust=1,
+                         color=IPCCgrey25) +
+                scale_x_continuous(limits=c(0, 1),
+                                   expand=c(0, 0)) +
+                scale_y_continuous(limits=c(0, 1),
+                                   expand=c(0, 0))
+            
+            bar = add_sheep(bar,
+                            sheep=title,
+                            id="title",
+                            height=bar_title_height,
+                            verbose=verbose)
+
+            bar = add_sheep(bar,
+                            sheep=contour(),
+                            id="graph",
+                            height=bar_graph_height,
+                            verbose=verbose)
+            
+            herd = add_sheep(herd,
+                             sheep=bar,
+                             id=type_plan,
+                             height=bar_height,
+                             verbose=verbose)
+        }
+        id_letter = id_letter + nTypes
+
+        
+        for (j in 1:nVariables_extreme) {
+            variable = Variables_extreme[j]
+            print(variable)
+            
+            title_text = Titles_extreme[j]
+            subtitle_text = Subtitles_extreme[j]
+
+            extreme_plan = matrix(c("title",
+                                    "graph"),
+                                  ncol=1, byrow=TRUE)
+            extreme = bring_grass(verbose=verbose)
+            extreme = plan_of_herd(extreme, extreme_plan,
+                                   verbose=verbose)
+            
+            titleTeX = TeX(paste0("(", letters[id_letter+j], ") ",
+                                  convert2TeX(variable, bold=TRUE),
+                                  " $-$ ", title_text))
+
+            title = ggplot() + theme_void() +
+                theme(plot.margin=margin(t=0, r=0,
+                                         b=0, l=0, "mm")) + 
+                annotate("text",
+                         x=0,
+                         y=1,
+                         label=titleTeX,
+                         size=3, hjust=0, vjust=1,
+                         color=IPCCgrey25) +
+                annotate("text",
+                         x=0.04,
+                         y=0,
+                         label=subtitle_text,
+                         size=2.5, hjust=0, vjust=0,
+                         color=IPCCgrey25) +
+                scale_x_continuous(limits=c(0, 1),
+                                   expand=c(0, 0)) +
+                scale_y_continuous(limits=c(0, 1),
+                                   expand=c(0, 0))
+            
+            extreme = add_sheep(extreme,
+                                sheep=title,
+                                id="title",
+                                height=extreme_title_height,
+                                verbose=verbose)
+
+            extreme = add_sheep(extreme,
+                                sheep=contour(),
+                                id="graph",
+                                height=extreme_graph_height,
+                                verbose=verbose)
+
+            
+            herd = add_sheep(herd,
+                             sheep=extreme,
+                             id=variable,
+                             height=extreme_height,
+                             width=extreme_width,
+                             verbose=verbose)
+        }
+        id_letter = id_letter + nVariables_extreme
+
+
+        
+        if (is.null(Pages)) {
+            n_page = i
+        } else {
+            if (nrow(Pages) == 0) {
+                n_page = 1
+            } else {
+                n_page = Pages$n[nrow(Pages)] + 1
+            }
+            Pages = bind_rows(
+                Pages,
+                tibble(section=footName,
+                       subsection=code,
+                       n=n_page))
+        }
+
+        foot = panel_foot(footName, n_page,
+                          foot_height, logo_info,
+                          verbose=verbose)
+        herd = add_sheep(herd,
+                         sheep=foot,
+                         id="foot",
+                         height=foot_height,
+                         verbose=verbose)
+
+        res = return_to_sheepfold(herd,
+                                  page_margin=page_margin,
+                                  paper_size="A4",
+                                  hjust=0, vjust=1,
+                                  verbose=verbose)
+        
+        plot = res$plot
+        paper_size = res$paper_size
+
+        filename = paste0(code, "_projection_datasheet_2.pdf")
+
+        if (!(file.exists(figdir))) {
+            dir.create(figdir, recursive=TRUE)
+        }
+        ggplot2::ggsave(plot=plot,
+                        path=figdir,
+                        filename=filename,
+                        width=paper_size[1],
+                        height=paper_size[2], units='cm',
+                        dpi=300,
+                        device=cairo_pdf)
+        
     }
     return (Pages)
 }

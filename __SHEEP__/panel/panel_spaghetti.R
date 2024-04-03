@@ -266,7 +266,8 @@ panel_spaghetti = function (data_code, Colors=NULL,
     spag = ggplot() + coord_cartesian(clip="off") + 
         theme_IPCC(isBack,
                    isLabelX=!is.null(Xlabel),
-                   isLabelY=!isTitleAbove) +
+                   isLabelY=!isTitleAbove,
+                   is_axis.ticks.y=FALSE) +
         theme(panel.border=element_blank(),
               axis.text.y=element_text(size=sizeYticks))
 

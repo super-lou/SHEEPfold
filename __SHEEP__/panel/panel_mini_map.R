@@ -44,7 +44,7 @@ panel_mini_map = function (meta, Shapefiles,
     
     # Extract shapefiles
     france = Shapefiles$france
-    basinHydro = Shapefiles$basinHydro
+    bassinHydro = Shapefiles$bassinHydro
     regionHydro = Shapefiles$regionHydro
     entiteHydro = Shapefiles$entiteHydro
     entitePiezo = Shapefiles$entitePiezo
@@ -69,7 +69,7 @@ panel_mini_map = function (meta, Shapefiles,
 
     map = map +
         # Plot the hydrological basin
-        geom_sf(data=basinHydro,
+        geom_sf(data=bassinHydro,
                 color=IPCCgrey85,
                 fill=NA,
                 size=0.25)
