@@ -264,12 +264,12 @@ panel_spaghetti = function (data_code, Colors=NULL,
 
     # Open new plot
     spag = ggplot() + coord_cartesian(clip="off") + 
-        theme_IPCC(isBack,
+        theme_IPCC(is_panel.background=isBack,
                    isLabelX=!is.null(Xlabel),
                    isLabelY=!isTitleAbove,
+                   axis.text.y_size=sizeYticks,
                    is_axis.ticks.y=FALSE) +
-        theme(panel.border=element_blank(),
-              axis.text.y=element_text(size=sizeYticks))
+        theme(panel.border=element_blank())
 
     if (!isTitleAbove) {
         spag = spag + ylab(TeX(titleTeX))

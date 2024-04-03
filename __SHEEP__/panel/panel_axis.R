@@ -23,7 +23,7 @@
 #' @title Info panel
 #' @export
 panel_axis = function(X,
-                      size_axis.text.x=9,
+                      axis.text.x_size=9,
                       date_labels="%Y",
                       breaks="10 years",
                       minor_breaks="2 years",
@@ -101,9 +101,9 @@ panel_axis = function(X,
         ggplot2::theme(plot.margin=axis_margin) +
         theme_IPCC(isGridY=FALSE,
                    is_axis.ticks.y=FALSE,
-                   label_y=FALSE,
-                   size_axis.text.x=size_axis.text.x,
-                   zeroLine=TRUE) +
+                   is_axis.text.y=FALSE,
+                   axis.text.x_size=axis.text.x_size,
+                   is_axis.line.x=TRUE) +
         
         ggplot2::annotate("point",
                           x=X, y=0,

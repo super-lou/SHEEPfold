@@ -115,7 +115,7 @@ sheet_precip_ratio = function (dataEX,
                          verbose=verbose)
 
 
-        graph = ggplot() + theme_IPCC(isBack=FALSE,
+        graph = ggplot() + theme_IPCC(is_panel.background=FALSE,
                                       isGridX=FALSE, isGridY=FALSE,
                                       isLabelX=TRUE, isLabelY=TRUE) +
             theme(plot.margin=margin(t=0, r=0, b=0, l=0, "cm")) +

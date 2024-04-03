@@ -262,7 +262,7 @@ panel_trend = function (variable,
 
 
 ## PLOT ______________________________________________________________
-    p = ggplot() + theme_IPCC(isBack=FALSE,
+    p = ggplot() + theme_IPCC(is_back=FALSE,
                               isGridX=FALSE, isGridY=FALSE,
                               isTitle=FALSE,
                               isLabelX=FALSE, isLabelY=TRUE)

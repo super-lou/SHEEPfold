@@ -80,9 +80,9 @@ sheet_projection_station = function (meta,
     extreme_title_height = 0.048
     extreme_graph_height = 0.952
 
-    bar_height = (height - extreme_height- foot_height) / 3
-    bar_title_height = 0.07
-    bar_graph_height = 0.93
+    delta_height = (height - extreme_height- foot_height) / 3
+    delta_title_height = 0.07
+    delta_graph_height = 0.93
     
     extreme_width = width/2
     
@@ -102,9 +102,6 @@ sheet_projection_station = function (meta,
                                          dataEX_criteria$BC, sep="|")
     dataEX_criteria$Chain = paste(dataEX_criteria$climateChain,
                                   dataEX_criteria$HM, sep="|")
-    
-    Chain = unique(dataEX_serie[[1]]$Chain)
-    nChain = length(Chain)
     
     Code = levels(factor(dataEX_serie[[1]]$code))
     nCode = length(Code)
@@ -131,24 +128,41 @@ sheet_projection_station = function (meta,
     Variables_extreme = c("QJXA-10", "VCN10-5")
     nVariables_extreme = length(Variables_extreme)
 
-    Variables_delta = unique(metaEX_criteria$variable_en)
-    Variables_delta = Variables_delta[!grepl(paste0("(",
-                                                    paste0(gsub("[-]", "[-]",
-                                                                Variables_extreme),
-                                                           collapse=")|("),
-                                                    ")"),
-                                             Variables_delta)]
+    Variables_delta = metaEX_criteria$variable_en
+    Topics = metaEX_criteria$topic_fr
+    Ok = !grepl(get_regexp(Variables_extreme), Variables_delta)
+    Variables_delta = Variables_delta[Ok]
+    Topics = Topics[Ok]
+    Variables_delta = gsub("[_]H[[:digit:]]", "", Variables_delta)
+    Ok = !duplicated(Variables_delta)
+    Variables_delta = Variables_delta[Ok]
+    Topics = Topics[Ok]
     nVariables_delta = length(Variables_delta)
 
-
-
-    
-    TypesALL = sapply(strsplit(metaEX_criteria$topic_fr, ", "), "[", 2)
+    TypesALL = sapply(strsplit(Topics, ", "), "[", 2)
     Types = unique(TypesALL)
     nTypes = length(Types)
     Types_plan = c("HF", "MF", "LF")
     
-    
+    dataEX_criteria = dataEX_criteria[, !grepl("[_]H1", names(dataEX_criteria))]
+    deltaHorizon = c("H2", "H3")
+    nDeltaHorizon = length(deltaHorizon)
+
+
+    delta_prob = 0.05
+
+    dataEX_criteria_prob =
+        dplyr::summarise(dplyr::group_by(dataEX_criteria,
+                                         code),
+                         dplyr::across(dplyr::where(is.numeric),
+                                       ~quantile(.x, delta_prob,
+                                                 na.rm=TRUE),
+                                       .names="min_{.col}"),
+                         dplyr::across(dplyr::where(is.numeric),
+                                       ~quantile(.x, 1-delta_prob,
+                                                 na.rm=TRUE),
+                                       .names="max_{.col}"))
+
     
     for (i in 1:nCode) {
         code = Code[i]
@@ -167,18 +181,24 @@ sheet_projection_station = function (meta,
         }
         names(dataEX_serie_code) = names(dataEX_serie)
 
+        dataEX_criteria_code = dataEX_criteria[dataEX_criteria$code == code,]
+        dataEX_criteria_prob_code = dataEX_criteria_prob[dataEX_criteria_prob$code == code,]
+            
+        Chain = unique(dplyr::filter(dataEX_criteria_code, EXP != "SAFRAN")$Chain)
+        nChain = length(Chain)
+        
         
 ## 1. PAGE 1 _________________________________________________________
         herd = bring_grass(verbose=verbose)
         herd = plan_of_herd(herd, plan_1,
                             verbose=verbose)
         
-        nProjections = length(unique(dataEX_serie_code[[1]]$Chain))
+        # nProjections = length(unique(dataEX_serie_code[[1]]$Chain))
         info = panel_info_station(
             meta=meta,
             Shapefiles=Shapefiles,
             codeLight=code,
-            nProjections=nProjections,
+            nProjections=nChain,
             to_do=c("title", "subtitle", "map", "spatial", "projection"),
             if_NA_unkowned=FALSE,
             subtitle_height=0.28,
@@ -319,7 +339,7 @@ sheet_projection_station = function (meta,
                 "-01-01"))
 
         axis = panel_axis(Date,
-                          size_axis.text.x=9,
+                          axis.text.x_size=9,
                           date_labels="%Y",
                           breaks="10 years",
                           minor_breaks="5 years")
@@ -537,27 +557,27 @@ sheet_projection_station = function (meta,
                          height=foot_height,
                          verbose=verbose)
 
-        res = return_to_sheepfold(herd,
-                                  page_margin=page_margin,
-                                  paper_size="A4",
-                                  hjust=0, vjust=1,
-                                  verbose=verbose)
+        # res = return_to_sheepfold(herd,
+        #                           page_margin=page_margin,
+        #                           paper_size="A4",
+        #                           hjust=0, vjust=1,
+        #                           verbose=verbose)
         
-        plot = res$plot
-        paper_size = res$paper_size
+        # plot = res$plot
+        # paper_size = res$paper_size
 
-        filename = paste0(code, "_projection_datasheet_1.pdf")
+        # filename = paste0(code, "_projection_datasheet_1.pdf")
 
-        if (!(file.exists(figdir))) {
-            dir.create(figdir, recursive=TRUE)
-        }
-        ggplot2::ggsave(plot=plot,
-                        path=figdir,
-                        filename=filename,
-                        width=paper_size[1],
-                        height=paper_size[2], units='cm',
-                        dpi=300,
-                        device=cairo_pdf)
+        # if (!(file.exists(figdir))) {
+        #     dir.create(figdir, recursive=TRUE)
+        # }
+        # ggplot2::ggsave(plot=plot,
+        #                 path=figdir,
+        #                 filename=filename,
+        #                 width=paper_size[1],
+        #                 height=paper_size[2], units='cm',
+        #                 dpi=300,
+        #                 device=cairo_pdf)
 
 
 ## 2. PAGE 2 _________________________________________________________
@@ -570,12 +590,12 @@ sheet_projection_station = function (meta,
             type_plan = Types_plan[j]
 
             print(type)
-            bar_plan = matrix(c("title",
-                                "graph"),
-                              ncol=1, byrow=TRUE)
-            bar = bring_grass(verbose=verbose)
-            bar = plan_of_herd(bar, bar_plan,
-                               verbose=verbose)
+            delta_plan = matrix(c("title",
+                                  "graph"),
+                                ncol=1, byrow=TRUE)
+            delta = bring_grass(verbose=verbose)
+            delta = plan_of_herd(delta, delta_plan,
+                                 verbose=verbose)
             
             titleTeX = TeX(paste0("(", letters[id_letter+j], ") ",
                                   type))
@@ -594,22 +614,235 @@ sheet_projection_station = function (meta,
                 scale_y_continuous(limits=c(0, 1),
                                    expand=c(0, 0))
             
-            bar = add_sheep(bar,
+            delta = add_sheep(delta,
                             sheep=title,
                             id="title",
-                            height=bar_title_height,
+                            height=delta_title_height,
                             verbose=verbose)
 
-            bar = add_sheep(bar,
-                            sheep=contour(),
-                            id="graph",
-                            height=bar_graph_height,
-                            verbose=verbose)
+
+            Variables_delta_type = Variables_delta[TypesALL == type]
+            nVariables_delta_type = length(Variables_delta_type)
+
+            graph_plan = matrix(c(Variables_delta_type, "void"),
+                                ncol=nVariables_delta_type+1, byrow=TRUE)
+            graph = bring_grass(verbose=verbose)
+            graph = plan_of_herd(graph, graph_plan,
+                                 verbose=verbose)
+
+            for (k in 1:nVariables_delta_type) {
+                variable = Variables_delta_type[k]
+
+                dx_bar = 0.6
+                dColor = 1
+                
+                limits_x = c(-dx_bar*1.3, 1+(nDeltaHorizon-1)*(1+dx_bar)+dx_bar*1.3)
+                
+                bar = ggplot() + theme_IPCC(is_panel.background=TRUE,
+                                            is_axis.ticks.y=FALSE,
+                                            axis.text.y_size=8,
+                                            axis.text.y_margin=
+                                                margin(t=0.5, r=-0.6,
+                                                       b=0, l=0,
+                                                unit="mm"),
+                                            is_axis.line.x=FALSE,
+                                            is_axis.ticks.x=FALSE,
+                                            is_axis.text.x=FALSE) +
+                    theme(plot.margin=margin(t=2, r=3,
+                                             b=4, l=0, "mm"))
+                
+                for (h in 1:nDeltaHorizon) {
+                    H = deltaHorizon[h]
+                    variable_H = paste0(variable, "_", H)
+                    limits_bar = c((h-1)*(1+dx_bar),
+                                   1+(h-1)*(1+dx_bar))
+
+                    Ok = metaEX_criteria$variable_en == variable_H
+                    Palette = metaEX_criteria$palette[Ok]
+                    Palette = unlist(strsplit(Palette, " "))
+                    nColor = length(Palette)
+
+                    unit = metaEX_criteria$unit_fr[Ok]
+                    
+                    Delta_variable_H = dataEX_criteria_code[[variable_H]]
+                    Chain_variable_H = dataEX_criteria_code$Chain
+                    
+
+                    minDelta_variable_H =
+                        dataEX_criteria_prob_code[[paste0("min_", variable_H)]]
+                    maxDelta_variable_H =
+                        dataEX_criteria_prob_code[[paste0("max_", variable_H)]]
+                    nDelta_variable_H = length(Delta_variable_H)
+                    
+                    tmp = dplyr::tibble(Chain=rep(Chain_variable_H, each=2),
+                                        x=rep(limits_bar, nDelta_variable_H),
+                                        y=rep(Delta_variable_H, each=2))
+                    
+                    bar = bar +
+                        annotate("rect",
+                                 xmin=limits_bar[1], xmax=limits_bar[2],
+                                 ymin=minDelta_variable_H,
+                                 ymax=maxDelta_variable_H,
+                                 fill="white",
+                                 color=NA)
+
+                    if (minDelta_variable_H <= 0) {
+                        bar = bar +
+                            annotate("rect",
+                                     xmin=limits_bar[1], xmax=limits_bar[2],
+                                     ymin=minDelta_variable_H,
+                                     ymax=min(c(0, maxDelta_variable_H)),
+                                     fill=Palette[1+dColor],
+                                     alpha=0.2,
+                                     color=NA) +
+                            geom_line(data=dplyr::filter(tmp, y <= 0),
+                                      aes(x=x, y=y, group=Chain),
+                                      color=Palette[1+dColor],
+                                      linewidth=0.3,
+                                      alpha=0.07,
+                                      lineend="round")
+                    }
+                    if (0 <= maxDelta_variable_H) {
+                        bar = bar +
+                            annotate("rect",
+                                     xmin=limits_bar[1], xmax=limits_bar[2],
+                                     ymin=max(c(0, minDelta_variable_H)),
+                                     ymax=maxDelta_variable_H,
+                                     fill=Palette[nColor-dColor],
+                                     alpha=0.2,
+                                     color=NA) +
+                            geom_line(data=dplyr::filter(tmp, 0 <= y),
+                                      aes(x=x, y=y, group=Chain),
+                                      color=Palette[nColor-dColor],
+                                      linewidth=0.3,
+                                      alpha=0.07,
+                                      lineend="round")
+                    }
+                }
+                
+                bar = bar +
+                    annotate("line",
+                             x=limits_x, y=c(0, 0),
+                             color=IPCCgrey60, size=0.35,
+                             lineend="square")
+
+                for (h in 1:nDeltaHorizon) {
+                    H = deltaHorizon[h]
+                    variable_H = paste0(variable, "_", H)
+                    limits_bar = c((h-1)*(1+dx_bar),
+                                   1+(h-1)*(1+dx_bar))
+
+                    Delta_variable_H = dataEX_criteria_code[[variable_H]]
+                    medDelta_variable_H = median(Delta_variable_H, na.rm=TRUE)
+
+                    if (medDelta_variable_H <= 0) {
+                        bar = bar +
+                            annotate("line",
+                                     x=limits_bar, y=rep(medDelta_variable_H, 2),
+                                     color=Palette[1+dColor],
+                                     linewidth=0.4,
+                                     alpha=0.7,
+                                     lineend="round")
+                    } else {
+                        bar = bar +
+                            annotate("line",
+                                     x=limits_bar, y=rep(medDelta_variable_H, 2),
+                                     color=Palette[nColor-dColor],
+                                     linewidth=0.4,
+                                     alpha=0.7,
+                                     lineend="round")
+                    }
+                }
+
+                
+                Delta_min =
+                    unlist(dplyr::select(dataEX_criteria_prob,
+                                         dplyr::all_of(paste0("min_", variable,
+                                                              "_", deltaHorizon))),
+                           use.names=FALSE)
+
+                Delta_max =
+                    unlist(dplyr::select(dataEX_criteria_prob,
+                                         dplyr::all_of(paste0("max_", variable,
+                                                              "_", deltaHorizon))),
+                           use.names=FALSE)
+                
+                limits_y = c(min(Delta_min, na.rm=TRUE),
+                             max(Delta_max, na.rm=TRUE))
+
+                Labels = pretty(limits_y)
+                Breaks = Labels
+                
+                # Labels = seq(round(limits_y[1]/20)-1,
+                             # round(limits_y[2]/20)+1)*20
+                # Labels =  Labels[limits_y[1] <= Labels &
+                # Labels <= limits_y[2]]
+                                
+                get_label = function (x) {
+                    if (nchar(unit) == 1) {
+                        unitHTML = paste0("<span style='font-size:6pt'>", unit, "</span>")
+                    } else {
+                        if (x != 0) {
+                            unit = paste0(unit, "s")
+                        }
+                        unitHTML = paste0("<br><sup style='font-size:6pt'>", unit, "</sup>")
+                    }
+                    
+                    if (x < 0) {
+                        paste0("<span style='color:", Palette[1+dColor], "'>",
+                               "<b>", x, "</b>",
+                               unitHTML,
+                               "</span>")
+                    } else if (x > 0) {
+                        paste0("<span style='color:", Palette[nColor-dColor], "'>",
+                               "<b>", x, "</b>",
+                               unitHTML,
+                               "</span>")
+                    } else {
+                        paste0("<span style=''>",
+                               "<b>", x, "</b>",
+                               unitHTML,
+                               "</span>")
+                    }
+                }
+
+                Labels = sapply(Labels, get_label)
+                
+                
+                bar = bar +
+                    scale_x_continuous(limits=limits_x,
+                                       expand=c(0, 0)) +
+                    scale_y_continuous(limits=limits_y,
+                                       labels=Labels,
+                                       breaks=Breaks,
+                                       expand=c(0, 0))
+
+                
+                graph = add_sheep(graph,
+                                  sheep=bar,
+                                  id=variable,
+                                  width=0.16,
+                                  verbose=verbose)
+            }
+            
+            graph = add_sheep(graph,
+                              sheep=void(),
+                              id="void",
+                              width=0.1,
+                              verbose=verbose)
+            
+            delta = add_sheep(delta,
+                              sheep=graph,
+                              id="graph",
+                              height=delta_graph_height,
+                              width=width,
+                              verbose=verbose)
             
             herd = add_sheep(herd,
-                             sheep=bar,
+                             sheep=delta,
                              id=type_plan,
-                             height=bar_height,
+                             height=delta_height,
+                             width=width,
                              verbose=verbose)
         }
         id_letter = id_letter + nTypes
