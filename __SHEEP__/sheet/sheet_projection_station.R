@@ -77,14 +77,12 @@ sheet_projection_station = function (meta,
     ), ncol=1, byrow=TRUE)
 
     extreme_height = 6
-    extreme_title_height = 0.1
-    extreme_H_n_height = 0.3
-    extreme_H_delta_height = 0.6
-    extreme_H_height = NA
-    
-    extreme_H_width = 1
+    extreme_title_height = 0.12
+    extreme_H_height = 0.88
+
     extreme_leg_width = 0.5
-    extreme_void_width = 0.05
+    extreme_void_width = 0.1
+    extreme_voidex_width = 0.15
     
     extreme_H_title_height = 0.1
     extreme_H_sL_height = 0.9
@@ -101,9 +99,8 @@ sheet_projection_station = function (meta,
     delta_type_bar_title_height = 0.08
     delta_type_bar_plot_height = 0.94
 
-    # extreme_width = width/2
-    
 
+    
     for (k in 1:length(dataEX_serie)) {
         dataEX_serie[[k]]$climateChain = paste(dataEX_serie[[k]]$GCM,
                                                dataEX_serie[[k]]$EXP,
@@ -146,11 +143,11 @@ sheet_projection_station = function (meta,
 
     Titles_extreme = c("Crues extrèmes de période de retour 10 ans",
                        "Étiages extrèmes de période de retour 5 ans")
-    # Subtitles_extreme = c("", "")
     Variables_extreme = c("QJXA-10", "VCN10-5")
+    nVariables_extreme = length(Variables_extreme)
     rp_Variables_extreme = c(10, 5)
     div_Variables_extreme = 30/rp_Variables_extreme
-    nVariables_extreme = length(Variables_extreme)
+    limits_bar_y = list(c(0, 100), c(-100, 0))
 
     Variables_delta = metaEX_criteria$variable_en
     Topics = metaEX_criteria$topic_fr
@@ -181,17 +178,17 @@ sheet_projection_station = function (meta,
     
     delta_prob = 0.05
 
-    # dataEX_criteria_prob =
-    #     dplyr::summarise(dplyr::group_by(dataEX_criteria,
-    #                                      code),
-    #                      dplyr::across(dplyr::where(is.numeric),
-    #                                    ~quantile(.x, delta_prob,
-    #                                              na.rm=TRUE),
-    #                                    .names="min_{.col}"),
-    #                      dplyr::across(dplyr::where(is.numeric),
-    #                                    ~quantile(.x, 1-delta_prob,
-    #                                              na.rm=TRUE),
-    #                                    .names="max_{.col}"))
+    dataEX_criteria_prob =
+        dplyr::summarise(dplyr::group_by(dataEX_criteria,
+                                         code),
+                         dplyr::across(dplyr::where(is.numeric),
+                                       ~quantile(.x, delta_prob,
+                                                 na.rm=TRUE),
+                                       .names="min_{.col}"),
+                         dplyr::across(dplyr::where(is.numeric),
+                                       ~quantile(.x, 1-delta_prob,
+                                                 na.rm=TRUE),
+                                       .names="max_{.col}"))
 
     
     for (i in 1:nCode) {
@@ -212,7 +209,8 @@ sheet_projection_station = function (meta,
         names(dataEX_serie_code) = names(dataEX_serie)
 
         dataEX_criteria_code = dataEX_criteria[dataEX_criteria$code == code,]
-        # dataEX_criteria_prob_code = dataEX_criteria_prob[dataEX_criteria_prob$code == code,]
+        dataEX_criteria_prob_code =
+            dataEX_criteria_prob[dataEX_criteria_prob$code == code,]
             
         Chain = unique(dplyr::filter(dataEX_criteria_code, EXP != "SAFRAN")$Chain)
         nChain = length(Chain)
@@ -619,411 +617,412 @@ sheet_projection_station = function (meta,
         herd = plan_of_herd(herd, plan_2,
                             verbose=verbose)
 
-        # delta_plan = matrix(c("title", Types_short),
-        #                     ncol=1, byrow=TRUE)
-        # delta = bring_grass(verbose=verbose)
-        # delta = plan_of_herd(delta, delta_plan,
-        #                      verbose=verbose)
+        delta_plan = matrix(c("title", Types_short),
+                            ncol=1, byrow=TRUE)
+        delta = bring_grass(verbose=verbose)
+        delta = plan_of_herd(delta, delta_plan,
+                             verbose=verbose)
 
-        # text = paste0("(", letters[id_letter+1], ") ",
-        #               "Changement sur l'", Horizons_delta[2], " (à gauche) et ",
-        #               "l'", Horizons_delta[3], " (à droite) par rapport à la ", Horizons_delta[1])
+        text = paste0("(", letters[id_letter+1], ") ",
+                      "Changement sur l'", Horizons_delta[2], " (à gauche) et ",
+                      "l'", Horizons_delta[3], " (à droite) par rapport à la ", Horizons_delta[1])
         
-        # title = ggplot() + theme_void() +
-        #     theme(plot.margin=margin(t=0, r=0,
-        #                              b=0, l=0, "mm")) + 
-        #     annotate("text",
-        #              x=0,
-        #              y=1,
-        #              label=text,
-        #              size=3, hjust=0, vjust=1,
-        #              color=IPCCgrey23) +
-        #     scale_x_continuous(limits=c(0, 1),
-        #                        expand=c(0, 0)) +
-        #     scale_y_continuous(limits=c(0, 1),
-        #                        expand=c(0, 0))
+        title = ggplot() + theme_void() +
+            theme(plot.margin=margin(t=0, r=0,
+                                     b=0, l=0, "mm")) + 
+            annotate("text",
+                     x=0,
+                     y=1,
+                     label=text,
+                     size=3, hjust=0, vjust=1,
+                     color=IPCCgrey23) +
+            scale_x_continuous(limits=c(0, 1),
+                               expand=c(0, 0)) +
+            scale_y_continuous(limits=c(0, 1),
+                               expand=c(0, 0))
         
-        # delta = add_sheep(delta,
-        #                   sheep=title,
-        #                   id="title",
-        #                   height=delta_title_height,
-        #                   verbose=verbose)
+        delta = add_sheep(delta,
+                          sheep=title,
+                          id="title",
+                          height=delta_title_height,
+                          verbose=verbose)
         
-        # for (j in 1:nTypes) {
-        #     type = Types[j]
-        #     type_short = Types_short[j]
+        for (j in 1:nTypes) {
+            type = Types[j]
+            type_short = Types_short[j]
 
-        #     print(type)
+            print(type)
 
-        #     Variables_delta_type = Variables_delta[TypesALL == type]
-        #     nVariables_delta_type = length(Variables_delta_type)
+            Variables_delta_type = Variables_delta[TypesALL == type]
+            nVariables_delta_type = length(Variables_delta_type)
 
-        #     grepl_first = function (pattern, table) {
-        #         which(grepl(get_regexp(pattern), table))[1]
-        #     }
-        #     Ok = sapply(Variables_delta_type, grepl_first,
-        #                 table=metaEX_criteria$variable_en)
+            # print(Variables_delta_type)
+
+            grepl_first = function (pattern, table) {
+                which(grepl(get_regexp(pattern), table))[1]
+            }
+            Ok = sapply(Variables_delta_type, grepl_first,
+                        table=metaEX_criteria$variable_en)
             
-        #     Units = metaEX_criteria$unit_fr[Ok]
-        #     if (all(nchar(Units) == 1) | all(nchar(Units) != 1)) {
-        #         delta_type_void_width = 0.09
-        #     } else {
-        #         delta_type_void_width = 0
-        #     }
-        #     Variables_delta_type =
-        #         c(Variables_delta_type[nchar(Units) == 1],
-        #           Variables_delta_type[nchar(Units) > 1])
+            Units = metaEX_criteria$unit_fr[Ok]
+            if (all(nchar(Units) == 1) | all(nchar(Units) != 1)) {
+                delta_type_void_width = 0.09
+            } else {
+                delta_type_void_width = 0
+            }
+            Variables_delta_type =
+                c(Variables_delta_type[nchar(Units) == 1],
+                  Variables_delta_type[nchar(Units) > 1])
             
-        #     Variables_delta_type_display =
-        #         gsub("(delta)|([{])|([}])", "", Variables_delta_type)
+            Variables_delta_type_display =
+                gsub("(delta)|([{])|([}])", "", Variables_delta_type)
             
-        #     delta_type_plan = matrix(c("title", Variables_delta_type_display, "void"),
-        #                              ncol=nVariables_delta_type+2, byrow=TRUE)
-        #     delta_type = bring_grass(verbose=verbose)
-        #     delta_type = plan_of_herd(delta_type, delta_type_plan,
-        #                               verbose=verbose)
+            delta_type_plan = matrix(c("title", Variables_delta_type_display, "void"),
+                                     ncol=nVariables_delta_type+2, byrow=TRUE)
+            delta_type = bring_grass(verbose=verbose)
+            delta_type = plan_of_herd(delta_type, delta_type_plan,
+                                      verbose=verbose)
 
             
-        #     titleTeX = TeX(paste0("\\textbf{", type, "}"))
+            titleTeX = TeX(paste0("\\textbf{", type, "}"))
 
-        #     title = ggplot() + theme_void() +
-        #         theme(plot.margin=margin(t=0, r=0,
-        #                                  b=0, l=0, "mm")) + 
-        #         annotate("text",
-        #                  x=0,
-        #                  y=0.5,
-        #                  label=titleTeX,
-        #                  size=3, hjust=0.5, vjust=1,
-        #                  color=IPCCgrey23, angle=90) +
-        #         scale_x_continuous(limits=c(0, 1),
-        #                            expand=c(0, 0)) +
-        #         scale_y_continuous(limits=c(0, 1),
-        #                            expand=c(0, 0))
+            title = ggplot() + theme_void() +
+                theme(plot.margin=margin(t=0, r=0,
+                                         b=0, l=0, "mm")) + 
+                annotate("text",
+                         x=0,
+                         y=0.5,
+                         label=titleTeX,
+                         size=3, hjust=0.5, vjust=1,
+                         color=IPCCgrey23, angle=90) +
+                scale_x_continuous(limits=c(0, 1),
+                                   expand=c(0, 0)) +
+                scale_y_continuous(limits=c(0, 1),
+                                   expand=c(0, 0))
             
-        #     delta_type = add_sheep(delta_type,
-        #                            sheep=title,
-        #                            id="title",
-        #                            width=delta_type_title_width,
-        #                            verbose=verbose)
+            delta_type = add_sheep(delta_type,
+                                   sheep=title,
+                                   id="title",
+                                   width=delta_type_title_width,
+                                   verbose=verbose)
 
-        #     delta_type = add_sheep(delta_type,
-        #                            sheep=void(),
-        #                            id="void",
-        #                            width=delta_type_void_width,
-        #                            verbose=verbose)
+            delta_type = add_sheep(delta_type,
+                                   sheep=void(),
+                                   id="void",
+                                   width=delta_type_void_width,
+                                   verbose=verbose)
 
-        #     unit_save = ""
+            unit_save = ""
             
-        #     for (k in 1:nVariables_delta_type) {
-        #         variable = Variables_delta_type[k]
-        #         variable_display = Variables_delta_type_display[k]
+            for (k in 1:nVariables_delta_type) {
+                variable = Variables_delta_type[k]
+                variable_display = Variables_delta_type_display[k]
                 
-        #         # print(variable)
-        #         # print(variable_clean)
+                # print(variable)
+                # print(variable_clean)
                 
-        #         dx_bar = 1.1
-        #         dx_sL = 1.1
-        #         dColor = 1
+                dx_bar = 1.1
+                dx_sL = 1.1
+                dColor = 1
                 
-        #         limits_x = c(-dx_bar*0.7 - dx_sL, (nDeltaHorizon-1)*dx_bar +
-        #                                           nDeltaHorizon*(1+dx_sL) +
-        #                                           dx_bar*0.7)
+                limits_x = c(-dx_bar*0.7 - dx_sL, (nDeltaHorizon-1)*dx_bar +
+                                                  nDeltaHorizon*(1+dx_sL) +
+                                                  dx_bar*0.7)
 
 
-        #         bar_plan = matrix(c("title",
-        #                             "plot"),
-        #                           ncol=1, byrow=TRUE)
-        #         bar = bring_grass(verbose=verbose)
-        #         bar = plan_of_herd(bar, bar_plan,
-        #                            verbose=verbose)
+                bar_plan = matrix(c("title",
+                                    "plot"),
+                                  ncol=1, byrow=TRUE)
+                bar = bring_grass(verbose=verbose)
+                bar = plan_of_herd(bar, bar_plan,
+                                   verbose=verbose)
 
-        #         titleTeX = TeX(convert2TeX(variable_display, bold=TRUE))
+                titleTeX = TeX(convert2TeX(variable_display, bold=TRUE))
                 
-        #         title = ggplot() + theme_void() +
-        #             theme(plot.margin=margin(t=0, r=0,
-        #                                      b=0, l=0, "mm")) + 
-        #             annotate("text",
-        #                      x=0.5,
-        #                      y=0.96,
-        #                      label=titleTeX,
-        #                      size=2.5, hjust=0.5, vjust=1,
-        #                      color=IPCCgrey40) +
-        #             annotate("line",
-        #                      # x=c(0.07, 0.86),
-        #                      x=c(0, 1),
-        #                      y=c(0.08, 0.08),
-        #                      linewidth=0.4, color=IPCCgrey40,
-        #                      lineend="round") +
-        #             scale_x_continuous(limits=c(0, 1),
-        #                                expand=c(0, 0)) +
-        #             scale_y_continuous(limits=c(0, 1),
-        #                                expand=c(0, 0))
+                title = ggplot() + theme_void() +
+                    theme(plot.margin=margin(t=0, r=0,
+                                             b=0, l=0, "mm")) + 
+                    annotate("text",
+                             x=0.5,
+                             y=0.96,
+                             label=titleTeX,
+                             size=2.5, hjust=0.5, vjust=1,
+                             color=IPCCgrey40) +
+                    annotate("line",
+                             # x=c(0.07, 0.86),
+                             x=c(0, 1),
+                             y=c(0.08, 0.08),
+                             linewidth=0.4, color=IPCCgrey40,
+                             lineend="round") +
+                    scale_x_continuous(limits=c(0, 1),
+                                       expand=c(0, 0)) +
+                    scale_y_continuous(limits=c(0, 1),
+                                       expand=c(0, 0))
                 
-        #         bar = add_sheep(bar,
-        #                         sheep=title,
-        #                         id="title",
-        #                         label=paste0("align_", variable_display),
-        #                         height=delta_type_bar_title_height, 
-        #                         verbose=verbose)
+                bar = add_sheep(bar,
+                                sheep=title,
+                                id="title",
+                                label=paste0("align_", variable_display),
+                                height=delta_type_bar_title_height, 
+                                verbose=verbose)
                 
-        #         plot = ggplot() + 
-        #             theme(plot.margin=margin(t=1, r=3,
-        #                                      b=3, l=0, "mm"))
+                plot = ggplot() + 
+                    theme(plot.margin=margin(t=1, r=3,
+                                             b=3, l=0, "mm"))
                 
                 
-        #         for (h in 1:nDeltaHorizon) {
-        #             H = deltaHorizon[h]
-        #             variable_H = paste0(variable, "_", H)
-        #             limits_bar = c((h-1)*(1+dx_bar+dx_sL),
-        #                            1+(h-1)*(1+dx_bar+dx_sL))
+                for (h in 1:nDeltaHorizon) {
+                    H = deltaHorizon[h]
+                    variable_H = paste0(variable, "_", H)
+                    limits_bar = c((h-1)*(1+dx_bar+dx_sL),
+                                   1+(h-1)*(1+dx_bar+dx_sL))
 
-        #             Ok = metaEX_criteria$variable_en == variable_H
-        #             Palette = metaEX_criteria$palette[Ok]
-        #             Palette = unlist(strsplit(Palette, " "))
-        #             nColor = length(Palette)
+                    Ok = metaEX_criteria$variable_en == variable_H
+                    Palette = metaEX_criteria$palette[Ok]
+                    Palette = unlist(strsplit(Palette, " "))
+                    nColor = length(Palette)
 
-        #             unit = metaEX_criteria$unit_fr[Ok]
+                    unit = metaEX_criteria$unit_fr[Ok]
                     
-        #             Delta_variable_H = dataEX_criteria_code[[variable_H]]
-        #             Chain_variable_H = dataEX_criteria_code$Chain
+                    Delta_variable_H = dataEX_criteria_code[[variable_H]]
+                    Chain_variable_H = dataEX_criteria_code$Chain
                     
 
-        #             minDelta_variable_H =
-        #                 dataEX_criteria_prob_code[[paste0("min_", variable_H)]]
-        #             maxDelta_variable_H =
-        #                 dataEX_criteria_prob_code[[paste0("max_", variable_H)]]
-        #             nDelta_variable_H = length(Delta_variable_H)
+                    minDelta_variable_H =
+                        dataEX_criteria_prob_code[[paste0("min_", variable_H)]]
+                    maxDelta_variable_H =
+                        dataEX_criteria_prob_code[[paste0("max_", variable_H)]]
+                    nDelta_variable_H = length(Delta_variable_H)
                     
-        #             tmp = dplyr::tibble(Chain=rep(Chain_variable_H, each=2),
-        #                                 x=rep(limits_bar, nDelta_variable_H),
-        #                                 y=rep(Delta_variable_H, each=2))
+                    tmp = dplyr::tibble(Chain=rep(Chain_variable_H, each=2),
+                                        x=rep(limits_bar, nDelta_variable_H),
+                                        y=rep(Delta_variable_H, each=2))
                     
-        #             plot = plot +
-        #                 annotate("rect",
-        #                          xmin=limits_bar[1], xmax=limits_bar[2],
-        #                          ymin=minDelta_variable_H,
-        #                          ymax=maxDelta_variable_H,
-        #                          fill="white",
-        #                          color=NA)
+                    plot = plot +
+                        annotate("rect",
+                                 xmin=limits_bar[1], xmax=limits_bar[2],
+                                 ymin=minDelta_variable_H,
+                                 ymax=maxDelta_variable_H,
+                                 fill="white",
+                                 color=NA)
 
-        #             if (minDelta_variable_H <= 0) {
-        #                 plot = plot +
-        #                     annotate("rect",
-        #                              xmin=limits_bar[1], xmax=limits_bar[2],
-        #                              ymin=minDelta_variable_H,
-        #                              ymax=min(c(0, maxDelta_variable_H)),
-        #                              fill=Palette[1+dColor],
-        #                              alpha=0.2,
-        #                              color=NA) +
-        #                     geom_line(data=dplyr::filter(tmp, y <= 0),
-        #                               aes(x=x, y=y, group=Chain),
-        #                               color=Palette[1+dColor],
-        #                               linewidth=0.3,
-        #                               alpha=0.07,
-        #                               lineend="round")
-        #             }
-        #             if (0 < maxDelta_variable_H) {
-        #                 plot = plot +
-        #                     annotate("rect",
-        #                              xmin=limits_bar[1], xmax=limits_bar[2],
-        #                              ymin=max(c(0, minDelta_variable_H)),
-        #                              ymax=maxDelta_variable_H,
-        #                              fill=Palette[nColor-dColor],
-        #                              alpha=0.2,
-        #                              color=NA) +
-        #                     geom_line(data=dplyr::filter(tmp, 0 < y),
-        #                               aes(x=x, y=y, group=Chain),
-        #                               color=Palette[nColor-dColor],
-        #                               linewidth=0.3,
-        #                               alpha=0.07,
-        #                               lineend="round")
-        #             }
-        #         }
+                    if (minDelta_variable_H <= 0) {
+                        plot = plot +
+                            annotate("rect",
+                                     xmin=limits_bar[1], xmax=limits_bar[2],
+                                     ymin=minDelta_variable_H,
+                                     ymax=min(c(0, maxDelta_variable_H)),
+                                     fill=Palette[1+dColor],
+                                     alpha=0.2,
+                                     color=NA) +
+                            geom_line(data=dplyr::filter(tmp, y <= 0),
+                                      aes(x=x, y=y, group=Chain),
+                                      color=Palette[1+dColor],
+                                      linewidth=0.3,
+                                      alpha=0.07,
+                                      lineend="round")
+                    }
+                    if (0 < maxDelta_variable_H) {
+                        plot = plot +
+                            annotate("rect",
+                                     xmin=limits_bar[1], xmax=limits_bar[2],
+                                     ymin=max(c(0, minDelta_variable_H)),
+                                     ymax=maxDelta_variable_H,
+                                     fill=Palette[nColor-dColor],
+                                     alpha=0.2,
+                                     color=NA) +
+                            geom_line(data=dplyr::filter(tmp, 0 < y),
+                                      aes(x=x, y=y, group=Chain),
+                                      color=Palette[nColor-dColor],
+                                      linewidth=0.3,
+                                      alpha=0.07,
+                                      lineend="round")
+                    }
+                }
                 
-        #         if (k == 1 | unit != unit_save) {
-        #             show_y_axis = TRUE
-        #             if (nchar(unit) == 1) {
-        #                 times = 1.3
-        #             } else {
-        #                 times = 1.45
-        #             }
-        #         } else {
-        #             show_y_axis = FALSE
-        #             times = 1
-        #         }
-        #         unit_save = unit
-        #         plot = plot +
-        #             theme_IPCC(is_panel.background=TRUE,
-        #                        is_plot.title=TRUE,
-        #                        plot.title_size=8,
-        #                        is_axis.ticks.y=FALSE,
-        #                        is_axis.text.y=show_y_axis,
-        #                        axis.text.y_size=8,
-        #                        axis.text.y_margin=
-        #                            margin(t=0.5, r=-0.6,
-        #                                   b=0, l=0,
-        #                                   unit="mm"),
-        #                        is_axis.line.x=FALSE,
-        #                        is_axis.ticks.x=FALSE,
-        #                        is_axis.text.x=FALSE)
+                if (k == 1 | unit != unit_save) {
+                    show_y_axis = TRUE
+                    if (nchar(unit) == 1) {
+                        times = 1.3
+                    } else {
+                        times = 1.45
+                    }
+                } else {
+                    show_y_axis = FALSE
+                    times = 1
+                }
+                unit_save = unit
+                plot = plot +
+                    theme_IPCC(is_panel.background=TRUE,
+                               is_plot.title=TRUE,
+                               plot.title_size=8,
+                               is_axis.ticks.y=FALSE,
+                               is_axis.text.y=show_y_axis,
+                               axis.text.y_size=8,
+                               axis.text.y_margin=
+                                   margin(t=0.5, r=-0.6,
+                                          b=0, l=0,
+                                          unit="mm"),
+                               is_axis.line.x=FALSE,
+                               is_axis.ticks.x=FALSE,
+                               is_axis.text.x=FALSE)
                 
                 
-        #         plot = plot +
-        #             annotate("line",
-        #                      x=limits_x, y=c(0, 0),
-        #                      color=IPCCgrey60, size=0.35,
-        #                      lineend="square")
+                plot = plot +
+                    annotate("line",
+                             x=limits_x, y=c(0, 0),
+                             color=IPCCgrey60, size=0.35,
+                             lineend="square")
 
-        #         for (h in 1:nDeltaHorizon) {
-        #             H = deltaHorizon[h]
-        #             variable_H = paste0(variable, "_", H)
-        #             limits_bar = c((h-1)*(1+dx_bar+dx_sL),
-        #                            1+(h-1)*(1+dx_bar+dx_sL))
+                for (h in 1:nDeltaHorizon) {
+                    H = deltaHorizon[h]
+                    variable_H = paste0(variable, "_", H)
+                    limits_bar = c((h-1)*(1+dx_bar+dx_sL),
+                                   1+(h-1)*(1+dx_bar+dx_sL))
 
-        #             plot_y = c()
-        #             plot_color = c()
+                    plot_y = c()
+                    plot_color = c()
                     
-        #             for (storyline in Storylines) {
-        #                 color = Colors[names(Colors) == storyline]
-        #                 Delta_variable_H =
-        #                     dplyr::filter(dataEX_criteria_code,
-        #                                   climateChain == storyline)[[variable_H]]
-        #                 medDelta_variable_H = median(Delta_variable_H, na.rm=TRUE)
+                    for (storyline in Storylines) {
+                        color = Colors[names(Colors) == storyline]
+                        Delta_variable_H =
+                            dplyr::filter(dataEX_criteria_code,
+                                          climateChain == storyline)[[variable_H]]
+                        medDelta_variable_H = median(Delta_variable_H, na.rm=TRUE)
     
-        #                 plot_y = c(plot_y, medDelta_variable_H)
-        #                 plot_color = c(plot_color, color)
-        #             }
+                        plot_y = c(plot_y, medDelta_variable_H)
+                        plot_color = c(plot_color, color)
+                    }
                     
-        #             n = length(plot_y)
-        #             tmp = dplyr::tibble(id=rep(Storylines, each=2),
-        #                                 x=rep(c(limits_bar[1],
-        #                                         limits_bar[2]+dx_sL/2), n),
-        #                                 y=rep(plot_y, each=2))
+                    n = length(plot_y)
+                    tmp = dplyr::tibble(id=rep(Storylines, each=2),
+                                        x=rep(c(limits_bar[1],
+                                                limits_bar[2]+dx_sL/2), n),
+                                        y=rep(plot_y, each=2))
                     
-        #             plot = plot +
-        #                 geom_line(data=dplyr::filter(tmp, y <= 0),
-        #                           aes(x=x, y=y, group=id), 
-        #                           color=Palette[1+dColor],
-        #                           linewidth=0.4,
-        #                           alpha=0.5,
-        #                           lineend="round") +
-        #                 geom_line(data=dplyr::filter(tmp, 0 < y),
-        #                           aes(x=x, y=y, group=id), 
-        #                           color=Palette[nColor-dColor],
-        #                           linewidth=0.4,
-        #                           alpha=0.5,
-        #                           lineend="round") +
+                    plot = plot +
+                        geom_line(data=dplyr::filter(tmp, y <= 0),
+                                  aes(x=x, y=y, group=id), 
+                                  color=Palette[1+dColor],
+                                  linewidth=0.4,
+                                  alpha=0.5,
+                                  lineend="round") +
+                        geom_line(data=dplyr::filter(tmp, 0 < y),
+                                  aes(x=x, y=y, group=id), 
+                                  color=Palette[nColor-dColor],
+                                  linewidth=0.4,
+                                  alpha=0.5,
+                                  lineend="round") +
     
-        #                 annotate("point",
-        #                          x=rep(limits_bar[2]+dx_sL/2, n),
-        #                          y=plot_y,
-        #                          color=IPCCgrey97,
-        #                          size=2.2,
-        #                          shape=20) +
-        #                 annotate("point",
-        #                          x=rep(limits_bar[2]+dx_sL/2, n),
-        #                          y=plot_y,
-        #                          color=plot_color,
-        #                          size=1.2,
-        #                          shape=20)
-        #         }
+                        annotate("point",
+                                 x=rep(limits_bar[2]+dx_sL/2, n),
+                                 y=plot_y,
+                                 color=IPCCgrey97,
+                                 size=2.2,
+                                 shape=20) +
+                        annotate("point",
+                                 x=rep(limits_bar[2]+dx_sL/2, n),
+                                 y=plot_y,
+                                 color=plot_color,
+                                 size=1.2,
+                                 shape=20)
+                }
 
                 
-        #         Delta_min =
-        #             unlist(dplyr::select(dataEX_criteria_prob,
-        #                                  dplyr::all_of(paste0("min_", variable,
-        #                                                       "_", deltaHorizon))),
-        #                    use.names=FALSE)
+                Delta_min =
+                    unlist(dplyr::select(dataEX_criteria_prob,
+                                         dplyr::all_of(paste0("min_", variable,
+                                                              "_", deltaHorizon))),
+                           use.names=FALSE)
 
-        #         Delta_max =
-        #             unlist(dplyr::select(dataEX_criteria_prob,
-        #                                  dplyr::all_of(paste0("max_", variable,
-        #                                                       "_", deltaHorizon))),
-        #                    use.names=FALSE)
+                Delta_max =
+                    unlist(dplyr::select(dataEX_criteria_prob,
+                                         dplyr::all_of(paste0("max_", variable,
+                                                              "_", deltaHorizon))),
+                           use.names=FALSE)
                 
-        #         limits_y = c(-100, 100) 
-        #         if (nchar(unit) == 1) {
-        #             Labels = c(-75, -50, -25, 0, 25, 50, 75)
-        #         } else {
-        #             Labels = c(-90, -60, -30, 0, 30, 60, 90)
-        #         }
-        #         Breaks = Labels
+                limits_y = c(-100, 100) 
+                if (nchar(unit) == 1) {
+                    Labels = c(-75, -50, -25, 0, 25, 50, 75)
+                } else {
+                    Labels = c(-90, -60, -30, 0, 30, 60, 90)
+                }
+                Breaks = Labels
                                 
-        #         get_label = function (x) {
-        #             if (nchar(unit) == 1) {
-        #                 unitHTML = paste0("<span style='font-size:6pt'>",
-        #                                   unit, "</span>")
-        #             } else {
-        #                 if (x != 0) {
-        #                     unit = paste0(unit, "s")
-        #                 }
-        #                 unitHTML = paste0("<span style='font-size:6pt'> ",
-        #                                   unit, "</span>")
-        #             }
+                get_label = function (x) {
+                    if (nchar(unit) == 1) {
+                        unitHTML = paste0("<span style='font-size:6pt'>",
+                                          unit, "</span>")
+                    } else {
+                        if (x != 0) {
+                            unit = paste0(unit, "s")
+                        }
+                        unitHTML = paste0("<span style='font-size:6pt'> ",
+                                          unit, "</span>")
+                    }
                     
-        #             if (x < 0) {
-        #                 paste0("<span style='color:", Palette[1+dColor], "'>",
-        #                        "<b>", x, "</b>",
-        #                        unitHTML,
-        #                        "</span>")
-        #             } else if (x > 0) {
-        #                 paste0("<span style='color:", Palette[nColor-dColor], "'>",
-        #                        "<b>+", x, "</b>",
-        #                        unitHTML,
-        #                        "</span>")
-        #             } else {
-        #                 paste0("<span style=''>",
-        #                        "<b>", x, "</b>",
-        #                        "</span>")
-        #             }
-        #         }
+                    if (x < 0) {
+                        paste0("<span style='color:", Palette[1+dColor], "'>",
+                               "<b>", x, "</b>",
+                               unitHTML,
+                               "</span>")
+                    } else if (x > 0) {
+                        paste0("<span style='color:", Palette[nColor-dColor], "'>",
+                               "<b>+", x, "</b>",
+                               unitHTML,
+                               "</span>")
+                    } else {
+                        paste0("<span style=''>",
+                               "<b>", x, "</b>",
+                               "</span>")
+                    }
+                }
 
-        #         Labels = sapply(Labels, get_label)
+                Labels = sapply(Labels, get_label)
                 
                 
-        #         plot = plot +
-        #             scale_x_continuous(limits=limits_x,
-        #                                expand=c(0, 0)) +
-        #             scale_y_continuous(limits=limits_y,
-        #                                labels=Labels,
-        #                                breaks=Breaks,
-        #                                expand=c(0, 0))
+                plot = plot +
+                    scale_x_continuous(limits=limits_x,
+                                       expand=c(0, 0)) +
+                    scale_y_continuous(limits=limits_y,
+                                       labels=Labels,
+                                       breaks=Breaks,
+                                       expand=c(0, 0))
 
-        #         bar = add_sheep(bar,
-        #                         sheep=plot,
-        #                         id="plot",
-        #                         label=paste0("align_", variable_display),
-        #                         height=delta_type_bar_plot_height, 
-        #                         verbose=verbose)
+                bar = add_sheep(bar,
+                                sheep=plot,
+                                id="plot",
+                                label=paste0("align_", variable_display),
+                                height=delta_type_bar_plot_height, 
+                                verbose=verbose)
 
-        #         delta_type = add_sheep(delta_type,
-        #                           sheep=bar,
-        #                           id=variable_display,
-        #                           height=1,
-        #                           width=delta_type_bar_width*times,
-        #                           verbose=verbose)
-        #     }
-        #     delta = add_sheep(delta,
-        #                       sheep=delta_type,
-        #                       id=type_short,
-        #                       height=delta_type_height,
-        #                       width=width,
-        #                       verbose=verbose)
-        # }
-        # herd = add_sheep(herd,
-        #                  sheep=delta,
-        #                  id="delta",
-        #                  height=delta_height,
-        #                  width=width,
-        #                  verbose=verbose)
-
-        ###
+                delta_type = add_sheep(delta_type,
+                                  sheep=bar,
+                                  id=variable_display,
+                                  height=1,
+                                  width=delta_type_bar_width*times,
+                                  verbose=verbose)
+            }
+            delta = add_sheep(delta,
+                              sheep=delta_type,
+                              id=type_short,
+                              height=delta_type_height,
+                              width=width,
+                              verbose=verbose)
+        }
         herd = add_sheep(herd,
-                         sheep=contour(),
+                         sheep=delta,
                          id="delta",
                          height=delta_height,
                          width=width,
                          verbose=verbose)
+        ###
+        # herd = add_sheep(herd,
+        #                  sheep=contour(),
+        #                  id="delta",
+        #                  height=delta_height,
+        #                  width=width,
+        #                  verbose=verbose)
         ###
         
         
@@ -1037,19 +1036,18 @@ sheet_projection_station = function (meta,
 
             x_dot = get(paste0("x_", rp, "dot"))
             y_dot = get(paste0("y_", rp, "dot"))
+
             dp_x = 0.7
-            dp_y = 0.4
+            dp_y = 0.15
             
             print(variable)
             
             title_text = Titles_extreme[j]
-            # subtitle_text = Subtitles_extreme[j]
 
             extreme_plan = matrix(c(
-                "title", "title", "title", "title", "title", "title",
-                "n_leg", "H0", "void1", "H2", "void2", "H3",
-                "delta_leg", "H0", "void1", "H2", "void2", "H3"),
-                ncol=6, byrow=TRUE)
+                "title", "title", "title", "title", "title", "title", "title",
+                "Hleg", "H0", "void1", "H2", "void2", "H3", "void3"),
+                ncol=7, byrow=TRUE)
             extreme = bring_grass(verbose=verbose)
             extreme = plan_of_herd(extreme, extreme_plan,
                                    verbose=verbose)
@@ -1066,12 +1064,6 @@ sheet_projection_station = function (meta,
                          label=titleTeX,
                          size=3, hjust=0, vjust=1,
                          color=IPCCgrey23) +
-                # annotate("text",
-                #          x=0.02,
-                #          y=0,
-                #          label=subtitle_text,
-                #          size=2.5, hjust=0, vjust=0,
-                #          color=IPCCgrey23) +
                 scale_x_continuous(limits=c(0, 1),
                                    expand=c(0, 0)) +
                 scale_y_continuous(limits=c(0, 1),
@@ -1083,62 +1075,167 @@ sheet_projection_station = function (meta,
                                 height=extreme_title_height,
                                 verbose=verbose)
 
-            extreme = add_sheep(extreme,
-                                sheep=contour(),
-                                id="n_leg",
-                                height=extreme_H_n_height,
-                                width=extreme_leg_width,
-                                verbose=verbose)
-            extreme = add_sheep(extreme,
-                                sheep=contour(),
-                                id="delta_leg",
-                                height=extreme_H_delta_height,
-                                width=extreme_leg_width,
-                                verbose=verbose)
-            
-            extreme = add_sheep(extreme,
-                                sheep=void(),
-                                id="void1",
-                                height=extreme_H_height,
-                                width=extreme_void_width,
-                                verbose=verbose)
-            extreme = add_sheep(extreme,
-                                sheep=void(),
-                                id="void2",
-                                height=extreme_H_height,
-                                width=extreme_void_width,
-                                verbose=verbose)
-
-
-            
-            extreme_H0_plan = matrix(c("title",
-                                       "0"),
-                                     ncol=1, byrow=TRUE)
-            extreme_H0 = bring_grass(verbose=verbose)
-            extreme_H0 = plan_of_herd(extreme_H0, extreme_H0_plan,
-                                      verbose=verbose)
-
-
-            title = ggplot() + theme_void() +
-                theme(panel.background=element_rect(fill=IPCCgrey97,
-                                                    color=NA),
-                      plot.margin=margin(t=1, r=0, b=0, l=0, "mm")) + 
-                annotate("text",
+            void_line = void(panel.background_fill=IPCCgrey97,
+                             plot.margin=margin(t=0, r=0,
+                                                b=0, l=0, "mm")) +
+                annotate("line",
                          x=0.5,
-                         y=0.35,
-                         label=TeX(Horizons_extreme[1]),
-                         size=3, hjust=0.5, vjust=0.5,
-                         color=IPCCgrey23) +
+                         y=c(0.1, 0.884),
+                         linewidth=0.25, color=IPCCgrey85) +
                 scale_x_continuous(limits=c(0, 1),
                                    expand=c(0, 0)) +
                 scale_y_continuous(limits=c(0, 1),
                                    expand=c(0, 0))
             
-            extreme_H0 = add_sheep(extreme_H0,
-                                   sheep=title,
-                                   id="title",
-                                   height=extreme_H_title_height,
+            extreme = add_sheep(extreme,
+                                sheep=void_line,
+                                id="void1",
+                                height=extreme_H_height,
+                                width=extreme_void_width,
+                                verbose=verbose)
+            extreme = add_sheep(extreme,
+                                sheep=void_line,
+                                id="void2",
+                                height=extreme_H_height,
+                                width=extreme_void_width,
+                                verbose=verbose)
+            
+            extreme = add_sheep(extreme,
+                                sheep=
+                                    void(panel.background_fill=IPCCgrey97,
+                                         plot.margin=margin(t=0, r=0,
+                                                            b=0, l=0, "mm")),
+                                id="void3",
+                                height=extreme_H_height,
+                                width=extreme_voidex_width,
+                                verbose=verbose)
+            
+### Hleg _____________________________________________________________
+            extreme_H_plan = matrix(c("title",
+                                       "0"),
+                                     ncol=1, byrow=TRUE)
+            extreme_H = bring_grass(verbose=verbose)
+            extreme_H = plan_of_herd(extreme_H, extreme_H_plan,
+                                      verbose=verbose)
+            
+            extreme_H = add_sheep(extreme_H,
+                                  sheep=void(panel.background_fill=IPCCgrey97,
+                                             plot.margin=margin(t=0, r=0,
+                                                                b=0, l=0, "mm")),
+                                  id="title",
+                                  height=extreme_H_title_height,
+                                  verbose=verbose)
+
+            extreme_sL_plan = matrix(c("n",
+                                       "delta"),
+                                     ncol=1, byrow=TRUE)
+            extreme_sL = bring_grass(verbose=verbose)
+            extreme_sL = plan_of_herd(extreme_sL, extreme_sL_plan,
+                                      verbose=verbose)
+
+            text = ggplot() + theme_void() +
+                theme(panel.background=element_rect(fill=IPCCgrey97, color=NA),
+                      plot.margin=margin(t=0, r=0, b=0, l=0, "mm")) + 
+                annotate("text",
+                         x=0.48,
+                         y=0.52,
+                         label=TeX(paste0("\\textbf{FRÉQUENCE}")),
+                         size=2.2, hjust=0.5, vjust=0.5, angle=90,
+                         color=IPCCgrey35) +
+                annotate("text",
+                         x=0.75,
+                         y=0.52,
+                         label=TeX(paste0("\\textbf{par ", rp, " ans}")),
+                         size=2.2, hjust=0.5, vjust=0.5, angle=90,
+                         color=IPCCgrey35) +
+                annotate("line",
+                         x=0.98,
+                         y=c(0.08, 0.95),
+                         linewidth=0.3, color=IPCCgrey85) +
+                scale_x_continuous(limits=c(0, 1),
+                                   expand=c(0, 0)) +
+                scale_y_continuous(limits=c(0, 1),
+                                   expand=c(0, 0))
+            
+            extreme_sL = add_sheep(extreme_sL,
+                                   sheep=text,
+                                   id="n",
+                                   height=extreme_H_sL_n_height+
+                                       extreme_H_sL_n_text_height,
                                    verbose=verbose)
+
+            text = ggplot() + theme_void() +
+                theme(panel.background=element_rect(fill=IPCCgrey97, color=NA),
+                      plot.margin=margin(t=0, r=0, b=0, l=0, "mm")) + 
+                annotate("text",
+                         x=0.48,
+                         y=0.57,
+                         label=TeX(paste0("\\textbf{Changement}")),
+                         size=2.2, hjust=0.5, vjust=0.5, angle=90,
+                         color=IPCCgrey35) +
+                annotate("text",
+                         x=0.75,
+                         y=0.57,
+                         label=TeX(paste0("\\textbf{d'INTENSITÉ}")),
+                         size=2.2, hjust=0.5, vjust=0.5, angle=90,
+                         color=IPCCgrey35) +
+                annotate("line",
+                         x=0.98,
+                         y=c(0.18, 0.95),
+                         linewidth=0.3, color=IPCCgrey85) +
+                scale_x_continuous(limits=c(0, 1),
+                                   expand=c(0, 0)) +
+                scale_y_continuous(limits=c(0, 1),
+                                   expand=c(0, 0))
+            
+            extreme_sL = add_sheep(extreme_sL,
+                                   sheep=text,
+                                   id="delta",
+                                   height=extreme_H_sL_delta_height+
+                                       extreme_H_sL_delta_text_height,
+                                   verbose=verbose)
+            
+            extreme_H = add_sheep(extreme_H,
+                                   sheep=extreme_sL,
+                                   id=0,
+                                   height=extreme_H_sL_height,
+                                   verbose=verbose)
+            extreme = add_sheep(extreme,
+                                sheep=extreme_H,
+                                id="Hleg",
+                                height=extreme_H_height,
+                                width=extreme_leg_width,
+                                verbose=verbose)
+
+            
+### H0 _______________________________________________________________
+            extreme_H_plan = matrix(c("title",
+                                       "0"),
+                                     ncol=1, byrow=TRUE)
+            extreme_H = bring_grass(verbose=verbose)
+            extreme_H = plan_of_herd(extreme_H, extreme_H_plan,
+                                      verbose=verbose)
+
+
+            title = ggplot() + theme_void() +
+                theme(panel.background=element_rect(fill=IPCCgrey97, color=NA),
+                      plot.margin=margin(t=0, r=0, b=0, l=0, "mm")) + 
+                annotate("text",
+                         x=0.5,
+                         y=0.35,
+                         label=TeX(Horizons_extreme[1]),
+                         size=3, hjust=0.5, vjust=0.5,
+                         color=IPCCgrey35) +
+                scale_x_continuous(limits=c(0, 1),
+                                   expand=c(0, 0)) +
+                scale_y_continuous(limits=c(0, 1),
+                                   expand=c(0, 0))
+            
+            extreme_H = add_sheep(extreme_H,
+                                  sheep=title,
+                                  id="title",
+                                  height=extreme_H_title_height,
+                                  verbose=verbose)
 
 
             extreme_sL_plan = matrix(c("n",
@@ -1175,7 +1272,6 @@ sheet_projection_station = function (meta,
                                    expand=c(0, 0)) +
                 scale_y_continuous(limits=c(-dp_y, 1+dp_y),
                                    expand=c(0, 0))
-            
             extreme_sL = add_sheep(extreme_sL,
                                    sheep=plot,
                                    id="n",
@@ -1188,7 +1284,7 @@ sheet_projection_station = function (meta,
                       plot.margin=margin(t=0, r=0, b=0, l=0, "mm")) + 
                 annotate("text",
                          x=0.5,
-                         y=0.7,
+                         y=0.75,
                          label=TeX(paste0("\\textbf{1 fois}")),
                          size=3, hjust=0.5, vjust=0.5,
                          color=IPCCgrey50) +
@@ -1196,39 +1292,62 @@ sheet_projection_station = function (meta,
                                    expand=c(0, 0)) +
                 scale_y_continuous(limits=c(0, 1),
                                    expand=c(0, 0))
-            
             extreme_sL = add_sheep(extreme_sL,
                                    sheep=text,
                                    id="n_text",
                                    height=extreme_H_sL_n_text_height,
                                    verbose=verbose)
+            get_labels = function (X) {
+                up = X > 0
+                X[X != 0] = paste0(X[X != 0], " %")
+                X[up] = paste0("+", X[up])
+                return (X)
+            }
+
+            axis = ggplot() + theme_void() + 
+                theme(plot.background=element_rect(fill=IPCCgrey97,
+                                                   color=NA),
+                      panel.grid.major.y=element_line(color=IPCCgrey85,
+                                                      size=0.25),
+                      axis.text.y=element_text(color=IPCCgrey35,
+                                               hjust=1, size=7,
+                                               margin=margin(t=0, r=1,
+                                                             b=0, l=0, "mm")),
+                      plot.margin=margin(t=3, r=0, b=1, l=6, "mm")) + 
+                
+                scale_x_continuous(limits=c(0, 1),
+                                   expand=c(0, 0)) +
+                scale_y_continuous(limits=limits_bar_y[[j]],
+                                   labels=get_labels,
+                                   expand=c(0, 0))
+            
             extreme_sL = add_sheep(extreme_sL,
-                                   sheep=contour(),
+                                   sheep=axis,
                                    id="axis",
                                    height=extreme_H_sL_delta_height,
                                    verbose=verbose)
+            
             extreme_sL = add_sheep(extreme_sL,
-                                   sheep=contour(),
+                                   sheep=void(panel.background_fill=IPCCgrey97),
                                    id="void",
                                    height=extreme_H_sL_delta_text_height,
                                    verbose=verbose)
             
-            extreme_H0 = add_sheep(extreme_H0,
+            extreme_H = add_sheep(extreme_H,
                                    sheep=extreme_sL,
                                    id=0,
                                    height=extreme_H_sL_height,
                                    verbose=verbose)
-
             
             extreme = add_sheep(extreme,
-                                sheep=extreme_H0,
+                                sheep=extreme_H,
                                 id="H0",
                                 height=extreme_H_height,
-                                width=extreme_H_width,
+                                width=1,
                                 verbose=verbose)
 
 
-
+### HX _______________________________________________________________
             for (h in 1:nDeltaHorizon) {
                 H = deltaHorizon[h]
                 
@@ -1242,10 +1361,6 @@ sheet_projection_station = function (meta,
                 Ok = metaEX_criteria$variable_en == variable_n_H
                 unit_n = metaEX_criteria$unit_fr[Ok]
                 
-                # Delta_variable_n_H = dataEX_criteria_code[[variable_H]]
-                # fDelta_variable_H = dataEX_criteria_code[[variable_H]]
-                # Chain_variable_H = dataEX_criteria_code$Chain
-
 
                 extreme_H_plan = matrix(c(rep("title", nStorylines),
                                           1:nStorylines),
@@ -1257,13 +1372,13 @@ sheet_projection_station = function (meta,
                 title = ggplot() + theme_void() + 
                     theme(panel.background=element_rect(fill=IPCCgrey97,
                                                         color=NA),
-                          plot.margin=margin(t=1, r=0, b=0, l=0, "mm")) + 
+                          plot.margin=margin(t=0, r=0, b=0, l=0, "mm")) + 
                     annotate("text",
                              x=0.5,
                              y=0.3,
                              label=TeX(Horizons_extreme[h+1]),
                              size=3, hjust=0.5, vjust=0.5,
-                             color=IPCCgrey23) +
+                             color=IPCCgrey35) +
                     scale_x_continuous(limits=c(0, 1),
                                        expand=c(0, 0)) +
                     scale_y_continuous(limits=c(0, 1),
@@ -1281,7 +1396,6 @@ sheet_projection_station = function (meta,
                     color = Colors[names(Colors) == storyline]
                     color_light = Colors_light[names(Colors_light) == storyline]
 
-
                     Delta_variable_n_H =
                         dplyr::filter(dataEX_criteria_code,
                                       climateChain == storyline)[[variable_n_H]]
@@ -1296,9 +1410,29 @@ sheet_projection_station = function (meta,
                         sprintf("%.1f", round(minDelta_variable_n_H / div, 1))
                     nH_max_r1 =
                         sprintf("%.1f", round(maxDelta_variable_n_H / div, 1))
+
+                    Delta_variable_delta_H =
+                        dplyr::filter(dataEX_criteria_code,
+                                      climateChain ==
+                                      storyline)[[variable_delta_H]]
                     
-                    # fDelta_variable_H = dataEX_criteria_code[[variable_H]]
-                    # Chain_variable_H = dataEX_criteria_code$Chain
+                    medDelta_variable_delta_H =
+                        median(Delta_variable_delta_H, na.rm=TRUE)
+                    minDelta_variable_delta_H =
+                        min(Delta_variable_delta_H, na.rm=TRUE)
+                    maxDelta_variable_delta_H =
+                        max(Delta_variable_delta_H, na.rm=TRUE)
+
+
+                    if (medDelta_variable_delta_H > 0) {
+                        deltaH_r1 =
+                            paste0("+",
+                                   sprintf("%.1f",
+                                           round(medDelta_variable_delta_H, 1)))
+                    } else {
+                        deltaH_r1 =
+                            sprintf("%.1f", round(medDelta_variable_delta_H, 1))
+                    }
                     
                     extreme_sL_plan = matrix(c("n",
                                                "n_text",
@@ -1335,7 +1469,6 @@ sheet_projection_station = function (meta,
                                            expand=c(0, 0)) +
                         scale_y_continuous(limits=c(-dp_y, 1+dp_y),
                                            expand=c(0, 0))
-                    
                     extreme_sL = add_sheep(extreme_sL,
                                            sheep=plot,
                                            id="n",
@@ -1348,13 +1481,13 @@ sheet_projection_station = function (meta,
                               plot.margin=margin(t=0, r=0, b=0, l=0, "mm")) + 
                         annotate("text",
                                  x=0.5,
-                                 y=0.7,
+                                 y=0.75,
                                  label=TeX(paste0("\\textbf{", nH_r1, " fois}")),
                                  size=3, hjust=0.5, vjust=0.5,
                                  color=color) +
                         annotate("text",
                                  x=0.5,
-                                 y=0.4,
+                                 y=0.3,
                                  label=paste0("(", nH_min_r1, " - ",
                                               nH_max_r1, ")"),
                                  size=2, hjust=0.5, vjust=0.5,
@@ -1363,21 +1496,79 @@ sheet_projection_station = function (meta,
                                            expand=c(0, 0)) +
                         scale_y_continuous(limits=c(0, 1),
                                            expand=c(0, 0))
-                    
                     extreme_sL = add_sheep(extreme_sL,
                                            sheep=text,
                                            id="n_text",
                                            height=extreme_H_sL_n_text_height,
                                            verbose=verbose)
 
+                    plot = ggplot() + theme_void() + 
+                        theme(plot.background=element_rect(fill=IPCCgrey97,
+                                                            color=NA),
+                              panel.grid.major.y=element_line(color=IPCCgrey85,
+                                                              size=0.25),
+                              plot.margin=margin(t=3, r=0, b=1, l=0, "mm")) + 
+                        annotate("rect",
+                                 xmin=0.45, xmax=0.55, 
+                                 ymin=0, ymax=medDelta_variable_delta_H,
+                                 color=NA, fill=color) +
+                        
+                        annotate("line",
+                                 x=c(0.5, 0.5), 
+                                 y=c(max(c(minDelta_variable_delta_H,
+                                           limits_bar_y[[j]][1])),
+                                     min(c(maxDelta_variable_delta_H,
+                                           limits_bar_y[[j]][2]))),
+                                 color=color_light,
+                                 linewidth=0.4)
+                    
+                    if (minDelta_variable_delta_H >= limits_bar_y[[j]][1]) {
+                        plot = plot +
+                            annotate("line",
+                                     x=c(0.475, 0.525), 
+                                     y=c(minDelta_variable_delta_H,
+                                         minDelta_variable_delta_H),
+                                     color=color_light,
+                                     linewidth=0.4)
+                    }
+                    if (maxDelta_variable_delta_H <= limits_bar_y[[j]][2]) {
+                        plot = plot +
+                            annotate("line",
+                                     x=c(0.475, 0.525), 
+                                     y=c(maxDelta_variable_delta_H,
+                                         maxDelta_variable_delta_H),
+                                     color=color_light,
+                                     linewidth=0.4)
+                    }
+                    plot = plot +
+                        scale_x_continuous(limits=c(0, 1),
+                                           expand=c(0, 0)) +
+                        scale_y_continuous(limits=limits_bar_y[[j]],
+                                           expand=c(0, 0))
                     
                     extreme_sL = add_sheep(extreme_sL,
-                                           sheep=contour(),
+                                           sheep=plot,
                                            id="delta",
                                            height=extreme_H_sL_delta_height,
                                            verbose=verbose)
+
+
+                    text = ggplot() + theme_void() + 
+                        theme(panel.background=element_rect(fill=IPCCgrey97,
+                                                            color=NA),
+                              plot.margin=margin(t=0, r=0, b=0, l=0, "mm")) + 
+                        annotate("text",
+                                 x=0.5,
+                                 y=0.6,
+                                 label=TeX(paste0("\\textbf{", deltaH_r1, " %}")),
+                                 size=3, hjust=0.5, vjust=0.5,
+                                 color=color) +
+                        scale_x_continuous(limits=c(0, 1),
+                                           expand=c(0, 0)) +
+                        scale_y_continuous(limits=c(0, 1),
+                                           expand=c(0, 0))
                     extreme_sL = add_sheep(extreme_sL,
-                                           sheep=contour(),
+                                           sheep=text,
                                            id="delta_text",
                                            height=extreme_H_sL_delta_text_height,
                                            verbose=verbose)
@@ -1402,6 +1593,15 @@ sheet_projection_station = function (meta,
                              height=extreme_height,
                              width=width,
                              verbose=verbose)
+
+            ###
+            # herd = add_sheep(herd,
+            #                  sheep=void(),
+            #                  id=variable,
+            #                  height=extreme_height,
+            #                  width=width,
+            #                  verbose=verbose)
+            ###
         }
         id_letter = id_letter + nVariables_extreme
 
@@ -1431,7 +1631,7 @@ sheet_projection_station = function (meta,
                          height=foot_height,
                          width=width,
                          verbose=verbose)
-
+        
         res = return_to_sheepfold(herd,
                                   page_margin=page_margin,
                                   paper_size="A4",
