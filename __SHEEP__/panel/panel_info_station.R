@@ -172,8 +172,8 @@ panel_info_station = function(data_code,
 
         if ('projection' %in% to_do & !is.null(nProjections) | !is.null(nProjections)) {
             projection = paste0(
-                "<br>Nombre de projection : ", nProjections, "<br>",
-                "Nombre de modéle hydrologique : ", meta_code$n)
+                "<br>Nombre de projections : ", nProjections, "<br>",
+                "Nombre de modèles hydrologiques : ", meta_code$n)
         } else {
             NULL
         }

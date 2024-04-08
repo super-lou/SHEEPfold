@@ -121,14 +121,14 @@ sheet_projection_station = function (meta,
     nCode = length(Code)
     
     Horizons_medQJ = c("\\textbf{Période de référence} 1976-2005",
-                       "\\textbf{Horizon moyen} 2041-2070",
-                       "\\textbf{Horizon lointain} 2070-2099")
+                       "\\textbf{Milieu de siècle} 2041-2070",
+                       "\\textbf{Fin de siècle} 2070-2099")
     Horizons_delta = c("période de référence 1976-2005",
-                       "horizon moyen 2041-2070",
-                       "horizon lointain 2070-2099")
+                       "milieu de siècle 2041-2070",
+                       "fin de siècle 2070-2099")
     Horizons_extreme = c("\\textbf{1976-2005}",
-                         "\\textbf{Horizon moyen 2041-2070}",
-                         "\\textbf{Horizon lointain 2070-2099}")
+                         "\\textbf{Milieu de siècle 2041-2070}",
+                         "\\textbf{Fin de siècle 2070-2099}")
     
     Variables_medQJ = c("medQJ_H0", "medQJ_H2", "medQJ_H3")
     nVariables_medQJ = length(Variables_medQJ)
@@ -589,27 +589,27 @@ sheet_projection_station = function (meta,
                          width=width,
                          verbose=verbose)
 
-        # res = return_to_sheepfold(herd,
-        #                           page_margin=page_margin,
-        #                           paper_size="A4",
-        #                           hjust=0, vjust=1,
-        #                           verbose=verbose)
+        res = return_to_sheepfold(herd,
+                                  page_margin=page_margin,
+                                  paper_size="A4",
+                                  hjust=0, vjust=1,
+                                  verbose=verbose)
         
-        # plot = res$plot
-        # paper_size = res$paper_size
+        plot = res$plot
+        paper_size = res$paper_size
 
-        # filename = paste0(code, "_projection_datasheet_1.pdf")
+        filename = paste0(code, "_projection_datasheet_1.pdf")
 
-        # if (!(file.exists(figdir))) {
-        #     dir.create(figdir, recursive=TRUE)
-        # }
-        # ggplot2::ggsave(plot=plot,
-        #                 path=figdir,
-        #                 filename=filename,
-        #                 width=paper_size[1],
-        #                 height=paper_size[2], units='cm',
-        #                 dpi=300,
-        #                 device=cairo_pdf)
+        if (!(file.exists(figdir))) {
+            dir.create(figdir, recursive=TRUE)
+        }
+        ggplot2::ggsave(plot=plot,
+                        path=figdir,
+                        filename=filename,
+                        width=paper_size[1],
+                        height=paper_size[2], units='cm',
+                        dpi=300,
+                        device=cairo_pdf)
 
 
 ## 2. PAGE 2 _________________________________________________________
@@ -673,9 +673,11 @@ sheet_projection_station = function (meta,
             Variables_delta_type =
                 c(Variables_delta_type[nchar(Units) == 1],
                   Variables_delta_type[nchar(Units) > 1])
-            
+
             Variables_delta_type_display =
-                gsub("(delta)|([{])|([}])", "", Variables_delta_type)
+                gsub("(delta)|([{])|([}])|([_]H[[:digit:]])", "",
+                     metaEX_criteria$variable_fr[Ok])
+            
             
             delta_type_plan = matrix(c("title", Variables_delta_type_display, "void"),
                                      ncol=nVariables_delta_type+2, byrow=TRUE)
@@ -723,7 +725,7 @@ sheet_projection_station = function (meta,
                 
                 dx_bar = 1.1
                 dx_sL = 1.1
-                dColor = 1
+                
                 
                 limits_x = c(-dx_bar*0.7 - dx_sL, (nDeltaHorizon-1)*dx_bar +
                                                   nDeltaHorizon*(1+dx_sL) +
@@ -783,6 +785,12 @@ sheet_projection_station = function (meta,
                     nColor = length(Palette)
 
                     unit = metaEX_criteria$unit_fr[Ok]
+
+                    if (nchar(unit) == 1) {
+                        dColor = 1
+                    } else {
+                        dColor = 2
+                    }
                     
                     Delta_variable_H = dataEX_criteria_code[[variable_H]]
                     Chain_variable_H = dataEX_criteria_code$Chain
@@ -895,31 +903,47 @@ sheet_projection_station = function (meta,
                     }
                     
                     n = length(plot_y)
-                    tmp = dplyr::tibble(id=rep(Storylines, each=2),
-                                        x=rep(c(limits_bar[1],
-                                                limits_bar[2]+dx_sL/2), n),
-                                        y=rep(plot_y, each=2))
+                    # tmp = dplyr::tibble(id=rep(Storylines, each=2),
+                    #                     x=rep(c(limits_bar[1],
+                    #                             limits_bar[2]+dx_sL/2), n),
+                    #                     y=rep(plot_y, each=2),
+                    #                     color=rep(plot_color, each=2))
                     
+                    # plot = plot +
+                        # geom_line(data=dplyr::filter(tmp, y <= 0),
+                        #           aes(x=x, y=y, group=id), 
+                        #           color=Palette[1+dColor],
+                        #           linewidth=0.4,
+                        #           alpha=0.5,
+                        #           lineend="round") +
+                        # geom_line(data=dplyr::filter(tmp, 0 < y),
+                        #           aes(x=x, y=y, group=id), 
+                        #           color=Palette[nColor-dColor],
+                        #           linewidth=0.4,
+                        #           alpha=0.5,
+                        #           lineend="round") +
+
                     plot = plot +
-                        geom_line(data=dplyr::filter(tmp, y <= 0),
-                                  aes(x=x, y=y, group=id), 
-                                  color=Palette[1+dColor],
-                                  linewidth=0.4,
-                                  alpha=0.5,
-                                  lineend="round") +
-                        geom_line(data=dplyr::filter(tmp, 0 < y),
-                                  aes(x=x, y=y, group=id), 
-                                  color=Palette[nColor-dColor],
-                                  linewidth=0.4,
-                                  alpha=0.5,
-                                  lineend="round") +
-    
                         annotate("point",
                                  x=rep(limits_bar[2]+dx_sL/2, n),
                                  y=plot_y,
                                  color=IPCCgrey97,
                                  size=2.2,
-                                 shape=20) +
+                                 shape=20)
+                    
+                    for (s in 1:nStorylines) {
+                        plot = plot +
+                            annotate("line",
+                                     x=c(limits_bar[1],
+                                         limits_bar[2]+dx_sL/2),
+                                     y=plot_y[s],
+                                     color=plot_color[s],
+                                     linewidth=0.4,
+                                     alpha=0.5,
+                                     lineend="round")
+                    }
+                    
+                     plot = plot +
                         annotate("point",
                                  x=rep(limits_bar[2]+dx_sL/2, n),
                                  y=plot_y,
@@ -1170,13 +1194,13 @@ sheet_projection_station = function (meta,
                 annotate("text",
                          x=0.48,
                          y=0.57,
-                         label=TeX(paste0("\\textbf{Changement}")),
+                         label=TeX(paste0("\\textbf{CHANGEMENT}")),
                          size=2.2, hjust=0.5, vjust=0.5, angle=90,
                          color=IPCCgrey35) +
                 annotate("text",
                          x=0.75,
                          y=0.57,
-                         label=TeX(paste0("\\textbf{d'INTENSITÉ}")),
+                         label=TeX(paste0("\\textbf{de débit}")),
                          size=2.2, hjust=0.5, vjust=0.5, angle=90,
                          color=IPCCgrey35) +
                 annotate("line",
