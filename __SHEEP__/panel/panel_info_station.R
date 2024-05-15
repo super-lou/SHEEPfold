@@ -27,6 +27,7 @@ panel_info_station = function(data_code,
                               regimeLight="",
                               meta=NULL,
                               nProjections=NULL,
+                              projection_legend=NULL,
                               Shapefiles=NULL,
                               codeLight=NULL,
                               to_do='all',
@@ -48,7 +49,8 @@ panel_info_station = function(data_code,
                               verbose=FALSE) {
 
     # If there is a data serie for the given code
-    if (!is.null(QM_code) & ('regime' %in% to_do | 'all' %in% to_do)) {
+    if (!is.null(QM_code) & ('regime' %in% to_do | 'all' %in% to_do) &
+        !('projection' %in% to_do)) {
         # Computes the hydrograph
         if (show_regime_info) {
             ratio_title = 1/7
@@ -215,27 +217,34 @@ panel_info_station = function(data_code,
                                hjust=0, vjust=1,
                                gp=gpar(col=IPCCgrey13, fontsize=9))
 
-    # } else if ('projection' %in% to_do & !is.null(nProjections) | !is.null(nProjections)) {
-    #     text4 = paste0(
-    #         "Nombre de projection : ", nProjections, "<br>",
-    #         "Nombre de modéle hydrologique : ", meta_code$n)
-    #     gtext4 = richtext_grob(text4,
-    #                            x=0, y=1,
-    #                            margin=unit(c(t=0, r=0, b=0, l=0),
-    #                                        "mm"),
-    #                            hjust=0, vjust=1,
-    #                            gp=gpar(col=IPCCgrey13, fontsize=9))
+    } else if ('projection' %in% to_do & !is.null(projection_legend)) {
+        gtext4 = projection_legend
         
     } else {
         gtext4 = void()
     }
 
-    plan = matrix(c("text1", "text1", "text1", "map",
-                    "text2", "text2", "hyd", "map",
-                    "text3", "text4", "hyd", "map",
-                    "text3", "text4", "hyd", "map"),
-                  nrow=4, 
-                  byrow=TRUE)
+    if ('projection' %in% to_do) {
+        plan = matrix(c("text1", "text1", "text1", "map",
+                        "text2", "text2", "text2", "map",
+                        "text3", "text4", "text4", "map",
+                        "text3", "text4", "text4", "map"),
+                      nrow=4, 
+                      byrow=TRUE)
+        width_text3 = 1.4
+        width_text4 = 2
+        width_map = 0.9
+    } else {
+        plan = matrix(c("text1", "text1", "text1", "map",
+                        "text2", "text2", "hyd", "map",
+                        "text3", "text4", "hyd", "map",
+                        "text3", "text4", "hyd", "map"),
+                      nrow=4, 
+                      byrow=TRUE)
+        width_text3 = 1
+        width_text4 = 1
+        width_map = 1.1
+    }
     
     herd = bring_grass(verbose=verbose)
     herd = plan_of_herd(herd, plan,
@@ -257,13 +266,13 @@ panel_info_station = function(data_code,
                      sheep=gtext3,
                      id="text3",
                      height=1,
-                     width=1,
+                     width=width_text3,
                      verbose=verbose)
     herd = add_sheep(herd,
                      sheep=gtext4,
                      id="text4",
                      height=1,
-                     width=1,
+                     width=width_text4,
                      verbose=verbose)
     herd = add_sheep(herd,
                      sheep=hyd,
@@ -275,7 +284,7 @@ panel_info_station = function(data_code,
                      sheep=map,
                      id="map",
                      height=1,
-                     width=1.1,
+                     width=width_map,
                      verbose=verbose)    
     
     return (herd)

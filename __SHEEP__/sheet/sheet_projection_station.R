@@ -27,6 +27,7 @@ sheet_projection_station = function (meta,
                                      metaEX_criteria,
                                      Colors,
                                      Colors_light,
+                                     Names,
                                      historical=c("1976-01-01", "2005-08-31"),
                                      prob=0.01, 
                                      icon_path="",
@@ -48,8 +49,8 @@ sheet_projection_station = function (meta,
 
     block_height = (height - info_height - medQJ_height - foot_height) / 3
 
-    variable_info_width = 0.2
-    variable_graph_width = 0.8
+    # variable_info_width = 0.2
+    variable_graph_width = 1
 
     variable_title_height = 0.05
     variable_spread_height = 0.46
@@ -58,16 +59,18 @@ sheet_projection_station = function (meta,
     variable_axis_height = 0.1
     variable_void_height = 0.04
     
-    medQJ_width = width/3
+    # medQJ_width = width
+    warning_width = 2.3
+    block_width = width - warning_width
 
     plan_1 = matrix(c(
-        "info", "info", "info",
-        "medQJ_H0", "medQJ_H2", "medQJ_H3",
-        "QJXA", "QJXA", "QJXA",
-        "QA", "QA", "QA",
-        "VCN10_summer", "VCN10_summer", "VCN10_summer",
-        "foot", "foot", "foot"
-    ), ncol=3, byrow=TRUE)
+        "info", "info",
+        "medQJ", "medQJ",
+        "warning", "QJXA",
+        "warning", "QA", 
+        "warning", "VCN10_summer",
+        "foot", "foot"
+    ), ncol=2, byrow=TRUE)
 
     plan_2 = matrix(c(
         "delta", 
@@ -75,6 +78,8 @@ sheet_projection_station = function (meta,
         "VCN10-5", 
         "foot"
     ), ncol=1, byrow=TRUE)
+
+    
 
     extreme_height = 6
     extreme_title_height = 0.12
@@ -220,13 +225,54 @@ sheet_projection_station = function (meta,
         herd = bring_grass(verbose=verbose)
         herd = plan_of_herd(herd, plan_1,
                             verbose=verbose)
-        
-        # nProjections = length(unique(dataEX_serie_code[[1]]$Chain))
+
+### 1.1. Info ________________________________________________________
+        legend = ggplot() + theme_void() +
+            theme(plot.margin=margin(t=0, r=0,
+                                     b=0, l=0, "mm"))
+
+        dy0 = 0.85
+        dx0 = 0.1
+        dx_line = 0.05
+        p_line = 0.75
+        dx_text = 0.03
+        dy = 0.17
+        for (k in 1:nStorylines) {
+            y = dy0 - dy*(k-1)
+            label = TeX(Names[k])
+            legend = legend +
+                annotate("line",
+                         x=dx0 + c(0, dx_line),
+                         y=y,
+                         color=Colors_light[k],
+                         linewidth=1,
+                         lineend="round") +
+                annotate("line",
+                         x=dx0 + c(0, dx_line*p_line),
+                         y=y,
+                         color=Colors[k],
+                         linewidth=1,
+                         lineend="round") +
+                annotate("text",
+                         x=dx0 + dx_line + dx_text,
+                         y=y,
+                         label=label,
+                         size=2.4, hjust=0, vjust=0.5,
+                         color=IPCCgrey25)
+        }
+        legend = legend +
+            scale_x_continuous(limits=c(0, 1),
+                               expand=c(0, 0)) +
+            scale_y_continuous(limits=c(0, 1),
+                               expand=c(0, 0))
+
+
         info = panel_info_station(
             meta=meta,
             Shapefiles=Shapefiles,
             codeLight=code,
             nProjections=nChain,
+            projection_legend=legend,
             to_do=c("title", "subtitle", "map", "spatial", "projection"),
             if_NA_unkowned=FALSE,
             subtitle_height=0.28,
@@ -246,6 +292,7 @@ sheet_projection_station = function (meta,
                          width=width,
                          verbose=verbose)
 
+### 1.2. Régime ______________________________________________________
         limits_ymax = quantile(c(dataEX_serie_code$medQJ_H0$medQJ_H0,
                                  dataEX_serie_code$medQJ_H2$medQJ_H2,
                                  dataEX_serie_code$medQJ_H3$medQJ_H3),
@@ -253,6 +300,12 @@ sheet_projection_station = function (meta,
                                na.rm=TRUE)
 
         hide_y_axis = FALSE
+
+        medQJ_plan = matrix(c("medQJ_H0", "medQJ_H2", "medQJ_H3"),
+                            ncol=3, byrow=TRUE)
+        medQJ = bring_grass(verbose=verbose)
+        medQJ = plan_of_herd(medQJ, medQJ_plan,
+                             verbose=verbose)
         
         for (j in 1:nVariables_medQJ) {
 
@@ -314,7 +367,7 @@ sheet_projection_station = function (meta,
             Colors_tmp = Colors 
             names(Colors_tmp) = paste0(names(Colors_tmp), "|median")
             
-            medQJ = panel_spaghetti(dataMOD,
+            medQJ_H = panel_spaghetti(dataMOD,
                                     Colors_tmp,
                                     title=paste0("(", letters[id_letter+j], ") Régime hydrologique"),
                                     unit="m^{3}.s^{-1}",
@@ -354,16 +407,63 @@ sheet_projection_station = function (meta,
                                     hide_y_axis=hide_y_axis,
                                     verbose=verbose)
             # medQJ = contour()
-            herd = add_sheep(herd,
-                             sheep=medQJ,
-                             id=variable,
-                             height=medQJ_height,
-                             width=medQJ_width,
-                             verbose=verbose)
+            medQJ = add_sheep(medQJ,
+                              sheep=medQJ_H,
+                              id=variable,
+                              height=1,
+                              width=1/3,
+                              verbose=verbose)
             hide_y_axis = TRUE
         }
+
+        herd = add_sheep(herd,
+                         sheep=medQJ,
+                         id="medQJ",
+                         height=medQJ_height,
+                         width=width,
+                         verbose=verbose)
+        
         id_letter = id_letter + nVariables_medQJ
 
+
+### 1.3. Legend ______________________________________________________
+        warning = ggplot() + theme_void() +
+            theme(plot.margin=margin(t=0, r=0,
+                                     b=0, l=0, "mm"))
+
+        Lines = c("\\textbf{Avertissement} : Ces résultats comportent de très nombreuses incertitudes.",
+                  "Ils sont donnés à titre indicatif. Il ne s’agit pas de prévisions mais d’indications d’évolutions possibles.",
+                  "Une note d’accompagnement contient des indications de lecture et d’interprétation de la fiche.",
+                  "Elle détaille de plus la méthodologie utilisée ainsi que les limites de l’exercice.")
+
+        dx = 0.15
+        for (k in 1:length(Lines)) {
+            warning = warning +
+                annotate("text",
+                         x=0.05+dx*(k-1),
+                         y=0.11,
+                         label=TeX(Lines[k]),
+                         size=3, hjust=0, vjust=1,
+                         angle=90,
+                         color=IPCCgrey50)
+        }
+
+        warning = warning +
+            scale_x_continuous(limits=c(0, 1),
+                               expand=c(0, 0)) +
+            scale_y_continuous(limits=c(0, 1),
+                               expand=c(0, 0))
+        
+
+        herd = add_sheep(herd,
+                         sheep=warning,
+                         id="warning",
+                         height=block_height,
+                         width=warning_width,
+                         verbose=verbose)
+        
+
+### 1.4. Variable ____________________________________________________
         Date =
             as.Date(paste0(
                 lubridate::year(unique(dataEX_serie[["QA"]]$date)),
@@ -386,13 +486,13 @@ sheet_projection_station = function (meta,
             name_to_display =
                 metaEX_serie$name_fr[metaEX_serie$variable_en == variable]
             
-            block_plan = matrix(c("info", "title",
-                                  "info", "spread",
-                                  "info", "signe", 
-                                  "info", "stripes",
-                                  "info", "axis",
-                                  "info", "void"),
-                                ncol=2, byrow=TRUE)
+            block_plan = matrix(c("title",
+                                  "spread",
+                                  "signe", 
+                                  "stripes",
+                                  "axis",
+                                  "void"),
+                                ncol=1, byrow=TRUE)
             block = bring_grass(verbose=verbose)
             block = plan_of_herd(block, block_plan,
                                  verbose=verbose)
@@ -421,14 +521,6 @@ sheet_projection_station = function (meta,
                               id="title",
                               height=variable_title_height,
                               width=variable_graph_width,
-                              verbose=verbose)
-
-
-            block = add_sheep(block,
-                              sheep=void(),
-                              id="info",
-                              height=1,
-                              width=variable_info_width,
                               verbose=verbose)
             
             dataMOD = dataEX_serie_code[[variable]]
@@ -557,12 +649,13 @@ sheet_projection_station = function (meta,
                              sheep=block,
                              id=variable,
                              height=block_height,
-                             width=width,
+                             width=block_width,
                              verbose=verbose)
         }
         id_letter = id_letter + nVariables_serie
         
 
+### 1.5. Foot ________________________________________________________
         footName = 'Fiche résultats projection'
         if (is.null(Pages)) {
             n_page = i
@@ -589,6 +682,8 @@ sheet_projection_station = function (meta,
                          width=width,
                          verbose=verbose)
 
+        
+### 1.6. End _________________________________________________________
         res = return_to_sheepfold(herd,
                                   page_margin=page_margin,
                                   paper_size="A4",
