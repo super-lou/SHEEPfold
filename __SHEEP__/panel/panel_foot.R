@@ -24,6 +24,7 @@
 #' @title Foot panel
 #' @export
 panel_foot = function (name, n_page, foot_height, logo_info,
+                       left_plot=NULL,
                        verbose=FALSE) {
     
     plan = matrix(names(logo_info),
@@ -69,8 +70,8 @@ panel_foot = function (name, n_page, foot_height, logo_info,
                          hjust=1, vjust=0.5,
                          gp=gpar(col=refCOL, fontsize=6))
     
-    plan = matrix(c("void", "logo", "page",
-                    "void", "logo", "date"),
+    plan = matrix(c("left_plot", "logo", "page",
+                    "left_plot", "logo", "date"),
                   nrow=2, 
                   byrow=TRUE)
     
@@ -78,9 +79,14 @@ panel_foot = function (name, n_page, foot_height, logo_info,
     herd = plan_of_herd(herd, plan,
                         verbose=verbose)
 
+
+    if (is.null(left_plot)) {
+        left_plot = void()
+    }
+    
     herd = add_sheep(herd,
-                     sheep=void(),
-                     id="void",
+                     sheep=left_plot,
+                     id="left_plot",
                      width=1,
                      verbose=verbose)
     herd = add_sheep(herd,

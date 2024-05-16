@@ -25,6 +25,7 @@ sheet_projection_station = function (meta,
                                      metaEX_serie,
                                      dataEX_criteria,
                                      metaEX_criteria,
+                                     data_QUALYPSO,
                                      Colors,
                                      Colors_light,
                                      Names,
@@ -49,26 +50,26 @@ sheet_projection_station = function (meta,
 
     block_height = (height - info_height - medQJ_height - foot_height) / 3
 
-    # variable_info_width = 0.2
-    variable_graph_width = 1
+    variable_info_width = 0.0086
+    variable_graph_width = 0.994
 
     variable_title_height = 0.05
     variable_spread_height = 0.46
     variable_signe_height = 0.1
     variable_stripes_height = 0.25
     variable_axis_height = 0.1
-    variable_void_height = 0.04
+    variable_axis_void_height = 0.04
     
     # medQJ_width = width
-    warning_width = 2.3
-    block_width = width - warning_width
+    legend_width = 2.3
+    block_width = width - legend_width
 
     plan_1 = matrix(c(
         "info", "info",
         "medQJ", "medQJ",
-        "warning", "QJXA",
-        "warning", "QA", 
-        "warning", "VCN10_summer",
+        "legend", "QJXA",
+        "legend", "QA", 
+        "legend", "VCN10_summer",
         "foot", "foot"
     ), ncol=2, byrow=TRUE)
 
@@ -80,7 +81,6 @@ sheet_projection_station = function (meta,
     ), ncol=1, byrow=TRUE)
 
     
-
     extreme_height = 6
     extreme_title_height = 0.12
     extreme_H_height = 0.88
@@ -227,40 +227,71 @@ sheet_projection_station = function (meta,
                             verbose=verbose)
 
 ### 1.1. Info ________________________________________________________
-        legend = ggplot() + theme_void() +
+        narratif = ggplot() + theme_void() +
             theme(plot.margin=margin(t=0, r=0,
                                      b=0, l=0, "mm"))
 
-        dy0 = 0.85
-        dx0 = 0.1
+        dy0 = 1
+        dy_title = 0.21
+        dy = 0.15
+        dy_SAFRAN = 0.06
+        dx_SAFRAN = 0.14
+        
+        dx0 = 0.16
+        dx_narratif = 0.01
         dx_line = 0.05
         p_line = 0.75
         dx_text = 0.03
-        dy = 0.17
+
+        narratif = narratif +
+            annotate("text",
+                     x=dx0,
+                     y=dy0,
+                     label=TeX("\\textbf{Narratifs}"),
+                     size=2.4, hjust=0, vjust=1,
+                     color=IPCCgrey35)
+        
         for (k in 1:nStorylines) {
-            y = dy0 - dy*(k-1)
+            y = dy0 - dy_title - dy*(k-1)
             label = TeX(Names[k])
-            legend = legend +
+            narratif = narratif +
                 annotate("line",
-                         x=dx0 + c(0, dx_line),
+                         x=dx0 + dx_narratif + c(0, dx_line),
                          y=y,
                          color=Colors_light[k],
                          linewidth=1,
                          lineend="round") +
                 annotate("line",
-                         x=dx0 + c(0, dx_line*p_line),
+                         x=dx0 + dx_narratif + c(0, dx_line*p_line),
                          y=y,
                          color=Colors[k],
                          linewidth=1,
                          lineend="round") +
                 annotate("text",
-                         x=dx0 + dx_line + dx_text,
+                         x=dx0 + dx_narratif + dx_line + dx_text,
                          y=y,
                          label=label,
                          size=2.4, hjust=0, vjust=0.5,
-                         color=IPCCgrey25)
+                         color=IPCCgrey35)
         }
-        legend = legend +
+        
+        y = dy0 - dy_title - dy*nStorylines - dy_SAFRAN
+        narratif = narratif +
+            annotate("text",
+                     x=dx0,
+                     y=y,
+                     label=TeX("\\textbf{SAFRAN}"),
+                     size=2.4, hjust=0, vjust=0.5,
+                     color=IPCCgrey35) +
+            annotate("line",
+                     x=dx0 + dx_SAFRAN + c(0, dx_line),
+                     y=y,
+                     color=IPCCgrey23,
+                     linewidth=1,
+                     lineend="round")
+
+        
+        narratif = narratif +
             scale_x_continuous(limits=c(0, 1),
                                expand=c(0, 0)) +
             scale_y_continuous(limits=c(0, 1),
@@ -272,7 +303,7 @@ sheet_projection_station = function (meta,
             Shapefiles=Shapefiles,
             codeLight=code,
             nProjections=nChain,
-            projection_legend=legend,
+            projection_legend=narratif,
             to_do=c("title", "subtitle", "map", "spatial", "projection"),
             if_NA_unkowned=FALSE,
             subtitle_height=0.28,
@@ -296,7 +327,7 @@ sheet_projection_station = function (meta,
         limits_ymax = quantile(c(dataEX_serie_code$medQJ_H0$medQJ_H0,
                                  dataEX_serie_code$medQJ_H2$medQJ_H2,
                                  dataEX_serie_code$medQJ_H3$medQJ_H3),
-                               0.995,
+                               1,
                                na.rm=TRUE)
 
         hide_y_axis = FALSE
@@ -331,7 +362,8 @@ sheet_projection_station = function (meta,
                 
             variable_SAFRAN = "medQJ_H0"
             dataMOD_SAFRAN = dataEX_serie_code[[variable_SAFRAN]]
-            dataMOD_SAFRAN$date = as.Date("1970-01-01") + lubridate::yday(dataMOD_SAFRAN$date)-1
+            dataMOD_SAFRAN$date = as.Date("1970-01-01") +
+                lubridate::yday(dataMOD_SAFRAN$date)-1
             dataMOD_SAFRAN_med =
                 dplyr::summarise(
                            dplyr::group_by(
@@ -339,8 +371,9 @@ sheet_projection_station = function (meta,
                                                     EXP == "SAFRAN"),
                                       date,
                                       climateChain),
-                           !!paste0(variable, "_SAFRAN"):=median(get(variable_SAFRAN),
-                                                                 na.rm=TRUE),
+                           !!paste0(variable,
+                                    "_SAFRAN"):=median(get(variable_SAFRAN),
+                                                       na.rm=TRUE),
                            .groups="drop")
 
             
@@ -427,54 +460,211 @@ sheet_projection_station = function (meta,
 
 
 ### 1.3. Legend ______________________________________________________
-        warning = ggplot() + theme_void() +
+        dx0 = 0.01
+
+        x_palette = 0.08
+        dx_palette = 0.07
+        dx_palette_shape = 0.03
+        dx_palette_text = 0.18
+        y_palette = 8.8
+        dy_palette = 0.2
+        dy_palette_title = 0.2
+
+        x_spread = 0.02
+        dx_spread = 0.04
+        dx_spread_line = 0.18
+        dx_spread_rect = dx_spread_line
+        dx_spread_text = 0.28
+        y_spread = 5.3
+        dy_spread = 0.32
+        dy_spread_text_line = 0.12
+        dy_spread_rect = 0.16
+        dy_spread_title = 0.23
+        
+        x_signe = 0
+        dx_signe = 0.07
+        dx_signe_text = 0.14
+        y_signe = 1.3
+        dy_signe = 0.15
+        dy_signe_title = 0.2
+        dy_signe_title_line = 0.15
+        
+        legend = ggplot() + theme_void() +
             theme(plot.margin=margin(t=0, r=0,
-                                     b=0, l=0, "mm"))
+                                     b=0, l=0, "mm")) +
+            annotate("text",
+                     x=dx0 + x_palette,
+                     y=y_palette + dy_palette*1 + dy_palette_title,
+                     label=TeX("\\textbf{Couleurs}"),
+                     hjust=0, vjust=0.5, size=2.4,
+                     color=IPCCgrey35)
 
-        Lines = c("\\textbf{Avertissement} : Ces résultats comportent de très nombreuses incertitudes.",
-                  "Ils sont donnés à titre indicatif. Il ne s’agit pas de prévisions mais d’indications d’évolutions possibles.",
-                  "Une note d’accompagnement contient des indications de lecture et d’interprétation de la fiche.",
-                  "Elle détaille de plus la méthodologie utilisée ainsi que les limites de l’exercice.")
-
-        dx = 0.15
-        for (k in 1:length(Lines)) {
-            warning = warning +
+        dColor = 1
+        PaletteEX = metaEX_serie$palette[metaEX_serie$variable_en ==
+                                         Variables_serie[1]]
+        PaletteEX = unlist(strsplit(PaletteEX, " "))
+        PaletteEX = c(PaletteEX[1+dColor], PaletteEX[length(PaletteEX)-dColor])
+        PaletteEX_info = c("Moins d'eau",
+                           "Plus d'eau")
+        
+        for (k in 1:2) {
+            legend = legend +
+                annotate("point",
+                         x=dx0 + x_palette +
+                             dx_palette + dx_palette_shape*2,
+                         y=y_palette + dy_palette*(k-1),
+                         color=PaletteEX[k], alpha=0.2,
+                         size=2, shape=15) +
+                annotate("point",
+                         x=dx0 + x_palette +
+                             dx_palette + dx_palette_shape,
+                         y=y_palette + dy_palette*(k-1),
+                         color=PaletteEX[k], alpha=0.5,
+                         size=2, shape=15) +
+                annotate("point",
+                         x=dx0 + x_palette +
+                             dx_palette,
+                         y=y_palette + dy_palette*(k-1),
+                         color=PaletteEX[k], alpha=1,
+                         size=2, shape=15) +
                 annotate("text",
-                         x=0.05+dx*(k-1),
-                         y=0.11,
-                         label=TeX(Lines[k]),
-                         size=3, hjust=0, vjust=1,
-                         angle=90,
-                         color=IPCCgrey50)
+                         x=dx0 + x_palette +
+                             dx_palette + dx_palette_text,
+                         y=y_palette + dy_palette*(k-1),
+                         label=PaletteEX_info[k],
+                         hjust=0, vjust=0.6, size=2.2,
+                         color=IPCCgrey35) 
         }
 
-        warning = warning +
+        legend = legend +
+            annotate("text",
+                     x=dx0 + x_spread,
+                     y=y_spread + dy_spread*2 + dy_spread_title,
+                     label=TeX("\\textbf{Projections}"),
+                     hjust=0, vjust=0.5, size=2.4,
+                     color=IPCCgrey35) + 
+            
+            annotate("line",
+                     x=dx0 + x_spread + dx_spread + c(0, dx_spread_line),
+                     y=y_spread + dy_spread*2,
+                     color=IPCCgrey50, lineend="round",
+                     linewidth=0.7) +
+            annotate("text",
+                     x=dx0 + x_spread + dx_spread + dx_spread_text,
+                     y=y_spread + dy_spread*2 + dy_spread_text_line/2,
+                     label="Moyenne",
+                     hjust=0, vjust=0.6, size=2.2,
+                     color=IPCCgrey35) +
+            annotate("text",
+                     x=dx0 + x_spread + dx_spread + dx_spread_text,
+                     y=y_spread + dy_spread*2 - dy_spread_text_line/2,
+                     label="d'ensemble",
+                     hjust=0, vjust=0.6, size=2.2,
+                     color=IPCCgrey35) +
+            
+            annotate("rect",
+                     xmin=dx0 + x_spread + dx_spread,
+                     xmax=dx0 + x_spread + dx_spread + dx_spread_rect,
+                     ymin=y_spread + dy_spread - dy_spread_rect/2,
+                     ymax=y_spread + dy_spread + dy_spread_rect/2,
+                     fill=IPCCgrey50, alpha=0.5,
+                     color=IPCCgrey60, linetype="solid",
+                     linejoin="round",
+                     linewidth=0.4) +
+            annotate("text",
+                     x=dx0 + x_spread + dx_spread + dx_spread_text,
+                     y=y_spread + dy_spread + dy_spread_text_line/2,
+                     label="Dispersion",
+                     hjust=0, vjust=0.6, size=2.2,
+                     color=IPCCgrey35) +
+            annotate("text",
+                     x=dx0 + x_spread + dx_spread + dx_spread_text,
+                     y=y_spread + dy_spread - dy_spread_text_line/2,
+                     label="modèle",
+                     hjust=0, vjust=0.6, size=2.2,
+                     color=IPCCgrey35) +
+
+            annotate("rect",
+                     xmin=dx0 + x_spread + dx_spread,
+                     xmax=dx0 + x_spread + dx_spread + dx_spread_rect,
+                     ymin=y_spread - dy_spread_rect/2,
+                     ymax=y_spread + dy_spread_rect/2,
+                     fill=IPCCgrey50, alpha=0.2,
+                     color=IPCCgrey60, linetype="11",
+                     linejoin="bevel",
+                     linewidth=0.4) +
+            annotate("text",
+                     x=dx0 + x_spread + dx_spread + dx_spread_text,
+                     y=y_spread + dy_spread_text_line/2,
+                     label="Variabilité",
+                     hjust=0, vjust=0.6, size=2.2,
+                     color=IPCCgrey35) +
+            annotate("text",
+                     x=dx0 + x_spread + dx_spread + dx_spread_text,
+                     y=y_spread - dy_spread_text_line/2,
+                     label="naturelle",
+                     hjust=0, vjust=0.6, size=2.2,
+                     color=IPCCgrey35)
+    
+        legend = legend +
+            annotate("text",
+                     x=dx0 + x_signe,
+                     y=y_signe + dy_signe*2 +
+                         dy_signe_title + dy_signe_title_line,
+                     label=TeX("\\textbf{Accord sur}"),
+                     hjust=0, vjust=0.5, size=2.4,
+                     color=IPCCgrey35) +
+            annotate("text",
+                     x=dx0 + x_signe,
+                     y=y_signe + dy_signe*2 +
+                         dy_signe_title,
+                     label=TeX("\\textbf{la tendance}"),
+                     hjust=0, vjust=0.5, size=2.4,
+                     color=IPCCgrey35)
+
+        Signe_info = c("Diminution",
+                       "Pas de tendance",
+                       "Augmentation")
+        Signe_shape = c(25, 21, 24)
+        
+        for (k in 1:3) {
+            legend = legend +
+                annotate("point",
+                         x=dx0 + x_signe + dx_signe,
+                         y=y_signe + dy_signe*(k-1),
+                         color=IPCCgrey60,
+                         fill="white", size=1.5,
+                         shape=Signe_shape[k]) +
+                annotate("text",
+                         x=dx0 + x_signe + dx_signe + dx_signe_text,
+                         y=y_signe + dy_signe*(k-1),
+                         label=Signe_info[k],
+                         hjust=0, vjust=0.6, size=2.2,
+                         color=IPCCgrey35) 
+        }
+
+        legend = legend + 
             scale_x_continuous(limits=c(0, 1),
                                expand=c(0, 0)) +
-            scale_y_continuous(limits=c(0, 1),
+            scale_y_continuous(limits=c(0, 10),
                                expand=c(0, 0))
-        
 
         herd = add_sheep(herd,
-                         sheep=warning,
-                         id="warning",
+                         sheep=legend,
+                         id="legend",
                          height=block_height,
-                         width=warning_width,
+                         width=legend_width,
                          verbose=verbose)
         
 
 ### 1.4. Variable ____________________________________________________
-        Date =
-            as.Date(paste0(
-                lubridate::year(unique(dataEX_serie[["QA"]]$date)),
-                "-01-01"))
-
-        axis = panel_axis(Date,
+#### 1.4.0. Initialisation ___________________________________________
+        lim_date = as.Date(c('1975-01-01', '2100-12-31'))
+        axis = panel_axis(lim_date,
                           axis.text.x_size=9,
                           date_labels="%Y",
                           breaks="10 years",
                           minor_breaks="5 years")
-        
         
         for (j in 1:nVariables_serie) {
             variable = Variables_serie[j]
@@ -486,18 +676,17 @@ sheet_projection_station = function (meta,
             name_to_display =
                 metaEX_serie$name_fr[metaEX_serie$variable_en == variable]
             
-            block_plan = matrix(c("title",
-                                  "spread",
-                                  "signe", 
-                                  "stripes",
-                                  "axis",
-                                  "void"),
-                                ncol=1, byrow=TRUE)
+            block_plan = matrix(c("void", "title",
+                                  "void", "spread",
+                                  "void", "signe", 
+                                  "info_stripes", "stripes",
+                                  "void", "axis",
+                                  "axis_void", "axis_void"),
+                                ncol=2, byrow=TRUE)
             block = bring_grass(verbose=verbose)
             block = plan_of_herd(block, block_plan,
                                  verbose=verbose)
 
-            
             titleTeX = TeX(paste0("(", letters[id_letter+j], ") ",
                               convert2TeX(variable_to_display, bold=TRUE),
                               " $-$ ", name_to_display))
@@ -515,18 +704,119 @@ sheet_projection_station = function (meta,
                                    expand=c(0, 0)) +
                 scale_y_continuous(limits=c(0, 1),
                                    expand=c(0, 0))
-    
+            
             block = add_sheep(block,
                               sheep=title,
                               id="title",
                               height=variable_title_height,
                               width=variable_graph_width,
                               verbose=verbose)
+
+
+#### 1.4.1. Spread __________________________________________________
+            spread = contour()
+            block = add_sheep(block,
+                              sheep=spread,
+                              id="spread",
+                              # label="align",
+                              height=variable_spread_height,
+                              width=variable_graph_width,
+                              verbose=verbose)
+
+#### 1.4.2. Signe __________________________________________________
+            dataMOD = data_QUALYPSO[[variable]]$signe
+            dataMOD = dataMOD[dataMOD$code == code,]
+            convert_shape = c("24"=1, "21"=0, "25"=-1)
+            dataMOD$shape =
+                names(convert_shape)[match(dataMOD$signe,
+                                           convert_shape)]
+            dataMOD$shape = as.numeric(dataMOD$shape)
+            dataMOD$dy = -0.05 * dataMOD$signe
+            dataMOD$color = IPCCgrey60
+            dataMOD$color[dataMOD$signe == 1] = PaletteEX[2]
+            dataMOD$color[dataMOD$signe == -1] = PaletteEX[1]
+            
+            get_breaks = function(X, breaks="10 years", break_round=-1) {
+                Xmin = round(lubridate::year(min(X)), break_round)
+                Xmax = round(lubridate::year(max(X)), break_round)
+                if (Xmax-Xmin <= 1) {
+                    Xmin = lubridate::year(X)[1]
+                    Xmax = lubridate::year(X)[1] + 1
+                }
+                res = seq.Date(from=as.Date(paste0(Xmin, "-01-01")),
+                               to=as.Date(paste0(Xmax, "-01-01")),
+                               by=breaks)
+                return (res)
+            }
+            
+            signe =  ggplot() + theme_void() + 
+                theme(panel.grid.major.x=element_line(color=IPCCgrey85,
+                                                      size=0.3),
+                      plot.margin=margin(t=0.5, r=0,
+                                         b=0.5, l=0, "mm")) +
+                annotate("point",
+                         x=dataMOD$date,
+                         y=0.5 + dataMOD$dy,
+                         shape=dataMOD$shape,
+                         color="white",
+                         fill="white", size=2.5) +
+                annotate("point",
+                         x=dataMOD$date,
+                         y=0.5 + dataMOD$dy,
+                         shape=dataMOD$shape,
+                         color=dataMOD$color,
+                         fill="white", size=1.5) +
+                scale_x_date(limits=lim_date,
+                             breaks=get_breaks,
+                             expand=c(0, 0)) +
+                scale_y_continuous(limits=c(0, 1),
+                                   expand=c(0, 0))
+
+            block = add_sheep(block,
+                              sheep=signe,
+                              id="signe",
+                              label="align",
+                              height=variable_signe_height,
+                              width=variable_graph_width,
+                              verbose=verbose)
+
+            
+#### 1.4.3. Stripes __________________________________________________
+            info_stripes =  ggplot() + theme_void() +
+                theme(plot.margin=margin(t=0, r=0,
+                                         b=0, l=0, "mm")) +
+                scale_x_continuous(limits=c(0, 1),
+                                   expand=c(0, 0)) +
+                scale_y_continuous(limits=c(0, 1),
+                                   expand=c(0, 0))
+
+            dy0 = 0.02
+            dy_space = 0.04
+            dy_line = (1 - dy_space*(nStorylines - 1) - dy0*2) / nStorylines
+            
+            for (k in 1:nStorylines) {
+                info_stripes = info_stripes +
+                    annotate("line",
+                             x=0.5,
+                             y=dy0 + dy_space*(k-1) + dy_line*(k-1) + c(0, dy_line),
+                             color=rev(Colors)[k],
+                             linewidth=2)
+            }
+    
+            block = add_sheep(block,
+                              sheep=info_stripes,
+                              id="info_stripes",
+                              width=variable_info_width,
+                              verbose=verbose)
+            block = add_sheep(block,
+                              sheep=void(),
+                              id="void",
+                              width=variable_info_width,
+                              verbose=verbose)
             
             dataMOD = dataEX_serie_code[[variable]]
-            dataMOD_SAFRAN = dplyr::filter(dataMOD, EXP == "SAFRAN")
-            dataMOD = dplyr::filter(dataMOD, climateChain %in% Storylines)     
-            dataMOD$date = as.Date(paste0(lubridate::year(dataMOD$date), "-01-01"))
+            dataMOD = dplyr::filter(dataMOD,
+                                    climateChain %in% Storylines)
 
             dataMOD_historical =
                 dplyr::summarise(
@@ -535,7 +825,8 @@ sheet_projection_station = function (meta,
                                                     historical[1] <= date &
                                                     date <= historical[2]),
                                       Chain),
-                           !!paste0("mean", variable):=mean(get(variable), na.rm=TRUE))
+                           !!paste0("mean", variable):=
+                               mean(get(variable), na.rm=TRUE))
 
             dataMOD = dplyr::left_join(dataMOD, dataMOD_historical,
                                        by="Chain")
@@ -543,6 +834,25 @@ sheet_projection_station = function (meta,
             dataMOD$delta =
                 (dataMOD[[variable]] - dataMOD[[paste0("mean", variable)]]) /
                 dataMOD[[paste0("mean", variable)]]
+
+            dataMOD$date =
+                as.Date(paste0(lubridate::year(dataMOD$date), "-01-01"))
+
+            date_stat =
+                dplyr::summarise(
+                           dplyr::group_by(
+                                      dplyr::filter(
+                                                 dataMOD,
+                                                 climateChain %in% Storylines &
+                                                 !is.na(get(variable))),
+                                      Chain),
+                           min_date=min(date, na.rm=TRUE),
+                           max_date=max(date, na.rm=TRUE))
+            min_date = max(date_stat$min_date)
+            max_date = min(date_stat$max_date)
+            dataMOD = dplyr::filter(dataMOD,
+                                    min_date <= date &
+                                    date <= max_date)
 
             colorStep = 256
             Palette = metaEX_serie$palette[metaEX_serie$variable_en == variable]
@@ -559,28 +869,14 @@ sheet_projection_station = function (meta,
             dataMOD$fill = get_colors(dataMOD$delta,
                                       res$upBin, res$lowBin, Palette)
 
-            stripes_plan = matrix(c(
-                # "margin_top",
-                            1:nStorylines
-                # "margin_bottom"
-            ))
+            stripes_plan = matrix(1:nStorylines)
             stripes = bring_grass(verbose=verbose)
             stripes = plan_of_herd(stripes, stripes_plan,
                                    verbose=verbose)
-            
-            # stripes = add_sheep(stripes,
-            #                     sheep=void(),
-            #                     id="margin_top",
-            #                     height=0,
-            #                     verbose=verbose)
-            # stripes = add_sheep(stripes,
-            #                     sheep=void(),
-            #                     id="margin_bottom",
-            #                     height=0,
-            #                     verbose=verbose)
                 
             for (k in 1:nStorylines) {
-                dataMOD_storyline = dplyr::filter(dataMOD, climateChain == Storylines[k])
+                dataMOD_storyline = dplyr::filter(dataMOD,
+                                                  climateChain == Storylines[k])
                 dataMOD_storyline$y = factor(dataMOD_storyline$Chain)
                 dataMOD_storyline = dplyr::arrange(dataMOD_storyline, HM)
                 
@@ -592,13 +888,14 @@ sheet_projection_station = function (meta,
                                       x=dataMOD_storyline$date,
                                       y=dataMOD_storyline$y,
                                       fill=dataMOD_storyline$fill) +
-                    ggplot2::scale_x_date(expand=c(0, 0)) +
+                    ggplot2::scale_x_date(limits=lim_date,
+                                          expand=c(0, 0)) +
                     ggplot2::scale_y_discrete(expand=c(0, 0))
 
                 stripes = add_sheep(stripes,
                                     sheep=stripes_k,
                                     id=k,
-                                    # label="align",
+                                    label="align",
                                     height=1,
                                     verbose=verbose)
             }
@@ -611,37 +908,19 @@ sheet_projection_station = function (meta,
                               width=variable_graph_width,
                               verbose=verbose)
 
-            # spread = panel_spread(verbose=verbose)
-            spread = contour()
-            block = add_sheep(block,
-                              sheep=spread,
-                              id="spread",
-                              # label="align",
-                              height=variable_spread_height,
-                              width=variable_graph_width,
-                              verbose=verbose)
-
-            # signe = panel_signe(verbose=verbose)
-            signe = contour()
-            block = add_sheep(block,
-                              sheep=signe,
-                              id="signe",
-                              # label="align",
-                              height=variable_signe_height,
-                              width=variable_graph_width,
-                              verbose=verbose)
-
+#### 1.4.4. Axis _____________________________________________________     
             block = add_sheep(block,
                               sheep=axis,
                               id="axis",
+                              label="align",
                               height=variable_axis_height,
                               width=variable_graph_width,
                               verbose=verbose)
 
             block = add_sheep(block,
                               sheep=void(),
-                              id="void",
-                              height=variable_void_height,
+                              id="axis_void",
+                              height=variable_axis_void_height,
                               width=1,
                               verbose=verbose)
 
@@ -656,6 +935,36 @@ sheet_projection_station = function (meta,
         
 
 ### 1.5. Foot ________________________________________________________
+        warning = ggplot() + theme_void() +
+            theme(plot.margin=margin(t=0, r=0,
+                                     b=0, l=0, "mm"))
+
+        Lines = c("\\textbf{Avertissement} : Ces résultats comportent de très nombreuses incertitudes.",
+                  "Ils sont donnés à titre indicatif. Il ne s’agit pas de prévisions mais d’indications",
+                  "d’évolutions possibles. Une note d’accompagnement contient des indications",
+                  "de lecture et d’interprétation de la fiche. Elle détaille de plus la méthodologie",
+                  "utilisée ainsi que les limites de l’exercice.")
+
+        dy0 = 0.8
+        dy = 0.15
+        dx0 = 0
+        for (k in 1:length(Lines)) {
+            warning = warning +
+                annotate("text",
+                         x=dx0,
+                         y=dy0 - dy*(k-1),
+                         label=TeX(Lines[k]),
+                         size=2, hjust=0, vjust=1,
+                         color=IPCCgrey50)
+        }
+
+        warning = warning +
+            scale_x_continuous(limits=c(0, 1),
+                               expand=c(0, 0)) +
+            scale_y_continuous(limits=c(0, 1),
+                               expand=c(0, 0))
+
+
         footName = 'Fiche résultats projection'
         if (is.null(Pages)) {
             n_page = i
@@ -674,6 +983,7 @@ sheet_projection_station = function (meta,
         
         foot = panel_foot(footName, n_page,
                           foot_height, logo_info,
+                          left_plot=warning,
                           verbose=verbose)
         herd = add_sheep(herd,
                          sheep=foot,
