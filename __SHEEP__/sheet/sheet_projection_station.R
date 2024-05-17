@@ -501,7 +501,7 @@ sheet_projection_station = function (meta,
             annotate("text",
                      x=dx0 + x_palette,
                      y=y_palette + dy_palette*1 + dy_palette_title,
-                     label=TeX("\\textbf{Couleurs}"),
+                     label=TeX("\\textbf{Changements}"),
                      hjust=0, vjust=0.5, size=2.4,
                      color=IPCCgrey35)
 
@@ -546,7 +546,7 @@ sheet_projection_station = function (meta,
             annotate("text",
                      x=dx0 + x_spread,
                      y=y_spread + dy_spread*2 + dy_spread_title,
-                     label=TeX("\\textbf{Projections}"),
+                     label=TeX("\\textbf{Évolution}"),
                      hjust=0, vjust=0.5, size=2.4,
                      color=IPCCgrey35) + 
             
@@ -580,13 +580,13 @@ sheet_projection_station = function (meta,
             annotate("text",
                      x=dx0 + x_spread + dx_spread + dx_spread_text,
                      y=y_spread + dy_spread + dy_spread_text_line/2,
-                     label="Dispersion",
+                     label="Incertitude de",
                      hjust=0, vjust=0.6, size=2.2,
                      color=IPCCgrey35) +
             annotate("text",
                      x=dx0 + x_spread + dx_spread + dx_spread_text,
                      y=y_spread + dy_spread - dy_spread_text_line/2,
-                     label="modèle",
+                     label="modélisation",
                      hjust=0, vjust=0.6, size=2.2,
                      color=IPCCgrey35) +
 
@@ -616,20 +616,27 @@ sheet_projection_station = function (meta,
             annotate("text",
                      x=dx0 + x_signe,
                      y=y_signe + dy_signe*2 +
-                         dy_signe_title + dy_signe_title_line,
+                         dy_signe_title + dy_signe_title_line*2,
                      label=TeX("\\textbf{Accord sur}"),
                      hjust=0, vjust=0.5, size=2.4,
                      color=IPCCgrey35) +
             annotate("text",
                      x=dx0 + x_signe,
                      y=y_signe + dy_signe*2 +
+                         dy_signe_title + dy_signe_title_line,
+                     label=TeX("\\textbf{le signe}"),
+                     hjust=0, vjust=0.5, size=2.4,
+                     color=IPCCgrey35) +
+            annotate("text",
+                     x=dx0 + x_signe,
+                     y=y_signe + dy_signe*2 +
                          dy_signe_title,
-                     label=TeX("\\textbf{la tendance}"),
+                     label=TeX("\\textbf{de l'évolution}"),
                      hjust=0, vjust=0.5, size=2.4,
                      color=IPCCgrey35)
 
         Signe_info = c("Diminution",
-                       "Pas de tendance",
+                       "Pas d'accord",
                        "Augmentation")
         Signe_shape = c(25, 21, 24)
         
@@ -720,11 +727,47 @@ sheet_projection_station = function (meta,
 
 
 #### 1.4.1. Spread __________________________________________________
-            dataMOD = data_QUALYPSO[[variable]]$spread
-            for (k in 1:length(dataMOD)) {
-                dataMOD[[k]] = dataMOD[[k]][dataMOD[[k]]$code == code,]
+            dataMOD = dataEX_serie_code[[variable]]
+            dataMOD = dplyr::filter(dataMOD,
+                                    climateChain %in% Storylines)
+            dataMOD_historical =
+                dplyr::summarise(
+                           dplyr::group_by(
+                                      dplyr::filter(dataMOD,
+                                                    historical[1] <= date &
+                                                    date <= historical[2]),
+                                      Chain),
+                           !!paste0("mean", variable):=
+                               mean(get(variable), na.rm=TRUE))
+            dataMOD = dplyr::left_join(dataMOD, dataMOD_historical,
+                                       by="Chain")
+            dataMOD$delta =
+                (dataMOD[[variable]] - dataMOD[[paste0("mean", variable)]]) /
+                dataMOD[[paste0("mean", variable)]] * 100
+            dataMOD$date =
+                as.Date(paste0(lubridate::year(dataMOD$date), "-01-01"))
+            date_stat =
+                dplyr::summarise(
+                           dplyr::group_by(
+                                      dplyr::filter(
+                                                 dataMOD,
+                                                 climateChain %in% Storylines &
+                                                 !is.na(get(variable))),
+                                      Chain),
+                           min_date=min(date, na.rm=TRUE),
+                           max_date=max(date, na.rm=TRUE))
+            min_date = max(date_stat$min_date)
+            max_date = min(date_stat$max_date)
+            dataMOD = dplyr::filter(dataMOD,
+                                    min_date <= date &
+                                    date <= max_date)
+            dataMOD_delta = dataMOD
+            
+            dataMOD_QUALYPSO = data_QUALYPSO[[variable]]$spread
+            for (k in 1:length(dataMOD_QUALYPSO)) {
+                dataMOD_QUALYPSO[[k]] = dataMOD_QUALYPSO[[k]][dataMOD_QUALYPSO[[k]]$code == code,]
             }
-
+            
             unitHTML = paste0("<span style='font-size:6pt'> %</span>")
             get_labels = function (X) {
                 idNA = which(is.na(X))
@@ -746,59 +789,192 @@ sheet_projection_station = function (meta,
                 X[idNA] = NA
                 return (X)
             }
+
+
+            dataMOD_delta_stat =
+                dplyr::summarise(dplyr::group_by(dataMOD_delta, date),
+                                 min=min(delta, na.rm=TRUE),
+                                 max=max(delta, na.rm=TRUE))
+            dataMOD_delta_stat$min[!is.finite(dataMOD_delta_stat$min)] = NA
+            dataMOD_delta_stat$max[!is.finite(dataMOD_delta_stat$max)] = NA
+
+            # dataMOD_delta_stat$zero = 0
+            # dataMOD_delta_stat = dplyr::mutate(dataMOD_delta_stat,
+            #                                    switch_max=dplyr::if_else(0 < max,
+            #                                                            "+max", "-max"),
+            #                                    switch_min=dplyr::if_else(0 < min,
+            #                                                            "+min", "-min"),
+            #                                    )
+
+            min_all = min(dataMOD_delta_stat$min, na.rm=TRUE)
+            max_all = max(dataMOD_delta_stat$max, na.rm=TRUE)
             
+            # dataMOD_delta_stat =
+            #     dplyr::mutate(dataMOD_delta_stat,
+            #                   down_zero=
+            #                       dplyr::if_else(max < 0,
+            #                                      max, 0),
+            #                   down_min=
+            #                       dplyr::if_else(min > 0,
+            #                                      0, min),
+            
+            #                   up_zero=
+            #                       dplyr::if_else(min > 0,
+            #                                      min, 0),
+            #                   up_max=
+            #                       dplyr::if_else(max < 0,
+            #                                      0, max))
+
+            
+            # dataMOD_delta_stat$up_max = dataMOD_delta_stat$max
+            
+            # OK = dataMOD_delta_stat$max_up < 0
+            # if (any(OK)) {
+            #     dataMOD_delta_stat$max_up[OK] = 0 
+            # }
+            
+            # dataMOD_delta_stat$min_down = dataMOD_delta_stat$min
+            # OK = 0 < dataMOD_delta_stat$min_down
+            # if (any(OK)) {
+            #     dataMOD_delta_stat$min_down[OK] = 0
+            # }
+
+            crosses = function(x, y) {
+                outx = x[1]
+                outy = y[1]
+                id = 1
+                outid = id
+                sn = sign(y[1])
+                outsn = sn
+                
+                for (i in 2:length(x)) {
+                    if (sign(y[i-1]) != sign(y[i])) {
+                        x_sol = -y[i-1]*(x[i]-x[i-1])/(y[i]-y[i-1])+x[i-1]
+                        outx = c(outx, rep(x_sol, 2))
+                        outy = c(outy, rep(0, 2))
+                        outid = c(outid, id, id+1)
+                        id = id + 1
+                        outsn = c(outsn,
+                                  sign(y[i-1]),
+                                  sign(y[i]))
+                    }
+                    outx <- c(outx, x[i])
+                    outy <- c(outy, y[i])
+                    outid = c(outid, id)
+                    outsn = c(outsn, sign(y[i]))
+                }
+                tibble(x=outx, y=outy, id=outid, sign=outsn)
+            }
+            
+            min_ribbon = with(dataMOD_delta_stat, crosses(date, min))
+            max_ribbon = with(dataMOD_delta_stat, crosses(date, max))
+
             spread = ggplot() +
                 theme_IPCC(is_axis.line.x=FALSE,
                            is_axis.ticks.x=FALSE,
                            is_axis.text.x=FALSE,
-                           is_axis.ticks.y=FALSE) + 
+                           is_axis.ticks.y=FALSE,
+                           isGridY=FALSE) + 
                 theme(plot.margin=margin(t=0, r=0,
-                                         b=0, l=0, "mm"))
+                                         b=0, l=0, "mm")) +
+            theme(legend.position = "none")
+            
+            spread = spread +
+                geom_ribbon(data=dataMOD_delta_stat,
+                            aes(x=date,
+                                ymax=max),
+                            ymin=0,
+                            fill=PaletteEX[2],
+                            alpha=0.2, color=NA) +
+                geom_ribbon(data=dataMOD_delta_stat,
+                            aes(x=date,
+                                ymin=min),
+                            ymax=0,
+                            fill=PaletteEX[1],
+                            alpha=0.2, color=NA) +
+                
+                geom_ribbon(data=max_ribbon,
+                            aes(x=x,
+                                ymin=y),
+                            ymax=max_all,
+                            fill="white", color=NA) +
+                geom_ribbon(data=min_ribbon,
+                            aes(x=x,
+                                ymax=y),
+                            ymin=min_all,
+                            fill="white", color=NA) +
+                
+                geom_line(data=dplyr::filter(max_ribbon, sign==1),
+                          aes(x=x, y=y,
+                              group=id),
+                          color=PaletteEX[2],
+                          linewidth=0.25,
+                          linetype="11") +
+                geom_line(data=dplyr::filter(max_ribbon, sign==-1),
+                          aes(x=x, y=y,
+                              group=id),
+                          color=PaletteEX[1],
+                          linewidth=0.25,
+                          linetype="11") +
+                
+                geom_line(data=dplyr::filter(min_ribbon, sign==-1),
+                          aes(x=x, y=y,
+                              group=id),
+                          color=PaletteEX[1],
+                          linewidth=0.25,
+                          linetype="11") +
+                geom_line(data=dplyr::filter(min_ribbon, sign==1),
+                          aes(x=x,y=y,
+                              group=id),
+                          color=PaletteEX[2],
+                          linewidth=0.25,
+                          linetype="11") 
+            
+            # tmp = dplyr::filter(dataMOD_delta_stat,
+            #                     !is.na(min) & !is.na(max))
+            # min_end = tmp$min[nrow(tmp)]
+            # max_end = tmp$max[nrow(tmp)]
 
-            tmp = dplyr::filter(dataMOD$outside,
-                                !is.na(min) & !is.na(max))
-            min_end = tmp$min[nrow(tmp)]
-            max_end = tmp$max[nrow(tmp)]
+            # if (min_end <= 0 & max_end <= 0) {
+            #     spread = spread +
+            #         geom_ribbon(data=dataMOD_delta_stat,
+            #                     aes(x=date,
+            #                         ymin=min,
+            #                         ymax=max),
+            #                     fill=PaletteEX[1],
+            #                     color=PaletteEX[1], 
+            #                     alpha=0.2, linewidth=0.25,
+            #                     linetype="11")
+            # } else if (0 <= min_end & 0 <= max_end) {
+            #     spread = spread +
+            #         geom_ribbon(data=dataMOD_delta_stat,
+            #                     aes(x=date,
+            #                         ymin=min,
+            #                         ymax=max),
+            #                     fill=PaletteEX[2],
+            #                     color=PaletteEX[2], 
+            #                     alpha=0.2, linewidth=0.25,
+            #                     linetype="11")
+            # } else {
+            #     spread = spread +
+            #         geom_area(data=dataMOD_delta_stat,
+            #                   aes(x=date,
+            #                       y=min),
+            #                   fill=PaletteEX[1],
+            #                   color=PaletteEX[1], 
+            #                   alpha=0.2, linewidth=0.25,
+            #                   linetype="11") +
+            #         geom_area(data=dataMOD_delta_stat,
+            #                   aes(x=date,
+            #                       y=max),
+            #                   fill=PaletteEX[2],
+            #                   color=PaletteEX[2], 
+            #                   alpha=0.2, linewidth=0.25,
+            #                   linetype="11")
+            # }
 
-            if (min_end <= 0 & max_end <= 0) {
-                spread = spread +
-                    geom_ribbon(data=dataMOD$outside,
-                                aes(x=date,
-                                    ymin=min*100,
-                                    ymax=max*100),
-                                fill=PaletteEX[1],
-                                color=PaletteEX[1], 
-                                alpha=0.2, linewidth=0.25,
-                                linetype="11")
-            } else if (0 <= min_end & 0 <= max_end) {
-                spread = spread +
-                    geom_ribbon(data=dataMOD$outside,
-                                aes(x=date,
-                                    ymin=min*100,
-                                    ymax=max*100),
-                                fill=PaletteEX[2],
-                                color=PaletteEX[2], 
-                                alpha=0.2, linewidth=0.25,
-                                linetype="11")
-            } else {
-                spread = spread +
-                    geom_area(data=dataMOD$outside,
-                              aes(x=date,
-                                  y=min*100),
-                              fill=PaletteEX[1],
-                              color=PaletteEX[1], 
-                              alpha=0.2, linewidth=0.25,
-                              linetype="11") +
-                    geom_area(data=dataMOD$outside,
-                              aes(x=date,
-                                  y=max*100),
-                              fill=PaletteEX[2],
-                              color=PaletteEX[2], 
-                              alpha=0.2, linewidth=0.25,
-                              linetype="11")
-            }
 
-            tmp = dplyr::filter(dataMOD$inside,
+            tmp = dplyr::filter(dataMOD_QUALYPSO$inside,
                                 !is.na(q5) & !is.na(q95) &
                                 !is.na(mean))
             q5_end = tmp$q5[nrow(tmp)]
@@ -807,7 +983,7 @@ sheet_projection_station = function (meta,
 
             if (q5_end <= 0 & q95_end <= 0) {
                 spread = spread +
-                    geom_ribbon(data=dataMOD$inside,
+                    geom_ribbon(data=dataMOD_QUALYPSO$inside,
                                 aes(x=date,
                                     ymin=q5*100,
                                     ymax=q95*100),
@@ -817,7 +993,7 @@ sheet_projection_station = function (meta,
                                 linetype="solid")
             } else if (0 <= q5_end & 0 <= q95_end) {
                 spread = spread +
-                    geom_ribbon(data=dataMOD$inside,
+                    geom_ribbon(data=dataMOD_QUALYPSO$inside,
                                 aes(x=date,
                                     ymin=q5*100,
                                     ymax=q95*100),
@@ -827,20 +1003,22 @@ sheet_projection_station = function (meta,
                                 linetype="solid")
             } else {
                 spread = spread +
-                    geom_area(data=dataMOD$inside,
-                              aes(x=date,
-                                  y=q5*100),
-                              fill=PaletteEX[1],
-                              color=NA, 
-                              alpha=0.4, linewidth=0.25,
-                              linetype="solid") +
-                    geom_area(data=dataMOD$inside,
-                              aes(x=date,
-                                  y=q95*100),
-                              fill=PaletteEX[2],
-                              color=NA, 
-                              alpha=0.4, linewidth=0.25,
-                              linetype="solid")
+                    geom_ribbon(data=dataMOD_QUALYPSO$inside,
+                                aes(x=date,
+                                    ymin=q5*100),
+                                ymax=0,
+                                fill=PaletteEX[1],
+                                color=NA, 
+                                alpha=0.4, linewidth=0.25,
+                                linetype="solid") +
+                    geom_ribbon(data=dataMOD_QUALYPSO$inside,
+                                aes(x=date,
+                                    ymax=q95*100),
+                                ymin=0,
+                                fill=PaletteEX[2],
+                                color=NA, 
+                                alpha=0.4, linewidth=0.25,
+                                linetype="solid")
             }
 
             spread = spread +
@@ -853,14 +1031,14 @@ sheet_projection_station = function (meta,
 
             if (mean_end <= 0) {
                 spread = spread +
-                    geom_line(data=dataMOD$inside,
+                    geom_line(data=dataMOD_QUALYPSO$inside,
                               aes(x=date,
                                   y=mean*100),
                               color=PaletteEX[1], 
                               linewidth=0.5, lineend="round")
             } else {
                 spread = spread +
-                    geom_line(data=dataMOD$inside,
+                    geom_line(data=dataMOD_QUALYPSO$inside,
                               aes(x=date,
                                   y=mean*100),
                               color=PaletteEX[2], 
@@ -884,17 +1062,17 @@ sheet_projection_station = function (meta,
                               verbose=verbose)
 
 #### 1.4.2. Signe __________________________________________________
-            dataMOD = data_QUALYPSO[[variable]]$signe
-            dataMOD = dataMOD[dataMOD$code == code,]
+            dataMOD_QUALYPSO = data_QUALYPSO[[variable]]$signe
+            dataMOD_QUALYPSO = dataMOD_QUALYPSO[dataMOD_QUALYPSO$code == code,]
             convert_shape = c("24"=1, "21"=0, "25"=-1)
-            dataMOD$shape =
-                names(convert_shape)[match(dataMOD$signe,
+            dataMOD_QUALYPSO$shape =
+                names(convert_shape)[match(dataMOD_QUALYPSO$signe,
                                            convert_shape)]
-            dataMOD$shape = as.numeric(dataMOD$shape)
-            dataMOD$dy = -0.05 * dataMOD$signe
-            dataMOD$color = IPCCgrey60
-            dataMOD$color[dataMOD$signe == 1] = PaletteEX[2]
-            dataMOD$color[dataMOD$signe == -1] = PaletteEX[1]
+            dataMOD_QUALYPSO$shape = as.numeric(dataMOD_QUALYPSO$shape)
+            dataMOD_QUALYPSO$dy = -0.05 * dataMOD_QUALYPSO$signe
+            dataMOD_QUALYPSO$color = IPCCgrey60
+            dataMOD_QUALYPSO$color[dataMOD_QUALYPSO$signe == 1] = PaletteEX[2]
+            dataMOD_QUALYPSO$color[dataMOD_QUALYPSO$signe == -1] = PaletteEX[1]
             
             get_breaks = function(X, breaks="10 years", break_round=-1) {
                 Xmin = round(lubridate::year(min(X)), break_round)
@@ -915,16 +1093,16 @@ sheet_projection_station = function (meta,
                       plot.margin=margin(t=0.5, r=0,
                                          b=0.5, l=0, "mm")) +
                 annotate("point",
-                         x=dataMOD$date,
-                         y=0.5 + dataMOD$dy,
-                         shape=dataMOD$shape,
+                         x=dataMOD_QUALYPSO$date,
+                         y=0.5 + dataMOD_QUALYPSO$dy,
+                         shape=dataMOD_QUALYPSO$shape,
                          color="white",
                          fill="white", size=2.5) +
                 annotate("point",
-                         x=dataMOD$date,
-                         y=0.5 + dataMOD$dy,
-                         shape=dataMOD$shape,
-                         color=dataMOD$color,
+                         x=dataMOD_QUALYPSO$date,
+                         y=0.5 + dataMOD_QUALYPSO$dy,
+                         shape=dataMOD_QUALYPSO$shape,
+                         color=dataMOD_QUALYPSO$color,
                          fill="white", size=1.5) +
                 scale_x_date(limits=lim_date,
                              breaks=get_breaks,
@@ -973,81 +1151,41 @@ sheet_projection_station = function (meta,
                               id="void",
                               width=variable_info_width,
                               verbose=verbose)
-            
-            dataMOD = dataEX_serie_code[[variable]]
-            dataMOD = dplyr::filter(dataMOD,
-                                    climateChain %in% Storylines)
-
-            dataMOD_historical =
-                dplyr::summarise(
-                           dplyr::group_by(
-                                      dplyr::filter(dataMOD,
-                                                    historical[1] <= date &
-                                                    date <= historical[2]),
-                                      Chain),
-                           !!paste0("mean", variable):=
-                               mean(get(variable), na.rm=TRUE))
-
-            dataMOD = dplyr::left_join(dataMOD, dataMOD_historical,
-                                       by="Chain")
-
-            dataMOD$delta =
-                (dataMOD[[variable]] - dataMOD[[paste0("mean", variable)]]) /
-                dataMOD[[paste0("mean", variable)]]
-
-            dataMOD$date =
-                as.Date(paste0(lubridate::year(dataMOD$date), "-01-01"))
-
-            date_stat =
-                dplyr::summarise(
-                           dplyr::group_by(
-                                      dplyr::filter(
-                                                 dataMOD,
-                                                 climateChain %in% Storylines &
-                                                 !is.na(get(variable))),
-                                      Chain),
-                           min_date=min(date, na.rm=TRUE),
-                           max_date=max(date, na.rm=TRUE))
-            min_date = max(date_stat$min_date)
-            max_date = min(date_stat$max_date)
-            dataMOD = dplyr::filter(dataMOD,
-                                    min_date <= date &
-                                    date <= max_date)
 
             colorStep = 256
             Palette = metaEX_serie$palette[metaEX_serie$variable_en == variable]
             Palette = unlist(strsplit(Palette, " "))
             Palette = colorRampPalette(Palette)(colorStep)
 
-            min_value = quantile(dataMOD$delta, prob, na.rm=TRUE)
-            max_value = quantile(dataMOD$delta, 1-prob, na.rm=TRUE)
+            min_value = quantile(dataMOD_delta$delta, prob, na.rm=TRUE)
+            max_value = quantile(dataMOD_delta$delta, 1-prob, na.rm=TRUE)
             
             res = compute_colorBin(min_value, max_value,
                                    length(Palette),
                                    center=0,
                                    include=FALSE)
-            dataMOD$fill = get_colors(dataMOD$delta,
+            dataMOD_delta$fill = get_colors(dataMOD_delta$delta,
                                       res$upBin, res$lowBin, Palette)
 
             stripes_plan = matrix(1:nStorylines)
             stripes = bring_grass(verbose=verbose)
             stripes = plan_of_herd(stripes, stripes_plan,
                                    verbose=verbose)
-                
+            
             for (k in 1:nStorylines) {
-                dataMOD_storyline = dplyr::filter(dataMOD,
-                                                  climateChain == Storylines[k])
-                dataMOD_storyline$y = factor(dataMOD_storyline$Chain)
-                dataMOD_storyline = dplyr::arrange(dataMOD_storyline, HM)
+                dataMOD_delta_storyline = dplyr::filter(dataMOD_delta,
+                                                        climateChain == Storylines[k])
+                dataMOD_delta_storyline$y = factor(dataMOD_delta_storyline$Chain)
+                dataMOD_delta_storyline = dplyr::arrange(dataMOD_delta_storyline, HM)
                 
                 stripes_k =
                     ggplot2::ggplot() + theme_void() + 
                     ggplot2::theme(plot.margin=margin(t=0.3, r=0,
                                                       b=0.3, l=0, "mm")) +
                     ggplot2::annotate("tile",
-                                      x=dataMOD_storyline$date,
-                                      y=dataMOD_storyline$y,
-                                      fill=dataMOD_storyline$fill) +
+                                      x=dataMOD_delta_storyline$date,
+                                      y=dataMOD_delta_storyline$y,
+                                      fill=dataMOD_delta_storyline$fill) +
                     ggplot2::scale_x_date(limits=lim_date,
                                           expand=c(0, 0)) +
                     ggplot2::scale_y_discrete(expand=c(0, 0))
@@ -1125,7 +1263,7 @@ sheet_projection_station = function (meta,
                                expand=c(0, 0))
 
 
-        footName = 'Fiche résultats projection'
+        footName = 'Synthèse des projections sous RCP 8.5'
         if (is.null(Pages)) {
             n_page = i
         } else {
@@ -1192,8 +1330,8 @@ sheet_projection_station = function (meta,
                              verbose=verbose)
 
         text = paste0("(", letters[id_letter+1], ") ",
-                      "Changement sur le ", Horizons_delta[2], " (à gauche) et ",
-                      "la ", Horizons_delta[3], " (à droite) par rapport à la ", Horizons_delta[1])
+                      "Changement en ", Horizons_delta[2], " (à gauche) et ",
+                      "en ", Horizons_delta[3], " (à droite) par rapport à la ", Horizons_delta[1])
         
         title = ggplot() + theme_void() +
             theme(plot.margin=margin(t=0, r=0,

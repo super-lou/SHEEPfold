@@ -52,10 +52,11 @@ panel_foot = function (name, n_page, foot_height, logo_info,
                               verbose=verbose)
     }
 
-    text_page = paste0(name,
-                       "<span style='color:white'>&#95;</span>",
+    text_page = paste0("<span>", name,
+                       # "<span style='color:white'>&#95;</span>",
+                       " - ",
                        "<b>p. ",
-                       n_page, "</b>")
+                       n_page, "</b></span>")
     page = richtext_grob(text_page,
                          x=1, y=0,
                          margin=unit(c(t=0, r=0, b=0, l=0), "mm"),
