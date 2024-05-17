@@ -53,7 +53,7 @@ sheet_projection_station = function (meta,
     variable_info_width = 0.0086
     variable_graph_width = 0.994
 
-    variable_title_height = 0.05
+    variable_title_height = 0.06
     variable_spread_height = 0.46
     variable_signe_height = 0.1
     variable_stripes_height = 0.25
@@ -94,8 +94,14 @@ sheet_projection_station = function (meta,
     extreme_H_sL_n_height = 2
     extreme_H_sL_n_text_height = 1
     extreme_H_sL_delta_height = 4.5
-    extreme_H_sL_delta_text_height = 1
-
+    
+    extreme_H_sL_delta_text_height = 0.4
+    dp_x = 0.7
+    dp_y = 0.2
+    # extreme_H_sL_delta_text_height = 1
+    # dp_x = 0.7
+    # dp_y = 0.15
+    
     delta_height = height - extreme_height*2 - foot_height
     delta_title_height = 0.1
     delta_type_height = 0.9
@@ -152,7 +158,7 @@ sheet_projection_station = function (meta,
     nVariables_extreme = length(Variables_extreme)
     rp_Variables_extreme = c(10, 5)
     div_Variables_extreme = 30/rp_Variables_extreme
-    limits_bar_y = list(c(0, 100), c(-100, 0))
+    limits_bar_y = list(c(-50, 100), c(-100, 50))
 
     Variables_delta = metaEX_criteria$variable_en
     Topics = metaEX_criteria$topic_fr
@@ -462,7 +468,7 @@ sheet_projection_station = function (meta,
 ### 1.3. Legend ______________________________________________________
         dx0 = 0.01
 
-        x_palette = 0.08
+        x_palette = 0
         dx_palette = 0.07
         dx_palette_shape = 0.03
         dx_palette_text = 0.18
@@ -470,12 +476,12 @@ sheet_projection_station = function (meta,
         dy_palette = 0.2
         dy_palette_title = 0.2
 
-        x_spread = 0.02
+        x_spread = 0
         dx_spread = 0.04
         dx_spread_line = 0.18
         dx_spread_rect = dx_spread_line
         dx_spread_text = 0.28
-        y_spread = 5.3
+        y_spread = 5.4
         dy_spread = 0.32
         dy_spread_text_line = 0.12
         dy_spread_rect = 0.16
@@ -484,7 +490,7 @@ sheet_projection_station = function (meta,
         x_signe = 0
         dx_signe = 0.07
         dx_signe_text = 0.14
-        y_signe = 1.3
+        y_signe = 1.9#1.3
         dy_signe = 0.15
         dy_signe_title = 0.2
         dy_signe_title_line = 0.15
@@ -568,7 +574,7 @@ sheet_projection_station = function (meta,
                      ymin=y_spread + dy_spread - dy_spread_rect/2,
                      ymax=y_spread + dy_spread + dy_spread_rect/2,
                      fill=IPCCgrey50, alpha=0.5,
-                     color=IPCCgrey60, linetype="solid",
+                     color=NA, linetype="solid",
                      linejoin="round",
                      linewidth=0.4) +
             annotate("text",
@@ -676,9 +682,9 @@ sheet_projection_station = function (meta,
             name_to_display =
                 metaEX_serie$name_fr[metaEX_serie$variable_en == variable]
             
-            block_plan = matrix(c("void", "title",
+            block_plan = matrix(c("void", "title", 
                                   "void", "spread",
-                                  "void", "signe", 
+                                  "void", "signe",
                                   "info_stripes", "stripes",
                                   "void", "axis",
                                   "axis_void", "axis_void"),
@@ -714,11 +720,165 @@ sheet_projection_station = function (meta,
 
 
 #### 1.4.1. Spread __________________________________________________
-            spread = contour()
+            dataMOD = data_QUALYPSO[[variable]]$spread
+            for (k in 1:length(dataMOD)) {
+                dataMOD[[k]] = dataMOD[[k]][dataMOD[[k]]$code == code,]
+            }
+
+            unitHTML = paste0("<span style='font-size:6pt'> %</span>")
+            get_labels = function (X) {
+                idNA = which(is.na(X))
+                OK = X < 0
+                OK[is.na(OK)] = FALSE
+                X[OK] = paste0(paste0("<span style='color:", PaletteEX[1], "'><b>"),
+                               X[OK],
+                               paste0("</b>", unitHTML, "</span>"))
+                OK = 0 < X
+                OK[is.na(OK)] = FALSE
+                X[OK] = paste0(paste0("<span style='color:", PaletteEX[2], "'><b>+"),
+                               X[OK],
+                               paste0("</b>", unitHTML, "</span>"))
+                OK = X == 0
+                OK[is.na(OK)] = FALSE
+                X[OK] = paste0(paste0("<span style=''><b>"),
+                               X[OK],
+                               "</b></span>")
+                X[idNA] = NA
+                return (X)
+            }
+            
+            spread = ggplot() +
+                theme_IPCC(is_axis.line.x=FALSE,
+                           is_axis.ticks.x=FALSE,
+                           is_axis.text.x=FALSE,
+                           is_axis.ticks.y=FALSE) + 
+                theme(plot.margin=margin(t=0, r=0,
+                                         b=0, l=0, "mm"))
+
+            tmp = dplyr::filter(dataMOD$outside,
+                                !is.na(min) & !is.na(max))
+            min_end = tmp$min[nrow(tmp)]
+            max_end = tmp$max[nrow(tmp)]
+
+            if (min_end <= 0 & max_end <= 0) {
+                spread = spread +
+                    geom_ribbon(data=dataMOD$outside,
+                                aes(x=date,
+                                    ymin=min*100,
+                                    ymax=max*100),
+                                fill=PaletteEX[1],
+                                color=PaletteEX[1], 
+                                alpha=0.2, linewidth=0.25,
+                                linetype="11")
+            } else if (0 <= min_end & 0 <= max_end) {
+                spread = spread +
+                    geom_ribbon(data=dataMOD$outside,
+                                aes(x=date,
+                                    ymin=min*100,
+                                    ymax=max*100),
+                                fill=PaletteEX[2],
+                                color=PaletteEX[2], 
+                                alpha=0.2, linewidth=0.25,
+                                linetype="11")
+            } else {
+                spread = spread +
+                    geom_area(data=dataMOD$outside,
+                              aes(x=date,
+                                  y=min*100),
+                              fill=PaletteEX[1],
+                              color=PaletteEX[1], 
+                              alpha=0.2, linewidth=0.25,
+                              linetype="11") +
+                    geom_area(data=dataMOD$outside,
+                              aes(x=date,
+                                  y=max*100),
+                              fill=PaletteEX[2],
+                              color=PaletteEX[2], 
+                              alpha=0.2, linewidth=0.25,
+                              linetype="11")
+            }
+
+            tmp = dplyr::filter(dataMOD$inside,
+                                !is.na(q5) & !is.na(q95) &
+                                !is.na(mean))
+            q5_end = tmp$q5[nrow(tmp)]
+            q95_end = tmp$q95[nrow(tmp)]
+            mean_end = tmp$mean[nrow(tmp)]
+
+            if (q5_end <= 0 & q95_end <= 0) {
+                spread = spread +
+                    geom_ribbon(data=dataMOD$inside,
+                                aes(x=date,
+                                    ymin=q5*100,
+                                    ymax=q95*100),
+                                fill=PaletteEX[1],
+                                color=NA, 
+                                alpha=0.4, linewidth=0.25,
+                                linetype="solid")
+            } else if (0 <= q5_end & 0 <= q95_end) {
+                spread = spread +
+                    geom_ribbon(data=dataMOD$inside,
+                                aes(x=date,
+                                    ymin=q5*100,
+                                    ymax=q95*100),
+                                fill=PaletteEX[2],
+                                color=NA, 
+                                alpha=0.4, linewidth=0.25,
+                                linetype="solid")
+            } else {
+                spread = spread +
+                    geom_area(data=dataMOD$inside,
+                              aes(x=date,
+                                  y=q5*100),
+                              fill=PaletteEX[1],
+                              color=NA, 
+                              alpha=0.4, linewidth=0.25,
+                              linetype="solid") +
+                    geom_area(data=dataMOD$inside,
+                              aes(x=date,
+                                  y=q95*100),
+                              fill=PaletteEX[2],
+                              color=NA, 
+                              alpha=0.4, linewidth=0.25,
+                              linetype="solid")
+            }
+
+            spread = spread +
+                annotate("line",
+                         x=lim_date, y=0,
+                         color=IPCCgrey48,
+                         linewidth=0.3,
+                         linetype="solid",
+                         lineend="square")
+
+            if (mean_end <= 0) {
+                spread = spread +
+                    geom_line(data=dataMOD$inside,
+                              aes(x=date,
+                                  y=mean*100),
+                              color=PaletteEX[1], 
+                              linewidth=0.5, lineend="round")
+            } else {
+                spread = spread +
+                    geom_line(data=dataMOD$inside,
+                              aes(x=date,
+                                  y=mean*100),
+                              color=PaletteEX[2], 
+                              linewidth=0.5, lineend="round")
+            }
+
+            spread = spread +
+                scale_x_date(limits=lim_date,
+                             # breaks=get_breaks,
+                             expand=c(0, 0)) +
+                scale_y_continuous(labels=get_labels,
+                                   position="right",
+                                   expand=c(0, 0))
+    
             block = add_sheep(block,
                               sheep=spread,
                               id="spread",
-                              # label="align",
+                              label="align",
                               height=variable_spread_height,
                               width=variable_graph_width,
                               verbose=verbose)
@@ -800,7 +960,7 @@ sheet_projection_station = function (meta,
                              x=0.5,
                              y=dy0 + dy_space*(k-1) + dy_line*(k-1) + c(0, dy_line),
                              color=rev(Colors)[k],
-                             linewidth=2)
+                             linewidth=1.5)
             }
     
             block = add_sheep(block,
@@ -945,7 +1105,7 @@ sheet_projection_station = function (meta,
                   "de lecture et d’interprétation de la fiche. Elle détaille de plus la méthodologie",
                   "utilisée ainsi que les limites de l’exercice.")
 
-        dy0 = 0.8
+        dy0 = 0.75
         dy = 0.15
         dx0 = 0
         for (k in 1:length(Lines)) {
@@ -999,10 +1159,10 @@ sheet_projection_station = function (meta,
                                   paper_size="A4",
                                   hjust=0, vjust=1,
                                   verbose=verbose)
-        
         plot = res$plot
         paper_size = res$paper_size
-
+        # plot = void()
+        # paper_size = c(21, 29.7)
         filename = paste0(code, "_projection_datasheet_1.pdf")
 
         if (!(file.exists(figdir))) {
@@ -1018,10 +1178,13 @@ sheet_projection_station = function (meta,
 
 
 ## 2. PAGE 2 _________________________________________________________
+### 2.1. Initialisation ______________________________________________
         herd = bring_grass(verbose=verbose)
         herd = plan_of_herd(herd, plan_2,
                             verbose=verbose)
 
+        
+### 2.2. Delta ______________________________________________
         delta_plan = matrix(c("title", Types_short),
                             ncol=1, byrow=TRUE)
         delta = bring_grass(verbose=verbose)
@@ -1029,8 +1192,8 @@ sheet_projection_station = function (meta,
                              verbose=verbose)
 
         text = paste0("(", letters[id_letter+1], ") ",
-                      "Changement sur l'", Horizons_delta[2], " (à gauche) et ",
-                      "l'", Horizons_delta[3], " (à droite) par rapport à la ", Horizons_delta[1])
+                      "Changement sur le ", Horizons_delta[2], " (à gauche) et ",
+                      "la ", Horizons_delta[3], " (à droite) par rapport à la ", Horizons_delta[1])
         
         title = ggplot() + theme_void() +
             theme(plot.margin=margin(t=0, r=0,
@@ -1051,7 +1214,9 @@ sheet_projection_station = function (meta,
                           id="title",
                           height=delta_title_height,
                           verbose=verbose)
-        
+
+        dy_type = c(0.3, 0, 0.3)
+
         for (j in 1:nTypes) {
             type = Types[j]
             type_short = Types_short[j]
@@ -1090,21 +1255,32 @@ sheet_projection_station = function (meta,
             delta_type = plan_of_herd(delta_type, delta_type_plan,
                                       verbose=verbose)
 
-            
+            icon = svgparser::read_svg(file.path(icon_path,
+                                                 paste0(gsub(" ", "_", type),
+                                                        ".svg")))
+            dx0 = 0.5
+            y_title = 3.3
+            y_icon = 2.4
+            size_icon = 0.6
+                
             titleTeX = TeX(paste0("\\textbf{", type, "}"))
-
-            title = ggplot() + theme_void() +
+            title = ggplot() + theme_void() + #coord_fixed(clip="off") +
                 theme(plot.margin=margin(t=0, r=0,
                                          b=0, l=0, "mm")) + 
                 annotate("text",
-                         x=0,
-                         y=0.5,
+                         x=dx0,
+                         y=y_title + dy_type[j],
                          label=titleTeX,
-                         size=3, hjust=0.5, vjust=1,
+                         size=3, hjust=0, vjust=0.35,
                          color=IPCCgrey23, angle=90) +
+                annotation_custom(icon,
+                                  xmin=dx0 - size_icon,
+                                  xmax=dx0 + size_icon,
+                                  ymin=y_icon + dy_type[j] - size_icon,
+                                  ymax=y_icon + dy_type[j] + size_icon) +
                 scale_x_continuous(limits=c(0, 1),
                                    expand=c(0, 0)) +
-                scale_y_continuous(limits=c(0, 1),
+                scale_y_continuous(limits=c(0, 10),
                                    expand=c(0, 0))
             
             delta_type = add_sheep(delta_type,
@@ -1125,17 +1301,13 @@ sheet_projection_station = function (meta,
                 variable = Variables_delta_type[k]
                 variable_display = Variables_delta_type_display[k]
                 
-                # print(variable)
-                # print(variable_clean)
-                
                 dx_bar = 1.1
                 dx_sL = 1.1
+                dx_space = 1.4
                 
-                
-                limits_x = c(-dx_bar*0.7 - dx_sL, (nDeltaHorizon-1)*dx_bar +
-                                                  nDeltaHorizon*(1+dx_sL) +
-                                                  dx_bar*0.7)
-
+                limits_x = c(-dx_bar*dx_space - dx_sL, (nDeltaHorizon-1)*dx_bar +
+                                                       nDeltaHorizon*(1+dx_sL) +
+                                                       dx_bar*dx_space)
 
                 bar_plan = matrix(c("title",
                                     "plot"),
@@ -1156,8 +1328,7 @@ sheet_projection_station = function (meta,
                              size=2.5, hjust=0.5, vjust=1,
                              color=IPCCgrey40) +
                     annotate("line",
-                             # x=c(0.07, 0.86),
-                             x=c(0, 1),
+                             x=c(0.15, 0.85),
                              y=c(0.08, 0.08),
                              linewidth=0.4, color=IPCCgrey40,
                              lineend="round") +
@@ -1173,10 +1344,7 @@ sheet_projection_station = function (meta,
                                 height=delta_type_bar_title_height, 
                                 verbose=verbose)
                 
-                plot = ggplot() + 
-                    theme(plot.margin=margin(t=1, r=3,
-                                             b=3, l=0, "mm"))
-                
+                plot = ggplot()
                 
                 for (h in 1:nDeltaHorizon) {
                     H = deltaHorizon[h]
@@ -1200,7 +1368,6 @@ sheet_projection_station = function (meta,
                     Delta_variable_H = dataEX_criteria_code[[variable_H]]
                     Chain_variable_H = dataEX_criteria_code$Chain
                     
-
                     minDelta_variable_H =
                         dataEX_criteria_prob_code[[paste0("min_", variable_H)]]
                     maxDelta_variable_H =
@@ -1256,9 +1423,9 @@ sheet_projection_station = function (meta,
                 if (k == 1 | unit != unit_save) {
                     show_y_axis = TRUE
                     if (nchar(unit) == 1) {
-                        times = 1.3
+                        times = 1.5
                     } else {
-                        times = 1.45
+                        times = 1.65
                     }
                 } else {
                     show_y_axis = FALSE
@@ -1273,14 +1440,22 @@ sheet_projection_station = function (meta,
                                is_axis.text.y=show_y_axis,
                                axis.text.y_size=8,
                                axis.text.y_margin=
-                                   margin(t=0.5, r=-0.6,
+                                   margin(t=0, r=-0.6,
                                           b=0, l=0,
                                           unit="mm"),
+                               axis.ticks.length.y=1.5*show_y_axis,
                                is_axis.line.x=FALSE,
                                is_axis.ticks.x=FALSE,
-                               is_axis.text.x=FALSE)
-                
-                
+                               is_axis.text.x=FALSE) +
+                    theme(plot.margin=margin(t=1, r=0,
+                                             b=3, l=2*show_y_axis, "mm"))
+                if (!show_y_axis) {
+                    plot = plot +
+                        theme(axis.line.y=element_line(color=IPCCgrey85,
+                                                       size=0.3,
+                                                       linetype="dotted"))
+                }
+    
                 plot = plot +
                     annotate("line",
                              x=limits_x, y=c(0, 0),
@@ -1439,13 +1614,15 @@ sheet_projection_station = function (meta,
                               width=width,
                               verbose=verbose)
         }
+        id_letter = id_letter + 1
+        
+        ###
         herd = add_sheep(herd,
                          sheep=delta,
                          id="delta",
                          height=delta_height,
                          width=width,
                          verbose=verbose)
-        ###
         # herd = add_sheep(herd,
         #                  sheep=contour(),
         #                  id="delta",
@@ -1453,11 +1630,10 @@ sheet_projection_station = function (meta,
         #                  width=width,
         #                  verbose=verbose)
         ###
-        
-        
-        id_letter = id_letter + 1
 
         
+### 2.3. Extreme _____________________________________________________
+#### 2.3.1. Initialisation ____________________________________________
         for (j in 1:nVariables_extreme) {
             variable = Variables_extreme[j]
             div = div_Variables_extreme[j]
@@ -1465,9 +1641,6 @@ sheet_projection_station = function (meta,
 
             x_dot = get(paste0("x_", rp, "dot"))
             y_dot = get(paste0("y_", rp, "dot"))
-
-            dp_x = 0.7
-            dp_y = 0.15
             
             print(variable)
             
@@ -1538,8 +1711,9 @@ sheet_projection_station = function (meta,
                                 height=extreme_H_height,
                                 width=extreme_voidex_width,
                                 verbose=verbose)
+
             
-### Hleg _____________________________________________________________
+#### 2.3.2. Légende __________________________________________________
             extreme_H_plan = matrix(c("title",
                                        "0"),
                                      ncol=1, byrow=TRUE)
@@ -1637,7 +1811,7 @@ sheet_projection_station = function (meta,
                                 verbose=verbose)
 
             
-### H0 _______________________________________________________________
+#### 2.3.3. H0 _______________________________________________________
             extreme_H_plan = matrix(c("title",
                                        "0"),
                                      ncol=1, byrow=TRUE)
@@ -1743,7 +1917,11 @@ sheet_projection_station = function (meta,
                                                margin=margin(t=0, r=1,
                                                              b=0, l=0, "mm")),
                       plot.margin=margin(t=3, r=0, b=1, l=6, "mm")) + 
-                
+                annotate("line",
+                         x=c(0, 1), 
+                         y=0,
+                         color=IPCCgrey60,
+                         linewidth=0.33) + 
                 scale_x_continuous(limits=c(0, 1),
                                    expand=c(0, 0)) +
                 scale_y_continuous(limits=limits_bar_y[[j]],
@@ -1775,8 +1953,8 @@ sheet_projection_station = function (meta,
                                 width=1,
                                 verbose=verbose)
 
-
-### HX _______________________________________________________________
+            
+#### 2.3.4. HX _______________________________________________________
             for (h in 1:nDeltaHorizon) {
                 H = deltaHorizon[h]
                 
@@ -1852,7 +2030,6 @@ sheet_projection_station = function (meta,
                     maxDelta_variable_delta_H =
                         max(Delta_variable_delta_H, na.rm=TRUE)
 
-
                     if (medDelta_variable_delta_H > 0) {
                         deltaH_r1 =
                             paste0("+",
@@ -1861,6 +2038,12 @@ sheet_projection_station = function (meta,
                     } else {
                         deltaH_r1 =
                             sprintf("%.1f", round(medDelta_variable_delta_H, 1))
+                    }
+                    if (medDelta_variable_delta_H > 0) {
+                        deltaH_r0 =
+                            paste0("+", round(medDelta_variable_delta_H, 0))
+                    } else {
+                        deltaH_r0 = round(medDelta_variable_delta_H, 0)
                     }
                     
                     extreme_sL_plan = matrix(c("n",
@@ -1931,44 +2114,112 @@ sheet_projection_station = function (meta,
                                            height=extreme_H_sL_n_text_height,
                                            verbose=verbose)
 
+
+                    x_bar = 0.42
+                    dx_bar = 0.05
+                    x_bar_mini = 0.53
+                    dx_bar_mini = 0.025
+                    
+                    Delta_variable_H = dataEX_criteria_code[[variable_delta_H]]
+                    Chain_variable_H = dataEX_criteria_code$Chain
+                    nDelta_variable_H = length(Delta_variable_H)
+                    
+                    tmp = dplyr::tibble(Chain=rep(Chain_variable_H, each=2),
+                                        x=rep(c(x_bar-dx_bar,
+                                                x_bar+dx_bar),
+                                              nDelta_variable_H),
+                                        y=rep(Delta_variable_H, each=2))
+                    
                     plot = ggplot() + theme_void() + 
                         theme(plot.background=element_rect(fill=IPCCgrey97,
                                                             color=NA),
                               panel.grid.major.y=element_line(color=IPCCgrey85,
                                                               size=0.25),
-                              plot.margin=margin(t=3, r=0, b=1, l=0, "mm")) + 
-                        annotate("rect",
-                                 xmin=0.45, xmax=0.55, 
-                                 ymin=0, ymax=medDelta_variable_delta_H,
-                                 color=NA, fill=color) +
-                        
-                        annotate("line",
-                                 x=c(0.5, 0.5), 
-                                 y=c(max(c(minDelta_variable_delta_H,
-                                           limits_bar_y[[j]][1])),
-                                     min(c(maxDelta_variable_delta_H,
-                                           limits_bar_y[[j]][2]))),
-                                 color=color_light,
-                                 linewidth=0.4)
+                              plot.margin=margin(t=3, r=0, b=1, l=0, "mm"))
+                        # annotate("rect",
+                        #          xmin=0.5-dbar, xmax=0.5+dbar, 
+                        #          ymin=0, ymax=medDelta_variable_delta_H,
+                        #          color=NA, fill=color)
+
+
+                    plot = plot +
+                        geom_line(data=tmp,
+                                  aes(x=x, y=y, group=Chain),
+                                  color=IPCCgrey50,
+                                  linewidth=0.3,
+                                  alpha=0.07,
+                                  lineend="round")
+
+                    min_delta = max(c(minDelta_variable_delta_H,
+                                      limits_bar_y[[j]][1]))
+                    max_delta = min(c(maxDelta_variable_delta_H,
+                                      limits_bar_y[[j]][2]))
                     
-                    if (minDelta_variable_delta_H >= limits_bar_y[[j]][1]) {
-                        plot = plot +
-                            annotate("line",
-                                     x=c(0.475, 0.525), 
-                                     y=c(minDelta_variable_delta_H,
-                                         minDelta_variable_delta_H),
-                                     color=color_light,
-                                     linewidth=0.4)
-                    }
-                    if (maxDelta_variable_delta_H <= limits_bar_y[[j]][2]) {
-                        plot = plot +
-                            annotate("line",
-                                     x=c(0.475, 0.525), 
-                                     y=c(maxDelta_variable_delta_H,
-                                         maxDelta_variable_delta_H),
-                                     color=color_light,
-                                     linewidth=0.4)
-                    }
+                    plot = plot +
+                        annotate("line",
+                                 x=c(0, 1), 
+                                 y=0,
+                                 color=IPCCgrey60,
+                                 linewidth=0.33) +
+                        annotate("rect",
+                                 xmin=x_bar_mini-dx_bar_mini,
+                                 xmax=x_bar_mini+dx_bar_mini,
+                                 ymin=min_delta,
+                                 ymax=max_delta,
+                                 color=NA,
+                                 fill=color) +
+                        # annotate("line",
+                        #          x=c(x_bar-dx_bar, x_bar+dx_bar), 
+                        #          y=max_delta,
+                        #          color=color,
+                        #          linewidth=0.3) +
+                        annotate("line",
+                                 x=c(x_bar_mini-dx_bar_mini,
+                                     x_bar_mini+dx_bar_mini), 
+                                 y=medDelta_variable_delta_H,
+                                 color=IPCCgrey97, lineend="square",
+                                 linewidth=1) +
+                        annotate("line",
+                                 x=c(x_bar_mini-dx_bar_mini,
+                                     x_bar_mini+dx_bar_mini), 
+                                 y=medDelta_variable_delta_H,
+                                 color=color, lineend="square",
+                                 linewidth=0.4)
+                        # annotate("line",
+                        #          x=c(x_bar-dx_bar, x_bar+dx_bar), 
+                        #          y=min_delta,
+                        #          color=color,
+                        #          linewidth=0.3)
+                    
+                    # plot = plot +
+                    #     annotate("line",
+                    #              x=c(0.5, 0.5), 
+                    #              y=c(max(c(minDelta_variable_delta_H,
+                    #                        limits_bar_y[[j]][1])),
+                    #                  min(c(maxDelta_variable_delta_H,
+                    #                        limits_bar_y[[j]][2]))),
+                    #              color=color_light,
+                    #              linewidth=0.4)
+                    
+                    # if (minDelta_variable_delta_H >= limits_bar_y[[j]][1]) {
+                    #     plot = plot +
+                    #         annotate("line",
+                    #                  x=c(0.475, 0.525), 
+                    #                  y=c(minDelta_variable_delta_H,
+                    #                      minDelta_variable_delta_H),
+                    #                  color=color_light,
+                    #                  linewidth=0.4)
+                    # }
+                    # if (maxDelta_variable_delta_H <= limits_bar_y[[j]][2]) {
+                    #     plot = plot +
+                    #         annotate("line",
+                    #                  x=c(0.475, 0.525), 
+                    #                  y=c(maxDelta_variable_delta_H,
+                    #                      maxDelta_variable_delta_H),
+                    #                  color=color_light,
+                    #                  linewidth=0.4)
+                    # }
+                    
                     plot = plot +
                         scale_x_continuous(limits=c(0, 1),
                                            expand=c(0, 0)) +
@@ -1982,20 +2233,21 @@ sheet_projection_station = function (meta,
                                            verbose=verbose)
 
 
-                    text = ggplot() + theme_void() + 
-                        theme(panel.background=element_rect(fill=IPCCgrey97,
-                                                            color=NA),
-                              plot.margin=margin(t=0, r=0, b=0, l=0, "mm")) + 
-                        annotate("text",
-                                 x=0.5,
-                                 y=0.6,
-                                 label=TeX(paste0("\\textbf{", deltaH_r1, " %}")),
-                                 size=3, hjust=0.5, vjust=0.5,
-                                 color=color) +
-                        scale_x_continuous(limits=c(0, 1),
-                                           expand=c(0, 0)) +
-                        scale_y_continuous(limits=c(0, 1),
-                                           expand=c(0, 0))
+                    # text = ggplot() + theme_void() + 
+                    #     theme(panel.background=element_rect(fill=IPCCgrey97,
+                    #                                         color=NA),
+                    #           plot.margin=margin(t=0, r=0, b=0, l=0, "mm")) + 
+                    #     annotate("text",
+                    #              x=0.5,
+                    #              y=0.6,
+                    #              label=TeX(paste0("\\textbf{", deltaH_r1, "} %")),
+                    #              size=3, hjust=0.5, vjust=0.5,
+                    #              color=color) +
+                    #     scale_x_continuous(limits=c(0, 1),
+                    #                        expand=c(0, 0)) +
+                    #     scale_y_continuous(limits=c(0, 1),
+                    #                        expand=c(0, 0))
+                    text = void(panel.background_fill=IPCCgrey97)
                     extreme_sL = add_sheep(extreme_sL,
                                            sheep=text,
                                            id="delta_text",
@@ -2015,27 +2267,25 @@ sheet_projection_station = function (meta,
                                     width=nStorylines,
                                     verbose=verbose)
             }
-
+            ###
             herd = add_sheep(herd,
                              sheep=extreme,
                              id=variable,
                              height=extreme_height,
                              width=width,
                              verbose=verbose)
-
-            ###
             # herd = add_sheep(herd,
-            #                  sheep=void(),
-            #                  id=variable,
-            #                  height=extreme_height,
-            #                  width=width,
-            #                  verbose=verbose)
+                             # sheep=void(),
+                             # id=variable,
+                             # height=extreme_height,
+                             # width=width,
+                             # verbose=verbose)
             ###
         }
         id_letter = id_letter + nVariables_extreme
 
 
-        
+### 2.4. Foot ________________________________________________________
         if (is.null(Pages)) {
             n_page = i
         } else {
@@ -2053,6 +2303,7 @@ sheet_projection_station = function (meta,
 
         foot = panel_foot(footName, n_page,
                           foot_height, logo_info,
+                          left_plot=warning,
                           verbose=verbose)
         herd = add_sheep(herd,
                          sheep=foot,
