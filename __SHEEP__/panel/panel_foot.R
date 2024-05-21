@@ -52,19 +52,17 @@ panel_foot = function (name, n_page, foot_height, logo_info,
                               verbose=verbose)
     }
 
-    text_page = paste0("<span>", name,
-                       # "<span style='color:white'>&#95;</span>",
-                       " - ",
-                       "<b>p. ",
-                       n_page, "</b></span>")
+    text_page = paste0(name)
+                       # "<span style='color:white'>&#95;</span>",)
     page = richtext_grob(text_page,
                          x=1, y=0,
                          margin=unit(c(t=0, r=0, b=0, l=0), "mm"),
                          hjust=1, vjust=0.5,
                          gp=gpar(col=refCOL, fontsize=8))
     
-    text_date = format(Sys.Date(),
-                       "%B<span style='color:white'>&#95;</span>%Y")
+    text_date = paste0("<span>", format(Sys.Date(), "%B %Y"),
+                       "<span style='color:white'>&#95;&#95;</span>",
+                       "<b>p. ", n_page, "</b></span>")
     date = richtext_grob(text_date,
                          x=1, y=0.55,
                          margin=unit(c(t=0, r=0, b=0, l=0), "mm"),

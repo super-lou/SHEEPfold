@@ -152,8 +152,8 @@ sheet_projection_station = function (meta,
     nStorylines = length(Storylines)
 
 
-    Titles_extreme = c("Crues extrèmes de période de retour 10 ans",
-                       "Étiages extrèmes de période de retour 5 ans")
+    Titles_extreme = c("Crues extrêmes de période de retour 10 ans",
+                       "Étiages extrêmes de période de retour 5 ans")
     Variables_extreme = c("QJXA-10", "VCN10-5")
     nVariables_extreme = length(Variables_extreme)
     rp_Variables_extreme = c(10, 5)
@@ -249,6 +249,8 @@ sheet_projection_station = function (meta,
         p_line = 0.75
         dx_text = 0.03
 
+        linewidth = 1.4
+
         narratif = narratif +
             annotate("text",
                      x=dx0,
@@ -265,19 +267,19 @@ sheet_projection_station = function (meta,
                          x=dx0 + dx_narratif + c(0, dx_line),
                          y=y,
                          color=Colors_light[k],
-                         linewidth=1,
+                         linewidth=linewidth,
                          lineend="round") +
                 annotate("line",
                          x=dx0 + dx_narratif + c(0, dx_line*p_line),
                          y=y,
                          color=Colors[k],
-                         linewidth=1,
+                         linewidth=linewidth,
                          lineend="round") +
                 annotate("text",
                          x=dx0 + dx_narratif + dx_line + dx_text,
                          y=y,
                          label=label,
-                         size=2.4, hjust=0, vjust=0.5,
+                         size=2.4, hjust=0, vjust=0.55,
                          color=IPCCgrey35)
         }
         
@@ -293,7 +295,7 @@ sheet_projection_station = function (meta,
                      x=dx0 + dx_SAFRAN + c(0, dx_line),
                      y=y,
                      color=IPCCgrey23,
-                     linewidth=1,
+                     linewidth=linewidth,
                      lineend="round")
 
         
@@ -468,20 +470,12 @@ sheet_projection_station = function (meta,
 ### 1.3. Legend ______________________________________________________
         dx0 = 0.01
 
-        x_palette = 0
-        dx_palette = 0.07
-        dx_palette_shape = 0.03
-        dx_palette_text = 0.18
-        y_palette = 8.8
-        dy_palette = 0.2
-        dy_palette_title = 0.2
-
         x_spread = 0
         dx_spread = 0.04
         dx_spread_line = 0.18
         dx_spread_rect = dx_spread_line
         dx_spread_text = 0.28
-        y_spread = 5.4
+        y_spread = 8.85
         dy_spread = 0.32
         dy_spread_text_line = 0.12
         dy_spread_rect = 0.16
@@ -490,59 +484,33 @@ sheet_projection_station = function (meta,
         x_signe = 0
         dx_signe = 0.07
         dx_signe_text = 0.14
-        y_signe = 1.9#1.3
+        y_signe = 7.55
         dy_signe = 0.15
         dy_signe_title = 0.2
         dy_signe_title_line = 0.15
         
+        x_palette = 0
+        dx_palette = 0.07
+        dx_palette_shape = 0.03
+        dx_palette_text = 0.18
+        y_palette = 6
+        dy_palette = 0.2
+        dy_palette_title = 0.2
+
+        dy_back = 0.1
+        
+
         legend = ggplot() + theme_void() +
             theme(plot.margin=margin(t=0, r=0,
                                      b=0, l=0, "mm")) +
-            annotate("text",
-                     x=dx0 + x_palette,
-                     y=y_palette + dy_palette*1 + dy_palette_title,
-                     label=TeX("\\textbf{Changements}"),
-                     hjust=0, vjust=0.5, size=2.4,
-                     color=IPCCgrey35)
 
-        dColor = 1
-        PaletteEX = metaEX_serie$palette[metaEX_serie$variable_en ==
-                                         Variables_serie[1]]
-        PaletteEX = unlist(strsplit(PaletteEX, " "))
-        PaletteEX = c(PaletteEX[1+dColor], PaletteEX[length(PaletteEX)-dColor])
-        PaletteEX_info = c("Moins d'eau",
-                           "Plus d'eau")
-        
-        for (k in 1:2) {
-            legend = legend +
-                annotate("point",
-                         x=dx0 + x_palette +
-                             dx_palette + dx_palette_shape*2,
-                         y=y_palette + dy_palette*(k-1),
-                         color=PaletteEX[k], alpha=0.2,
-                         size=2, shape=15) +
-                annotate("point",
-                         x=dx0 + x_palette +
-                             dx_palette + dx_palette_shape,
-                         y=y_palette + dy_palette*(k-1),
-                         color=PaletteEX[k], alpha=0.5,
-                         size=2, shape=15) +
-                annotate("point",
-                         x=dx0 + x_palette +
-                             dx_palette,
-                         y=y_palette + dy_palette*(k-1),
-                         color=PaletteEX[k], alpha=1,
-                         size=2, shape=15) +
-                annotate("text",
-                         x=dx0 + x_palette +
-                             dx_palette + dx_palette_text,
-                         y=y_palette + dy_palette*(k-1),
-                         label=PaletteEX_info[k],
-                         hjust=0, vjust=0.6, size=2.2,
-                         color=IPCCgrey35) 
-        }
-
-        legend = legend +
+            annotate("rect",
+                     xmin=0, xmax=1,
+                     ymin=y_palette - dy_back,
+                     ymax=y_spread + dy_back,
+                     fill=IPCCgrey97, 
+                     color=NA, linejoin="round") +
+    
             annotate("text",
                      x=dx0 + x_spread,
                      y=y_spread + dy_spread*2 + dy_spread_title,
@@ -611,20 +579,21 @@ sheet_projection_station = function (meta,
                      label="naturelle",
                      hjust=0, vjust=0.6, size=2.2,
                      color=IPCCgrey35)
-    
+
+        
         legend = legend +
             annotate("text",
                      x=dx0 + x_signe,
                      y=y_signe + dy_signe*2 +
                          dy_signe_title + dy_signe_title_line*2,
-                     label=TeX("\\textbf{Accord sur}"),
+                     label=TeX("\\textbf{Accord}"),
                      hjust=0, vjust=0.5, size=2.4,
                      color=IPCCgrey35) +
             annotate("text",
                      x=dx0 + x_signe,
                      y=y_signe + dy_signe*2 +
                          dy_signe_title + dy_signe_title_line,
-                     label=TeX("\\textbf{le signe}"),
+                     label=TeX("\\textbf{sur le signe}"),
                      hjust=0, vjust=0.5, size=2.4,
                      color=IPCCgrey35) +
             annotate("text",
@@ -639,6 +608,7 @@ sheet_projection_station = function (meta,
                        "Pas d'accord",
                        "Augmentation")
         Signe_shape = c(25, 21, 24)
+        Signe_fill = c(IPCCgrey60, NA, IPCCgrey60)
         
         for (k in 1:3) {
             legend = legend +
@@ -646,12 +616,57 @@ sheet_projection_station = function (meta,
                          x=dx0 + x_signe + dx_signe,
                          y=y_signe + dy_signe*(k-1),
                          color=IPCCgrey60,
-                         fill="white", size=1.5,
+                         fill=Signe_fill[k], size=1.5,
                          shape=Signe_shape[k]) +
                 annotate("text",
                          x=dx0 + x_signe + dx_signe + dx_signe_text,
                          y=y_signe + dy_signe*(k-1),
                          label=Signe_info[k],
+                         hjust=0, vjust=0.6, size=2.2,
+                         color=IPCCgrey35) 
+        }
+        
+        legend = legend +
+            annotate("text",
+                     x=dx0 + x_palette,
+                     y=y_palette + dy_palette*1 + dy_palette_title,
+                     label=TeX("\\textbf{Changements}"),
+                     hjust=0, vjust=0.5, size=2.4,
+                     color=IPCCgrey35)
+
+        dColor = 1
+        PaletteEX = metaEX_serie$palette[metaEX_serie$variable_en ==
+                                         Variables_serie[1]]
+        PaletteEX = unlist(strsplit(PaletteEX, " "))
+        PaletteEX = c(PaletteEX[1+dColor], PaletteEX[length(PaletteEX)-dColor])
+        PaletteEX_info = c("Moins d'eau",
+                           "Plus d'eau")
+        
+        for (k in 1:2) {
+            legend = legend +
+                annotate("point",
+                         x=dx0 + x_palette +
+                             dx_palette + dx_palette_shape*2,
+                         y=y_palette + dy_palette*(k-1),
+                         color=PaletteEX[k], alpha=0.2,
+                         size=2, shape=15) +
+                annotate("point",
+                         x=dx0 + x_palette +
+                             dx_palette + dx_palette_shape,
+                         y=y_palette + dy_palette*(k-1),
+                         color=PaletteEX[k], alpha=0.5,
+                         size=2, shape=15) +
+                annotate("point",
+                         x=dx0 + x_palette +
+                             dx_palette,
+                         y=y_palette + dy_palette*(k-1),
+                         color=PaletteEX[k], alpha=1,
+                         size=2, shape=15) +
+                annotate("text",
+                         x=dx0 + x_palette +
+                             dx_palette + dx_palette_text,
+                         y=y_palette + dy_palette*(k-1),
+                         label=PaletteEX_info[k],
                          hjust=0, vjust=0.6, size=2.2,
                          color=IPCCgrey35) 
         }
@@ -728,8 +743,6 @@ sheet_projection_station = function (meta,
 
 #### 1.4.1. Spread __________________________________________________
             dataMOD = dataEX_serie_code[[variable]]
-            dataMOD = dplyr::filter(dataMOD,
-                                    climateChain %in% Storylines)
             dataMOD_historical =
                 dplyr::summarise(
                            dplyr::group_by(
@@ -751,7 +764,7 @@ sheet_projection_station = function (meta,
                            dplyr::group_by(
                                       dplyr::filter(
                                                  dataMOD,
-                                                 climateChain %in% Storylines &
+                                                 # climateChain %in% Storylines &
                                                  !is.na(get(variable))),
                                       Chain),
                            min_date=min(date, na.rm=TRUE),
@@ -1045,11 +1058,26 @@ sheet_projection_station = function (meta,
                               linewidth=0.5, lineend="round")
             }
 
+            
+            y_grid = pretty(c(min_all, max_all), n=4)
+            n_y_grid = length(y_grid)
+            tmp = dplyr::tibble(x=rep(lim_date, n_y_grid),
+                                y=rep(y_grid, each=2),
+                                id=rep(1:n_y_grid, each=2))
+
+            spread = spread +
+                geom_line(data=tmp,
+                          aes(x=x, y=y, group=id),
+                          color=IPCCgrey60,
+                          alpha=0.4, linewidth=0.25)
+            
             spread = spread +
                 scale_x_date(limits=lim_date,
                              # breaks=get_breaks,
                              expand=c(0, 0)) +
-                scale_y_continuous(labels=get_labels,
+                scale_y_continuous(limits=c(min(y_grid), max(y_grid)),
+                                   breaks=y_grid,
+                                   labels=get_labels(y_grid),
                                    position="right",
                                    expand=c(0, 0))
     
@@ -1071,8 +1099,11 @@ sheet_projection_station = function (meta,
             dataMOD_QUALYPSO$shape = as.numeric(dataMOD_QUALYPSO$shape)
             dataMOD_QUALYPSO$dy = -0.05 * dataMOD_QUALYPSO$signe
             dataMOD_QUALYPSO$color = IPCCgrey60
+            dataMOD_QUALYPSO$fill = "white"
             dataMOD_QUALYPSO$color[dataMOD_QUALYPSO$signe == 1] = PaletteEX[2]
+            dataMOD_QUALYPSO$fill[dataMOD_QUALYPSO$signe == 1] = PaletteEX[2]
             dataMOD_QUALYPSO$color[dataMOD_QUALYPSO$signe == -1] = PaletteEX[1]
+            dataMOD_QUALYPSO$fill[dataMOD_QUALYPSO$signe == -1] = PaletteEX[1]
             
             get_breaks = function(X, breaks="10 years", break_round=-1) {
                 Xmin = round(lubridate::year(min(X)), break_round)
@@ -1090,8 +1121,8 @@ sheet_projection_station = function (meta,
             signe =  ggplot() + theme_void() + 
                 theme(panel.grid.major.x=element_line(color=IPCCgrey85,
                                                       size=0.3),
-                      plot.margin=margin(t=0.5, r=0,
-                                         b=0.5, l=0, "mm")) +
+                      plot.margin=margin(t=0, r=0,
+                                         b=1, l=0, "mm")) +
                 annotate("point",
                          x=dataMOD_QUALYPSO$date,
                          y=0.5 + dataMOD_QUALYPSO$dy,
@@ -1103,7 +1134,7 @@ sheet_projection_station = function (meta,
                          y=0.5 + dataMOD_QUALYPSO$dy,
                          shape=dataMOD_QUALYPSO$shape,
                          color=dataMOD_QUALYPSO$color,
-                         fill="white", size=1.5) +
+                         fill=dataMOD_QUALYPSO$fill, size=1.5) +
                 scale_x_date(limits=lim_date,
                              breaks=get_breaks,
                              expand=c(0, 0)) +
@@ -1138,7 +1169,7 @@ sheet_projection_station = function (meta,
                              x=0.5,
                              y=dy0 + dy_space*(k-1) + dy_line*(k-1) + c(0, dy_line),
                              color=rev(Colors)[k],
-                             linewidth=1.5)
+                             linewidth=2.2)
             }
     
             block = add_sheep(block,
@@ -1157,15 +1188,22 @@ sheet_projection_station = function (meta,
             Palette = unlist(strsplit(Palette, " "))
             Palette = colorRampPalette(Palette)(colorStep)
 
-            min_value = quantile(dataMOD_delta$delta, prob, na.rm=TRUE)
-            max_value = quantile(dataMOD_delta$delta, 1-prob, na.rm=TRUE)
+            dataMOD_delta_storyline =
+                dplyr::filter(dataMOD_delta,
+                              climateChain %in% Storylines)
+            
+            min_value = quantile(dataMOD_delta_storyline$delta,
+                                 prob, na.rm=TRUE)
+            max_value = quantile(dataMOD_delta_storyline$delta,
+                                 1-prob, na.rm=TRUE)
             
             res = compute_colorBin(min_value, max_value,
                                    length(Palette),
                                    center=0,
                                    include=FALSE)
-            dataMOD_delta$fill = get_colors(dataMOD_delta$delta,
-                                      res$upBin, res$lowBin, Palette)
+            dataMOD_delta_storyline$fill =
+                get_colors(dataMOD_delta_storyline$delta,
+                           res$upBin, res$lowBin, Palette)
 
             stripes_plan = matrix(1:nStorylines)
             stripes = bring_grass(verbose=verbose)
@@ -1173,19 +1211,19 @@ sheet_projection_station = function (meta,
                                    verbose=verbose)
             
             for (k in 1:nStorylines) {
-                dataMOD_delta_storyline = dplyr::filter(dataMOD_delta,
-                                                        climateChain == Storylines[k])
-                dataMOD_delta_storyline$y = factor(dataMOD_delta_storyline$Chain)
-                dataMOD_delta_storyline = dplyr::arrange(dataMOD_delta_storyline, HM)
+                dataMOD_delta_sl = dplyr::filter(dataMOD_delta_storyline,
+                                                 climateChain == Storylines[k])
+                dataMOD_delta_sl$y = factor(dataMOD_delta_sl$Chain)
+                dataMOD_delta_sl = dplyr::arrange(dataMOD_delta_sl, HM)
                 
                 stripes_k =
                     ggplot2::ggplot() + theme_void() + 
                     ggplot2::theme(plot.margin=margin(t=0.3, r=0,
                                                       b=0.3, l=0, "mm")) +
                     ggplot2::annotate("tile",
-                                      x=dataMOD_delta_storyline$date,
-                                      y=dataMOD_delta_storyline$y,
-                                      fill=dataMOD_delta_storyline$fill) +
+                                      x=dataMOD_delta_sl$date,
+                                      y=dataMOD_delta_sl$y,
+                                      fill=dataMOD_delta_sl$fill) +
                     ggplot2::scale_x_date(limits=lim_date,
                                           expand=c(0, 0)) +
                     ggplot2::scale_y_discrete(expand=c(0, 0))
@@ -1237,11 +1275,16 @@ sheet_projection_station = function (meta,
             theme(plot.margin=margin(t=0, r=0,
                                      b=0, l=0, "mm"))
 
-        Lines = c("\\textbf{Avertissement} : Ces résultats comportent de très nombreuses incertitudes.",
+        Lines = c("\\textbf{Avertissement} : Ces résultats comportent des incertitudes.",
                   "Ils sont donnés à titre indicatif. Il ne s’agit pas de prévisions mais d’indications",
                   "d’évolutions possibles. Une note d’accompagnement contient des indications",
                   "de lecture et d’interprétation de la fiche. Elle détaille de plus la méthodologie",
                   "utilisée ainsi que les limites de l’exercice.")
+
+        # Avertissement : Ces résultats comportent des incertitudes. Ils sont donnés à titre indicatif.
+        # Il ne s’agit pas de prévisions mais d’indications d’évolutions possibles.
+        # Ces fiches sont volontairement synthétiques et une notice d’accompagnement
+        # produite par le projet fournit des indications de lecture et d’interprétation de la fiche.
 
         dy0 = 0.75
         dy = 0.15
@@ -1589,7 +1632,7 @@ sheet_projection_station = function (meta,
                                              b=3, l=2*show_y_axis, "mm"))
                 if (!show_y_axis) {
                     plot = plot +
-                        theme(axis.line.y=element_line(color=IPCCgrey85,
+                        theme(axis.line.y=element_line(color=IPCCgrey60,
                                                        size=0.3,
                                                        linetype="dotted"))
                 }

@@ -166,18 +166,18 @@ panel_mini_map = function (meta, Shapefiles,
             geom_sf(data=entiteHydro[entiteHydro$code == codeLight,],
                     color="white",
                     fill=NA,
-                    linewidth=1) +
+                    linewidth=1.1) +
             geom_sf(data=entiteHydro[entiteHydro$code == codeLight,],
-                    color=INRAEdarkcyan,
+                    color=INRAEred,
                     fill=NA,
-                    linewidth=0.3)
+                    linewidth=0.4)
 
         map = map +
             geom_point(data=plot_map_code,
                        aes(x=L93X, y=L93Y),
                        shape=21, size=size_codeLight, stroke=stroke_codeLight,
                        color="white",
-                       fill=refCOL)
+                       fill=INRAEred)
     }
 
     if (!is.null(regionLight)) {
