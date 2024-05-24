@@ -139,8 +139,8 @@ sheet_projection_station = function (meta,
                        "milieu de siècle 2041-2070",
                        "fin de siècle 2070-2099")
     Horizons_extreme = c("\\textbf{1976-2005}",
-                         "\\textbf{Milieu de siècle 2041-2070}",
-                         "\\textbf{Fin de siècle 2070-2099}")
+                         "\\textbf{H2 : Milieu de siècle 2041-2070}",
+                         "\\textbf{H3 : Fin de siècle 2070-2099}")
     
     Variables_medQJ = c("medQJ_H0", "medQJ_H2", "medQJ_H3")
     nVariables_medQJ = length(Variables_medQJ)
@@ -153,8 +153,8 @@ sheet_projection_station = function (meta,
     nStorylines = length(Storylines)
 
 
-    Titles_extreme = c("Crues extrêmes de période de retour 10 ans",
-                       "Étiages extrêmes de période de retour 5 ans")
+    Titles_extreme = c("Crues de période de retour 10 ans",
+                       "Étiages de période de retour 5 ans")
     Variables_extreme = c("QJXA-10", "VCN10-5")
     nVariables_extreme = length(Variables_extreme)
     rp_Variables_extreme = c(10, 5)
@@ -240,7 +240,7 @@ sheet_projection_station = function (meta,
         dy_title = 0.22
         dy = 0.15
         dy_SAFRAN = 0.06
-        dx_SAFRAN = 0.14
+        dx_SAFRAN = 0.135
         
         dx0 = 0.16
         dx_narratif = 0.01
@@ -248,8 +248,8 @@ sheet_projection_station = function (meta,
         p_line = 0.75
         dx_text = 0.03
 
-        dx_all = 0.28
-        dx_all_line = 0.38
+        dx_all = 0.3
+        dx_all_line = 0.35
 
         linewidth = 1.4
 
@@ -304,7 +304,7 @@ sheet_projection_station = function (meta,
             annotate("text",
                      x=dx0 + dx_all,
                      y=y,
-                     label=TeX("\\textbf{Ensemble des modélisations}"),
+                     label=TeX("\\textbf{Ensemble des projections}"),
                      size=2.4, hjust=0, vjust=0.5,
                      color=IPCCgrey35) +
             annotate("line",
@@ -428,7 +428,7 @@ sheet_projection_station = function (meta,
             medQJ_H = panel_spaghetti(dataMOD,
                                     Colors_tmp,
                                     title=paste0("(", letters[id_letter+j], ") Régime hydrologique"),
-                                    unit="m^{3}.s^{-1}",
+                                    unit="m^{3}$/$s",
                                     subtitle=Horizons_medQJ[j],
                                     alpha=0.85,
                                     alpha_non_color=0.1,
@@ -489,7 +489,7 @@ sheet_projection_station = function (meta,
 
         x_palette = 0
         dx_palette = 0.07
-        dx_palette_shape = 0.03
+        dx_palette_shape = 0.05
         dx_palette_text = 0.18
         y_palette = 9.3
         dy_palette = 0.2
@@ -515,9 +515,15 @@ sheet_projection_station = function (meta,
         dy_signe_title_line = 0.16
 
         x_stripe = 0
-        y_stripe = 5.5
-        dy_stripe = 0.12
-        dy_stripes_title = 0.17
+        dx_stripe = 0.04
+        y_stripe = 4.6
+        dx_stripe_palette = 0.06
+        dx_stripe_palette_line = 0.03
+        dx_stripe_palette_text = 0.03
+        dy_stripe_palette = 0.12
+        dy_stripe_text = 0.2
+        dy_stripe_line = 0.12
+        dy_stripe_title = 0.17
             
         dy_back_bottom = 0.2
         dy_back_top = 0.7
@@ -539,10 +545,13 @@ sheet_projection_station = function (meta,
                      label=TeX("\\textbf{Changements}"),
                      hjust=0, vjust=0.5, size=2.4,
                      color=IPCCgrey35)
+        nColor = 6
         dColor = 1
-        PaletteEX = metaEX_serie$palette[metaEX_serie$variable_en ==
-                                         Variables_serie[1]]
-        PaletteEX = unlist(strsplit(PaletteEX, " "))
+        Palette = metaEX_serie$palette[metaEX_serie$variable_en ==
+                                       Variables_serie[1]]
+        Palette = unlist(strsplit(Palette, " "))
+        PaletteLeg = colorRampPalette(Palette)(nColor)
+        PaletteEX = Palette
         PaletteEX = c(PaletteEX[1+dColor], PaletteEX[length(PaletteEX)-dColor])
         PaletteEX_info = c("Moins d'eau",
                            "Plus d'eau")
@@ -550,21 +559,21 @@ sheet_projection_station = function (meta,
             legend = legend +
                 annotate("point",
                          x=dx0 + x_palette +
-                             dx_palette + dx_palette_shape*2,
-                         y=y_palette + dy_palette*(k-1),
-                         color=PaletteEX[k], alpha=0.2,
-                         size=2, shape=15) +
-                annotate("point",
-                         x=dx0 + x_palette +
                              dx_palette + dx_palette_shape,
                          y=y_palette + dy_palette*(k-1),
-                         color=PaletteEX[k], alpha=0.5,
+                         color=PaletteEX[k], alpha=0.6,
                          size=2, shape=15) +
+                # annotate("point",
+                #          x=dx0 + x_palette +
+                #              dx_palette,
+                #          y=y_palette + dy_palette*(k-1),
+                #          color="white", alpha=1,
+                #          size=2, shape=15) +
                 annotate("point",
                          x=dx0 + x_palette +
                              dx_palette,
                          y=y_palette + dy_palette*(k-1),
-                         color=PaletteEX[k], alpha=1,
+                         color=PaletteEX[k], alpha=0.3,
                          size=2, shape=15) +
                 annotate("text",
                          x=dx0 + x_palette +
@@ -696,10 +705,15 @@ sheet_projection_station = function (meta,
                   "quatres narratifs pour", 
                   "chaque variable.")
         nLines = length(Lines)
+        
         legend = legend +
             annotate("text",
                      x=dx0 + x_stripe,
-                     y=y_stripe + dy_stripe*(nLines-1) + dy_stripes_title,
+                     y=y_stripe +
+                         dy_stripe_palette*nColor +
+                         dy_stripe_text + 
+                         dy_stripe_line*(nLines-1) +
+                         dy_stripe_title,
                      label=TeX("\\textbf{Stripes}"),
                      hjust=0, vjust=0.5, size=2.4,
                      color=IPCCgrey35)
@@ -708,11 +722,68 @@ sheet_projection_station = function (meta,
             legend = legend +
                 annotate("text",
                          x=dx0 + x_stripe,
-                         y=y_stripe + dy_stripe*(k-1),
+                         y=y_stripe +
+                             dy_stripe_palette*nColor +
+                             dy_stripe_text +
+                             dy_stripe_line*(k-1),
                          label=rev(Lines)[k],
                          hjust=0, vjust=0.6, size=2.2,
                          color=IPCCgrey35)
         }
+
+        for (k in 1:nColor) {
+            legend = legend +
+                annotate("rect",
+                         xmin=dx0 + x_stripe + dx_stripe,
+                         xmax=dx0 + x_stripe + dx_stripe + dx_stripe_palette,
+                         ymin=y_stripe + dy_stripe_palette*(k-1),
+                         ymax=y_stripe + dy_stripe_palette*k,
+                         linewidth=0,
+                         fill=PaletteLeg[k], color=NA)
+        }
+        kLabels = c(0, round(nColor/2), nColor)
+        Labels = c("min", "0", "max")
+        nLabels = length(Labels)
+        for (k in 1:nLabels) {
+            legend = legend +
+                annotate("line",
+                         x=dx0 + x_stripe + dx_stripe + dx_stripe_palette +
+                             c(0, dx_stripe_palette_line),
+                         y=y_stripe + dy_stripe_palette*kLabels[k],
+                         linewidth=0.25, lineend="square",
+                         color=IPCCgrey35) +
+                annotate("text",
+                         x=dx0 + x_stripe + dx_stripe + dx_stripe_palette +
+                             dx_stripe_palette_line +
+                             dx_stripe_palette_text,
+                         y=y_stripe + dy_stripe_palette*kLabels[k],
+                         label=Labels[k],
+                         hjust=0, vjust=0.63, size=1.9,
+                         color=IPCCgrey35)
+        }
+        
+        dy_plus = 3/4 * dy_stripe_palette*nColor
+        dy_moins = 1/4 * dy_stripe_palette*nColor
+        legend = legend +
+            annotate("text",
+                     x=dx0 + x_stripe + dx_stripe + dx_stripe_palette +
+                         dx_stripe_palette_line +
+                         dx_stripe_palette_text*2,
+                     y=y_stripe + dy_plus,
+                     label="Plus d'eau",
+                     hjust=0, vjust=0.5, size=2.1,
+                     color=IPCCgrey35) +
+            annotate("text",
+                     x=dx0 + x_stripe + dx_stripe + dx_stripe_palette +
+                         dx_stripe_palette_line +
+                         dx_stripe_palette_text*2,
+                     y=y_stripe + dy_moins,
+                     label="Moins d'eau",
+                     hjust=0, vjust=0.5, size=2.1,
+                     color=IPCCgrey35)
+
+
+        
 
         legend = legend + 
             scale_x_continuous(limits=c(0, 1),
@@ -744,6 +815,8 @@ sheet_projection_station = function (meta,
                           date_labels="%Y",
                           breaks="10 years",
                           minor_breaks="5 years")
+        axis = axis +
+            theme(axis.ticks.length.y=unit(0, 'mm'))
         
         for (j in 1:nVariables_serie) {
             variable = Variables_serie[j]
@@ -942,8 +1015,10 @@ sheet_projection_station = function (meta,
                            is_axis.ticks.y=FALSE,
                            isGridY=FALSE) + 
                 theme(plot.margin=margin(t=0, r=0,
-                                         b=0, l=0, "mm")) +
-            theme(legend.position = "none")
+                                         b=0, l=0, "mm"),
+                      legend.position="none",
+                      axis.ticks.length.x=unit(1, 'mm'),
+                      axis.ticks.length.y=unit(0, 'mm'))
             
             spread = spread +
                 geom_ribbon(data=dataMOD_delta_stat,
@@ -1111,7 +1186,6 @@ sheet_projection_station = function (meta,
                               linewidth=0.5, lineend="round")
             }
 
-            
             y_grid = pretty(c(min_all, max_all), n=4)
             n_y_grid = length(y_grid)
             tmp = dplyr::tibble(x=rep(lim_date, n_y_grid),
@@ -1128,7 +1202,7 @@ sheet_projection_station = function (meta,
                 scale_x_date(limits=lim_date,
                              # breaks=get_breaks,
                              expand=c(0, 0)) +
-                scale_y_continuous(limits=c(min(y_grid), max(y_grid)),
+                scale_y_continuous(limits=c(-100, max(y_grid)),
                                    breaks=y_grid,
                                    labels=get_labels(y_grid),
                                    position="right",
@@ -1150,7 +1224,7 @@ sheet_projection_station = function (meta,
                 names(convert_shape)[match(dataMOD_QUALYPSO$signe,
                                            convert_shape)]
             dataMOD_QUALYPSO$shape = as.numeric(dataMOD_QUALYPSO$shape)
-            dataMOD_QUALYPSO$dy = -0.05 * dataMOD_QUALYPSO$signe
+            dataMOD_QUALYPSO$dy = -0.06 * dataMOD_QUALYPSO$signe
             dataMOD_QUALYPSO$color = IPCCgrey60
             dataMOD_QUALYPSO$fill = "white"
             dataMOD_QUALYPSO$color[dataMOD_QUALYPSO$signe == 1] = PaletteEX[2]
@@ -1175,13 +1249,14 @@ sheet_projection_station = function (meta,
                 theme(panel.grid.major.x=element_line(color=IPCCgrey85,
                                                       size=0.3),
                       plot.margin=margin(t=0, r=0,
-                                         b=1, l=0, "mm")) +
+                                         b=1.5, l=0, "mm"),
+                      axis.ticks.length.y=unit(0, 'mm')) +
                 annotate("point",
                          x=dataMOD_QUALYPSO$date,
                          y=0.5 + dataMOD_QUALYPSO$dy,
                          shape=dataMOD_QUALYPSO$shape,
                          color="white",
-                         fill="white", size=2.5) +
+                         fill="white", size=2.4) +
                 annotate("point",
                          x=dataMOD_QUALYPSO$date,
                          y=0.5 + dataMOD_QUALYPSO$dy,
@@ -1214,15 +1289,30 @@ sheet_projection_station = function (meta,
 
             dy0 = 0.02
             dy_space = 0.04
-            dy_line = (1 - dy_space*(nStorylines - 1) - dy0*2) / nStorylines
-            
+            dy = (1 - dy_space*(nStorylines - 1) - dy0*2) / nStorylines
+
+            x_back = 0.5
+            x_front = 0.8
+            y_rel_arrow = 0.25
+            lw_arrow = 1.1
+                
             for (k in 1:nStorylines) {
+                y = dy0 + dy_space*(k-1) + dy*(k-1)
+                y_top = y + dy*y_rel_arrow
+                y_mid = y + dy/2
+                y_bottom = y + dy*(1-y_rel_arrow)
+                
                 info_stripes = info_stripes +
                     annotate("line",
-                             x=0.84,
-                             y=dy0 + dy_space*(k-1) + dy_line*(k-1) + c(0, dy_line),
+                             x=c(x_back, x_front),
+                             y=c(y_top, y_mid),
                              color=rev(Colors)[k],
-                             linewidth=2.2)
+                             linewidth=lw_arrow, lineend="round") +
+                    annotate("line",
+                             x=c(x_front, x_back),
+                             y=c(y_mid, y_bottom),
+                             color=rev(Colors)[k],
+                             linewidth=lw_arrow, lineend="round")
             }
     
             block = add_sheep(block,
@@ -1279,7 +1369,8 @@ sheet_projection_station = function (meta,
                 stripes_k =
                     ggplot2::ggplot() + theme_void() + 
                     ggplot2::theme(plot.margin=margin(t=0.3, r=0,
-                                                      b=0.3, l=0, "mm")) +
+                                                      b=0.3, l=0, "mm"),
+                                   axis.ticks.length.y=unit(0, 'mm')) +
                     # ggplot2::annotate("tile",
                                       # x=dataMOD_delta_sl$date,
                                       # y=dataMOD_delta_sl$y,
