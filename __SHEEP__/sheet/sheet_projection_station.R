@@ -1521,6 +1521,8 @@ sheet_projection_station = function (meta,
         if (!(file.exists(figdir))) {
             dir.create(figdir, recursive=TRUE)
         }
+        
+        Cairo::CairoFonts(Lato = cairoFont("Lato"))
         ggplot2::ggsave(plot=plot,
                         path=figdir,
                         filename=filename,
@@ -1528,7 +1530,7 @@ sheet_projection_station = function (meta,
                         height=paper_size[2], units='cm',
                         dpi=300,
                         device=cairo_pdf)
-
+        embed_fonts(file.path(figdir, filename))
 
         
 ## 2. PAGE 2 _________________________________________________________
