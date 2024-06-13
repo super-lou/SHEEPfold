@@ -106,6 +106,7 @@ panel_info_station = function(data_code,
                    "<span style='font-size:14pt; color:", refCOL, "'>",
                    gsub(" [[]", paste0(nbsp(1), "["), meta_code$name), "</span>"),
             x=0, y=1,
+            gp=gpar(fontfamily="Lato"),
             margin=unit(c(t=0, r=5, b=0, l=0),
                         "mm"),
             hjust=0, vjust=1)
@@ -121,7 +122,9 @@ panel_info_station = function(data_code,
                                margin=unit(c(t=0, r=5, b=0, l=0),
                                            "mm"),
                                hjust=0, vjust=1,
-                               gp=gpar(col=refCOL, fontsize=14))
+                               gp=gpar(col=refCOL,
+                                       fontfamily="Lato",
+                                       fontsize=14))
     } else {
         gtext1 = void()
     }
@@ -137,7 +140,9 @@ panel_info_station = function(data_code,
                                margin=unit(c(t=0, r=0, b=0, l=0),
                                            "mm"),
                                hjust=0, vjust=1,
-                               gp=gpar(col=refCOL, fontsize=8))
+                               gp=gpar(col=refCOL,
+                                       fontfamily="Lato",
+                                       fontsize=8))
     } else {
         gtext2 = void()
     }
@@ -191,7 +196,9 @@ panel_info_station = function(data_code,
                                margin=unit(c(t=0, r=0, b=0, l=0),
                                            "mm"),
                                hjust=0, vjust=0.98,
-                               gp=gpar(col=IPCCgrey13, fontsize=9))
+                               gp=gpar(col=IPCCgrey13,
+                                       fontfamily="Lato",
+                                       fontsize=9))
     } else {
         gtext3 = void()
     }
@@ -215,7 +222,9 @@ panel_info_station = function(data_code,
                                margin=unit(c(t=0, r=0, b=0, l=0),
                                            "mm"),
                                hjust=0, vjust=1,
-                               gp=gpar(col=IPCCgrey13, fontsize=9))
+                               gp=gpar(col=IPCCgrey13,
+                                       fontfamily="Lato",
+                                       fontsize=9))
 
     } else if ('projection' %in% to_do & !is.null(projection_legend)) {
         gtext4 = projection_legend
