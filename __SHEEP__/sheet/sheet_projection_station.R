@@ -1509,6 +1509,7 @@ sheet_projection_station = function (meta,
                         width=paper_size[1],
                         height=paper_size[2], units='cm',
                         dpi=300,
+                        options=list("embedFonts"=TRUE),
                         device=cairo_pdf)
 
 
@@ -2684,6 +2685,7 @@ sheet_projection_station = function (meta,
                         width=paper_size[1],
                         height=paper_size[2], units='cm',
                         dpi=300,
+                        options=list("embedFonts"=TRUE),
                         device=cairo_pdf)
         
     }
