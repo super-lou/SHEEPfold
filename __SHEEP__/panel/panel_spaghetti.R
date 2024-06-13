@@ -108,7 +108,7 @@ panel_spaghetti = function (data_code, Colors=NULL,
         title = ggplot() + theme_void() +
             theme(plot.margin=margin_title)
 
-        # dx0 = 0.05
+        dx0 = 0.05
         
         if (isTitleAbove) {
             dx_title = 0.25

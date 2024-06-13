@@ -115,20 +115,11 @@ sheet_stationnarity_station = function (data,
             echelle=echelle,
             size_codeLight=2,
             stroke_codeLight=0.6)
-
         herd = add_sheep(herd,
                          sheep=info,
                          id="info",
                          height=info_height,
                          verbose=verbose)
-
-        # data_code_chronicle = dplyr::rename(data_code, Q_sim=Q)
-        # data_code_chronicle$HM = "Naturalisé"
-        # Colors = IPCCgold
-        # names(Colors) = "Naturalisé"
-        
-        # limits = c(min(data_code$date), max(data_code$date))
-        # limits = period
 
         chronicle = panel_spaghetti(data_code,
                                     # Colors=Colors,
@@ -206,7 +197,6 @@ sheet_stationnarity_station = function (data,
                                 margin_trend=
                                     margin(t=1, r=0, b=0, l=0, "mm"),
                                 first=first, last=last)
-            
             herd = add_sheep(herd,
                              sheep=trend,
                              id=variable,

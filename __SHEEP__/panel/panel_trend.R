@@ -262,10 +262,13 @@ panel_trend = function (variable,
 
 
 ## PLOT ______________________________________________________________
-    p = ggplot() + theme_IPCC(is_back=FALSE,
-                              isGridX=FALSE, isGridY=FALSE,
-                              isTitle=FALSE,
-                              isLabelX=FALSE, isLabelY=TRUE)
+    p = ggplot() +
+        theme_IPCC(is_panel.background=FALSE,
+                   is_border=TRUE,
+                   isGridX=FALSE, isGridY=FALSE,
+                   is_plot.title=FALSE,
+                   is_axis.line.x=FALSE,
+                   isLabelX=FALSE, isLabelY=TRUE)
     
     ## Background ##
     if (is.null(period_trend_show)) {

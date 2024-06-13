@@ -76,7 +76,9 @@ panel_hydrograph = function (QM_code, regimeLight, period=NULL,
                   "J", "A", "S", "O", "N", "D")
 
     # Open a new plot with the personalise theme
-    hyd = ggplot() + theme_IPCC() +
+    hyd = ggplot() +
+        theme_IPCC(is_axis.text.x=FALSE,
+                   is_axis.text.y=FALSE) +
         # Theme modification
         theme(
             panel.background=element_rect(fill="white"),
