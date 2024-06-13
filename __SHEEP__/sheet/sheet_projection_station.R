@@ -530,8 +530,7 @@ sheet_projection_station = function (meta,
 
         legend = ggplot() + theme_void() +
             theme(plot.margin=margin(t=0, r=0,
-                                     b=0, l=0, "mm"),
-                  text=element_text(family="DejaVu Sans")) +
+                                     b=0, l=0, "mm")) +
             # annotate("rect",
             #          xmin=0, xmax=0.95,
             #          ymin=y_signe - dy_back_bottom,
@@ -545,6 +544,7 @@ sheet_projection_station = function (meta,
                      y=y_palette + dy_palette*1 + dy_palette_title,
                      label=TeX("\\textbf{Changements}"),
                      hjust=0, vjust=0.5, size=2.4,
+                     family="Lato",
                      color=IPCCgrey35)
         nColor = 6
         dColor = 1
@@ -582,6 +582,7 @@ sheet_projection_station = function (meta,
                          y=y_palette + dy_palette*(k-1),
                          label=PaletteEX_info[k],
                          hjust=0, vjust=0.6, size=2.2,
+                         family="Lato",
                          color=IPCCgrey35) 
         }
         
@@ -591,6 +592,7 @@ sheet_projection_station = function (meta,
                      y=y_spread + dy_spread*2 + dy_spread_title,
                      label=TeX("\\textbf{Évolution}"),
                      hjust=0, vjust=0.5, size=2.4,
+                     family="Lato",
                      color=IPCCgrey35) + 
             
             annotate("line",
@@ -603,12 +605,14 @@ sheet_projection_station = function (meta,
                      y=y_spread + dy_spread*2 + dy_spread_text_line/2,
                      label="Moyenne",
                      hjust=0, vjust=0.6, size=2.2,
+                     family="Lato",
                      color=IPCCgrey35) +
             annotate("text",
                      x=dx0 + x_spread + dx_spread + dx_spread_text,
                      y=y_spread + dy_spread*2 - dy_spread_text_line/2,
                      label="d'ensemble",
                      hjust=0, vjust=0.6, size=2.2,
+                     family="Lato",
                      color=IPCCgrey35) +
             
             annotate("rect",
@@ -625,12 +629,14 @@ sheet_projection_station = function (meta,
                      y=y_spread + dy_spread + dy_spread_text_line/2,
                      label="Incertitude de",
                      hjust=0, vjust=0.6, size=2.2,
+                     family="Lato",
                      color=IPCCgrey35) +
             annotate("text",
                      x=dx0 + x_spread + dx_spread + dx_spread_text,
                      y=y_spread + dy_spread - dy_spread_text_line/2,
                      label="modélisation",
                      hjust=0, vjust=0.6, size=2.2,
+                     family="Lato",
                      color=IPCCgrey35) +
 
             annotate("rect",
@@ -647,12 +653,14 @@ sheet_projection_station = function (meta,
                      y=y_spread + dy_spread_text_line/2,
                      label="Variabilité",
                      hjust=0, vjust=0.6, size=2.2,
+                     family="Lato",
                      color=IPCCgrey35) +
             annotate("text",
                      x=dx0 + x_spread + dx_spread + dx_spread_text,
                      y=y_spread - dy_spread_text_line/2,
                      label="naturelle",
                      hjust=0, vjust=0.6, size=2.2,
+                     family="Lato",
                      color=IPCCgrey35)
 
         
@@ -663,6 +671,7 @@ sheet_projection_station = function (meta,
                          dy_signe_title + dy_signe_title_line*2,
                      label=TeX("\\textbf{Accord}"),
                      hjust=0, vjust=0.5, size=2.4,
+                     family="Lato",
                      color=IPCCgrey35) +
             annotate("text",
                      x=dx0 + x_signe,
@@ -670,6 +679,7 @@ sheet_projection_station = function (meta,
                          dy_signe_title + dy_signe_title_line,
                      label=TeX("\\textbf{sur le signe}"),
                      hjust=0, vjust=0.5, size=2.4,
+                     family="Lato",
                      color=IPCCgrey35) +
             annotate("text",
                      x=dx0 + x_signe,
@@ -677,6 +687,7 @@ sheet_projection_station = function (meta,
                          dy_signe_title,
                      label=TeX("\\textbf{de l'évolution}"),
                      hjust=0, vjust=0.5, size=2.4,
+                     family="Lato",
                      color=IPCCgrey35)
 
         Signe_info = c("Diminution",
@@ -698,6 +709,7 @@ sheet_projection_station = function (meta,
                          y=y_signe + dy_signe*(k-1),
                          label=Signe_info[k],
                          hjust=0, vjust=0.6, size=2.2,
+                         family="Lato",
                          color=IPCCgrey35) 
         }
 
@@ -717,6 +729,7 @@ sheet_projection_station = function (meta,
                          dy_stripe_title,
                      label=TeX("\\textbf{Stripes}"),
                      hjust=0, vjust=0.5, size=2.4,
+                     family="Lato",
                      color=IPCCgrey35)
 
         for (k in 1:nLines) {
@@ -729,6 +742,7 @@ sheet_projection_station = function (meta,
                              dy_stripe_line*(k-1),
                          label=rev(Lines)[k],
                          hjust=0, vjust=0.6, size=2.2,
+                         family="Lato",
                          color=IPCCgrey35)
         }
 
@@ -760,6 +774,7 @@ sheet_projection_station = function (meta,
                          y=y_stripe + dy_stripe_palette*kLabels[k],
                          label=Labels[k],
                          hjust=0, vjust=0.63, size=1.9,
+                         family="Lato",
                          color=IPCCgrey35)
         }
         
@@ -773,6 +788,7 @@ sheet_projection_station = function (meta,
                      y=y_stripe + dy_plus,
                      label="Plus d'eau",
                      hjust=0, vjust=0.5, size=2.1,
+                     family="Lato",
                      color=IPCCgrey35) +
             annotate("text",
                      x=dx0 + x_stripe + dx_stripe + dx_stripe_palette +
@@ -781,6 +797,7 @@ sheet_projection_station = function (meta,
                      y=y_stripe + dy_moins,
                      label="Moins d'eau",
                      hjust=0, vjust=0.5, size=2.1,
+                     family="Lato",
                      color=IPCCgrey35)
 
 
