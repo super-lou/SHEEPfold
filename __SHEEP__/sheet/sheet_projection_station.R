@@ -530,7 +530,8 @@ sheet_projection_station = function (meta,
 
         legend = ggplot() + theme_void() +
             theme(plot.margin=margin(t=0, r=0,
-                                     b=0, l=0, "mm")) +
+                                     b=0, l=0, "mm"),
+                  text=element_text(family="DejaVu Sans")) +
             # annotate("rect",
             #          xmin=0, xmax=0.95,
             #          ymin=y_signe - dy_back_bottom,
