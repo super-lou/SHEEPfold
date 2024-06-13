@@ -1498,7 +1498,7 @@ sheet_projection_station = function (meta,
         # plot = void()
         # paper_size = c(21, 29.7)
         
-        filename = paste0(code, "_projection_datasheet_1.svg")
+        filename = paste0(code, "_projection_datasheet_1.pdf")
 
         if (!(file.exists(figdir))) {
             dir.create(figdir, recursive=TRUE)
@@ -1509,8 +1509,7 @@ sheet_projection_station = function (meta,
                         width=paper_size[1],
                         height=paper_size[2], units='cm',
                         dpi=300,
-                        # device=cairo_pdf)
-                        device="svg")
+                        device=cairo_pdf)
 
 
         
@@ -2674,7 +2673,7 @@ sheet_projection_station = function (meta,
         plot = res$plot
         paper_size = res$paper_size
 
-        filename = paste0(code, "_projection_datasheet_2.svg")
+        filename = paste0(code, "_projection_datasheet_2.pdf")
 
         if (!(file.exists(figdir))) {
             dir.create(figdir, recursive=TRUE)
@@ -2685,8 +2684,7 @@ sheet_projection_station = function (meta,
                         width=paper_size[1],
                         height=paper_size[2], units='cm',
                         dpi=300,
-                        # device=cairo_pdf)
-                        device="svg")
+                        device=cairo_pdf)
         
     }
     return (Pages)
