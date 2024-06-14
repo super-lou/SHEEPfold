@@ -431,15 +431,16 @@ sheet_projection_station = function (meta,
             names(Colors_tmp) = paste0(names(Colors_tmp), "|median")
 
             if (alt_config) {
-                ratio_title = 1/6.9
+                ratio_title = 1/7
             } else {
                 ratio_title = 1/6.6
             }
             
             medQJ_H = panel_spaghetti(dataMOD,
                                     Colors_tmp,
-                                    title=paste0("(", letters[id_letter+j], ") Régime hydrologique"),
-                                    unit="m",
+                                    title=paste0("(", letters[id_letter+j],
+                                                 ") Régime hydrologique"),
+                                    unit="m^{3}$/$s",
                                     subtitle=Horizons_medQJ[j],
                                     alpha=0.85,
                                     alpha_non_color=0.1,
