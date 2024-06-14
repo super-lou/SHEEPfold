@@ -432,8 +432,14 @@ sheet_projection_station = function (meta,
 
             if (alt_config) {
                 ratio_title = 1/7.15
+                margin_title =
+                    margin(t=2, r=margin_r,
+                           b=1, l=margin_l, "mm")
             } else {
                 ratio_title = 1/6.6
+                margin_title =
+                    margin(t=2, r=margin_r,
+                           b=0, l=margin_l, "mm")
             }
             
             medQJ_H = panel_spaghetti(dataMOD,
@@ -466,9 +472,7 @@ sheet_projection_station = function (meta,
                                     dx0_title=0.03,
                                     dx0_subtitle=0.095,
                                     ratio_title=ratio_title,
-                                    margin_title=
-                                        margin(t=2, r=margin_r,
-                                               b=0, l=margin_l, "mm"),
+                                    margin_title=margin_title,
                                     margin_spag=
                                         margin(t=0, r=margin_r,
                                                b=0, l=margin_l, "mm"),
