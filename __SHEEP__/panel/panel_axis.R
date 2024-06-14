@@ -28,7 +28,7 @@ panel_axis = function(X,
                       X_tick_color=IPCCgrey75,
                       X_label_color=IPCCgrey40,
                       subX_color=IPCCgrey25,
-                      axis.text.x_size=3.15,
+                      axis.text.x_size=3.1,
                       date_labels="%Y",
                       breaks="10 years",
                       minor_breaks="2 years",
@@ -131,7 +131,7 @@ panel_axis = function(X,
 
 
     
-    axis = ggplot2::ggplot() +  theme_void() +
+    axis = ggplot2::ggplot() +  theme_void_Lato() +
         coord_cartesian(clip="off") +
         ggplot2::theme(plot.margin=axis_margin,
                        axis.ticks.y=element_blank(),
@@ -207,6 +207,7 @@ panel_axis = function(X,
                  label=format(Ticks_major, date_labels),
                  size=axis.text.x_size,
                  color=Color_label,
+                 family="Lato",
                  vjust=0, hjust=0.5)
 
     

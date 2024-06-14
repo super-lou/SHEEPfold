@@ -105,7 +105,7 @@ panel_spaghetti = function (data_code, Colors=NULL,
     }
 
     if (isTitleAbove | isLegend) {
-        title = ggplot() + theme_void() +
+        title = ggplot() + theme_void_Lato() +
             theme(plot.margin=margin_title)
 
         dx0 = 0.05
@@ -118,6 +118,7 @@ panel_spaghetti = function (data_code, Colors=NULL,
                          y=1,
                          label=TeX(titleTeX),
                          size=3, hjust=0, vjust=1,
+                         family="Lato",
                          color=IPCCgrey25)
 
             if (!is.null(subtitle)) {
@@ -127,6 +128,7 @@ panel_spaghetti = function (data_code, Colors=NULL,
                              y=0,
                              label=TeX(subtitleTeX),
                              size=2.5, hjust=0, vjust=0,
+                             family="Lato",
                              color=IPCCgrey25)
             }
         } else {
@@ -150,6 +152,7 @@ panel_spaghetti = function (data_code, Colors=NULL,
                              y=0.5,
                              label=obsLegend,
                              size=2.5, hjust=0, vjust=1,
+                             family="Lato",
                              color=IPCCgrey50)
             } else {
                 dx_obs = 0 
@@ -170,6 +173,7 @@ panel_spaghetti = function (data_code, Colors=NULL,
                              y=0.5,
                              label=names(Colors),
                              size=2.5, hjust=0, vjust=1,
+                             family="Lato",
                              color=IPCCgrey50)
             } else if (!is.null(simLegend)) {
                 dx_hm = 0.11
@@ -187,6 +191,7 @@ panel_spaghetti = function (data_code, Colors=NULL,
                              y=0.5,
                              label=simLegend,
                              size=2.5, hjust=0, vjust=1,
+                             family="Lato",
                              color=IPCCgrey50)
             } else {
                 dx_hm = 0
@@ -207,6 +212,7 @@ panel_spaghetti = function (data_code, Colors=NULL,
                              y=0.5,
                              label="Lacunes",
                              size=2.5, hjust=0, vjust=1,
+                             family="Lato",
                              color=IPCCgrey50)
             }
         }

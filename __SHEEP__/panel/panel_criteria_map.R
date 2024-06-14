@@ -68,7 +68,7 @@ panel_criteria_map = function (dataEX_criteria_hm_variable,
     cf$default = TRUE
 
     # Open a new plot with the personalise theme
-    map = ggplot() + theme_void() + cf +
+    map = ggplot() + theme_void_Lato() + cf +
         theme(plot.margin=margin)        
     
     xlim = c(90000, 1250000)

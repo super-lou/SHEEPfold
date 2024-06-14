@@ -109,7 +109,7 @@ sheet_stationnarity_map = function (trendEX,
         herd = bring_grass(verbose=verbose)
         herd = plan_of_herd(herd, plan, verbose=verbose)
         
-        title = ggplot() + theme_void() +
+        title = ggplot() + theme_void_Lato() +
             theme(plot.margin=margin(t=0, r=0, b=0, l=0, "cm"))
 
         if (is_foot) {
@@ -282,7 +282,7 @@ sheet_stationnarity_map = function (trendEX,
                                           on_circle=TRUE,
                                           margin=margin_shape)
         } else {
-            shape = ggplot() + theme_void() +
+            shape = ggplot() + theme_void_Lato() +
                 theme(plot.margin=margin(t=0, r=0, b=0, l=-1.6, "cm"))
 
             shape = shape +

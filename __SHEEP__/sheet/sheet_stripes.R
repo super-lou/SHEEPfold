@@ -164,7 +164,7 @@ sheet_stripes = function (dataEX_serie,
             herd = bring_grass(verbose=verbose)
             herd = plan_of_herd(herd, plan, verbose=verbose)
             
-            title = ggplot() + theme_void() +
+            title = ggplot() + theme_void_Lato() +
                 theme(plot.margin=margin(t=0, r=0, b=0, l=1, "mm"))
             
             label = paste0("<b style='font-size:12pt;
@@ -244,7 +244,7 @@ sheet_stripes = function (dataEX_serie,
             }
 
 
-            legend = ggplot() + theme_void() +
+            legend = ggplot() + theme_void_Lato() +
                 theme(plot.margin=margin(t=5, r=0, b=5, l=0, "mm"))
 
             size_icon = 1
@@ -320,7 +320,7 @@ sheet_stripes = function (dataEX_serie,
 
             newline = 0.1
             
-            variable = ggplot() + theme_void() +
+            variable = ggplot() + theme_void_Lato() +
                 theme(plot.margin=margin(t=0, r=0, b=0, l=5, "mm"))
 
             variable = variable +

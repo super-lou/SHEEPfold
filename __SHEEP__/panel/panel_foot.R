@@ -58,7 +58,7 @@ panel_foot = function (name, n_page, foot_height, logo_info,
                          x=1, y=0,
                          margin=unit(c(t=0, r=0, b=0, l=0), "mm"),
                          hjust=1, vjust=0.5,
-                         gp=gpar(col=refCOL, fontsize=8))
+                         gp=gpar(col=refCOL, fontfamily="Lato", fontsize=8))
     
     text_date = paste0("<span>", format(Sys.Date(), "%B %Y"),
                        "<span style='color:white'>&#95;&#95;</span>",
@@ -67,7 +67,7 @@ panel_foot = function (name, n_page, foot_height, logo_info,
                          x=1, y=0.55,
                          margin=unit(c(t=0, r=0, b=0, l=0), "mm"),
                          hjust=1, vjust=0.5,
-                         gp=gpar(col=refCOL, fontsize=6))
+                         gp=gpar(col=refCOL, fontfamily="Lato", fontsize=6))
     
     plan = matrix(c("left_plot", "logo", "page",
                     "left_plot", "logo", "date"),

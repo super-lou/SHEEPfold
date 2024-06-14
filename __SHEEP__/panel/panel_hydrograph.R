@@ -33,7 +33,7 @@ panel_hydrograph = function (QM_code, regimeLight, period=NULL,
                              verbose=FALSE) {
 
 
-    title = ggplot() + theme_void() +
+    title = ggplot() + theme_void_Lato() +
         theme(plot.margin=margin_title)
 
     if (variableAbove) {

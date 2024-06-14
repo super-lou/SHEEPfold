@@ -232,7 +232,7 @@ sheet_projection_station = function (meta,
                             verbose=verbose)
 
 ### 1.1. Info ________________________________________________________
-        narratif = ggplot() + theme_void() +
+        narratif = ggplot() + theme_void_Lato() +
             theme(plot.margin=margin(t=0, r=0,
                                      b=0, l=0, "mm"))
 
@@ -249,7 +249,7 @@ sheet_projection_station = function (meta,
         dx_text = 0.03
 
         dx_all = 0.3
-        dx_all_line = 0.35
+        dx_all_line = 0.33
 
         linewidth = 1.4
 
@@ -259,6 +259,7 @@ sheet_projection_station = function (meta,
                      y=dy0,
                      label=TeX("\\textbf{Narratifs}"),
                      size=2.4, hjust=0, vjust=1,
+                     family="Lato",
                      color=IPCCgrey35)
         
         for (k in 1:nStorylines) {
@@ -282,6 +283,7 @@ sheet_projection_station = function (meta,
                          y=y,
                          label=label,
                          size=2.4, hjust=0, vjust=0.55,
+                         family="Lato",
                          color=IPCCgrey35)
         }
         
@@ -292,6 +294,7 @@ sheet_projection_station = function (meta,
                      y=y,
                      label=TeX("\\textbf{SAFRAN}"),
                      size=2.4, hjust=0, vjust=0.5,
+                     family="Lato",
                      color=IPCCgrey35) +
             annotate("line",
                      x=dx0 + dx_SAFRAN + c(0, dx_line),
@@ -306,6 +309,7 @@ sheet_projection_station = function (meta,
                      y=y,
                      label=TeX("\\textbf{Ensemble des projections}"),
                      size=2.4, hjust=0, vjust=0.5,
+                     family="Lato",
                      color=IPCCgrey35) +
             annotate("line",
                      x=dx0 + dx_all + dx_all_line + c(0, dx_line),
@@ -452,7 +456,7 @@ sheet_projection_station = function (meta,
                                     grid=TRUE,
                                     convertTeX=FALSE,
                                     dx0_title=0.03,
-                                    dx0_subtitle=0.105,
+                                    dx0_subtitle=0.095,
                                     ratio_title=1/6.6,
                                     margin_title=
                                         margin(t=2, r=margin_r,
@@ -528,7 +532,7 @@ sheet_projection_station = function (meta,
         dy_back_bottom = 0.2
         dy_back_top = 0.7
 
-        legend = ggplot() + theme_void() +
+        legend = ggplot() + theme_void_Lato() +
             theme(plot.margin=margin(t=0, r=0,
                                      b=0, l=0, "mm")) +
             # annotate("rect",
@@ -544,6 +548,7 @@ sheet_projection_station = function (meta,
                      y=y_palette + dy_palette*1 + dy_palette_title,
                      label=TeX("\\textbf{Changements}"),
                      hjust=0, vjust=0.5, size=2.4,
+                     family="Lato",
                      family="Lato",
                      color=IPCCgrey35)
         nColor = 6
@@ -829,7 +834,7 @@ sheet_projection_station = function (meta,
                           X_label_color=IPCCgrey35,
                           subX_color=IPCCgrey60,
                           
-                          axis.text.x_size=3.15,
+                          axis.text.x_size=3,
                           date_labels="%Y",
                           breaks="10 years",
                           minor_breaks="5 years")
@@ -861,7 +866,7 @@ sheet_projection_station = function (meta,
                               convert2TeX(variable_to_display, bold=TRUE),
                               " $-$ ", name_to_display))
             
-            title = ggplot() + theme_void() +
+            title = ggplot() + theme_void_Lato() +
                 theme(plot.margin=margin(t=0, r=0,
                                          b=0, l=0, "mm")) + 
                 annotate("text",
@@ -869,6 +874,7 @@ sheet_projection_station = function (meta,
                          y=1,
                          label=titleTeX,
                          size=3, hjust=0, vjust=1,
+                         family="Lato",
                          color=IPCCgrey23) +
                 scale_x_continuous(limits=c(0, 1),
                                    expand=c(0, 0)) +
@@ -1263,7 +1269,7 @@ sheet_projection_station = function (meta,
                 return (res)
             }
             
-            signe =  ggplot() + theme_void() + 
+            signe =  ggplot() + theme_void_Lato() + 
                 theme(panel.grid.major.x=element_line(color=IPCCgrey85,
                                                       size=0.3),
                       plot.margin=margin(t=0, r=0,
@@ -1297,7 +1303,7 @@ sheet_projection_station = function (meta,
 
             
 #### 1.4.3. Stripes __________________________________________________
-            info_stripes =  ggplot() + theme_void() +
+            info_stripes =  ggplot() + theme_void_Lato() +
                 theme(plot.margin=margin(t=0, r=0,
                                          b=0, l=0, "mm")) +
                 scale_x_continuous(limits=c(0, 1),
@@ -1385,7 +1391,7 @@ sheet_projection_station = function (meta,
                 # dataMOD_delta_sl = dplyr::arrange(dataMOD_delta_sl, HM)
                 
                 stripes_k =
-                    ggplot2::ggplot() + theme_void() + 
+                    ggplot2::ggplot() + theme_void_Lato() + 
                     ggplot2::theme(plot.margin=margin(t=0.3, r=0,
                                                       b=0.3, l=0, "mm"),
                                    axis.ticks.length.y=unit(0, 'mm')) +
@@ -1447,7 +1453,7 @@ sheet_projection_station = function (meta,
         
 
 ### 1.5. Foot ________________________________________________________
-        warning = ggplot() + theme_void() +
+        warning = ggplot() + theme_void_Lato() +
             theme(plot.margin=margin(t=0, r=0,
                                      b=0, l=0, "mm"))
 
@@ -1467,6 +1473,7 @@ sheet_projection_station = function (meta,
                          y=dy0 - dy*(k-1),
                          label=TeX(Lines[k]),
                          size=2, hjust=0, vjust=1,
+                         family="Lato",
                          color=IPCCgrey50)
         }
 
@@ -1551,7 +1558,7 @@ sheet_projection_station = function (meta,
                       "en ", Horizons_delta[3], " (H3) par rapport à la ",
                       Horizons_delta[1])
         
-        title = ggplot() + theme_void() +
+        title = ggplot() + theme_void_Lato() +
             theme(plot.margin=margin(t=0, r=0,
                                      b=0, l=0, "mm")) + 
             annotate("text",
@@ -1559,6 +1566,7 @@ sheet_projection_station = function (meta,
                      y=1,
                      label=text,
                      size=3, hjust=0, vjust=1,
+                     family="Lato",
                      color=IPCCgrey23) +
             scale_x_continuous(limits=c(0, 1),
                                expand=c(0, 0)) +
@@ -1620,7 +1628,7 @@ sheet_projection_station = function (meta,
             size_icon = 0.6
                 
             titleTeX = TeX(paste0("\\textbf{", type, "}"))
-            title = ggplot() + theme_void() + #coord_fixed(clip="off") +
+            title = ggplot() + theme_void_Lato() + #coord_fixed(clip="off") +
                 theme(plot.margin=margin(t=0, r=0,
                                          b=0, l=0, "mm")) + 
                 annotate("text",
@@ -1628,6 +1636,7 @@ sheet_projection_station = function (meta,
                          y=y_title + dy_type[j],
                          label=titleTeX,
                          size=3, hjust=0, vjust=0.35,
+                         family="Lato",
                          color=IPCCgrey23, angle=90) +
                 annotation_custom(icon,
                                   xmin=dx0 - size_icon,
@@ -1681,7 +1690,7 @@ sheet_projection_station = function (meta,
 
                 titleTeX = TeX(convert2TeX(variable_4ElicuSenpai, bold=TRUE))
                 
-                title = ggplot() + theme_void() +
+                title = ggplot() + theme_void_Lato() +
                     theme(plot.margin=margin(t=0, r=0,
                                              b=0, l=0, "mm")) + 
                     annotate("text",
@@ -1689,6 +1698,7 @@ sheet_projection_station = function (meta,
                              y=0.96,
                              label=titleTeX,
                              size=2.5, hjust=0.5, vjust=1,
+                             family="Lato",
                              color=IPCCgrey40) +
                     annotate("line",
                              x=c(0.15, 0.85),
@@ -1909,6 +1919,7 @@ sheet_projection_station = function (meta,
                                      label=H,
                                      fontface="bold",
                                      size=2.3, hjust=0.5, vjust=0,
+                                     family="Lato",
                                      color=IPCCgrey60) +
                             annotate("line",
                                      x=limits_line,
@@ -1928,7 +1939,7 @@ sheet_projection_station = function (meta,
                                 
                 get_label = function (x) {
                     if (nchar(unit) == 1) {
-                        unitHTML = paste0("<span style='font-size:6pt'>",
+                        unitHTML = paste0("<span style='font-size:6pt'> ",
                                           unit, "</span>")
                     } else {
                         if (x != 0) {
@@ -2029,13 +2040,14 @@ sheet_projection_station = function (meta,
                                   convert2TeX(variable, bold=TRUE),
                                   " $-$ ", title_text))
 
-            title = ggplot() + theme_void() +
+            title = ggplot() + theme_void_Lato() +
                 theme(plot.margin=margin(t=3, r=0, b=0, l=0, "mm")) + 
                 annotate("text",
                          x=0,
                          y=1,
                          label=titleTeX,
                          size=3, hjust=0, vjust=1,
+                         family="Lato",
                          color=IPCCgrey23) +
                 scale_x_continuous(limits=c(0, 1),
                                    expand=c(0, 0)) +
@@ -2107,7 +2119,7 @@ sheet_projection_station = function (meta,
             extreme_sL = plan_of_herd(extreme_sL, extreme_sL_plan,
                                       verbose=verbose)
 
-            text = ggplot() + theme_void() +
+            text = ggplot() + theme_void_Lato() +
                 theme(panel.background=element_rect(fill=IPCCgrey97, color=NA),
                       plot.margin=margin(t=0, r=0, b=0, l=0, "mm")) + 
                 annotate("text",
@@ -2115,12 +2127,14 @@ sheet_projection_station = function (meta,
                          y=0.52,
                          label=TeX(paste0("\\textbf{FRÉQUENCE}")),
                          size=2.2, hjust=0.5, vjust=0.5, angle=90,
+                         family="Lato",
                          color=IPCCgrey35) +
                 annotate("text",
                          x=0.75,
                          y=0.52,
                          label=TeX(paste0("\\textbf{par ", rp, " ans}")),
                          size=2.2, hjust=0.5, vjust=0.5, angle=90,
+                         family="Lato",
                          color=IPCCgrey35) +
                 annotate("line",
                          x=0.98,
@@ -2138,7 +2152,7 @@ sheet_projection_station = function (meta,
                                        extreme_H_sL_n_text_height,
                                    verbose=verbose)
 
-            text = ggplot() + theme_void() +
+            text = ggplot() + theme_void_Lato() +
                 theme(panel.background=element_rect(fill=IPCCgrey97, color=NA),
                       plot.margin=margin(t=0, r=0, b=0, l=0, "mm")) + 
                 annotate("text",
@@ -2146,12 +2160,14 @@ sheet_projection_station = function (meta,
                          y=0.57,
                          label=TeX(paste0("\\textbf{CHANGEMENT}")),
                          size=2.2, hjust=0.5, vjust=0.5, angle=90,
+                         family="Lato",
                          color=IPCCgrey35) +
                 annotate("text",
                          x=0.75,
                          y=0.57,
                          label=TeX(paste0("\\textbf{de débit}")),
                          size=2.2, hjust=0.5, vjust=0.5, angle=90,
+                         family="Lato",
                          color=IPCCgrey35) +
                 annotate("line",
                          x=0.98,
@@ -2191,7 +2207,7 @@ sheet_projection_station = function (meta,
                                       verbose=verbose)
 
 
-            title = ggplot() + theme_void() +
+            title = ggplot() + theme_void_Lato() +
                 theme(panel.background=element_rect(fill=IPCCgrey97, color=NA),
                       plot.margin=margin(t=0, r=0, b=0, l=0, "mm")) + 
                 annotate("text",
@@ -2199,6 +2215,7 @@ sheet_projection_station = function (meta,
                          y=0.35,
                          label=TeX(Horizons_extreme[1]),
                          size=3, hjust=0.5, vjust=0.5,
+                         family="Lato",
                          color=IPCCgrey35) +
                 scale_x_continuous(limits=c(0, 1),
                                    expand=c(0, 0)) +
@@ -2222,7 +2239,7 @@ sheet_projection_station = function (meta,
                                       verbose=verbose)
 
 
-            plot = ggplot() + theme_void() +
+            plot = ggplot() + theme_void_Lato() +
                 theme(panel.background=element_rect(fill=IPCCgrey97,
                                                     color=NA),
                       plot.margin=margin(t=0, r=0, b=0, l=0, "mm"))
@@ -2252,7 +2269,7 @@ sheet_projection_station = function (meta,
                                    height=extreme_H_sL_n_height,
                                    verbose=verbose)
 
-            text = ggplot() + theme_void() + 
+            text = ggplot() + theme_void_Lato() + 
                 theme(panel.background=element_rect(fill=IPCCgrey97,
                                                     color=NA),
                       plot.margin=margin(t=0, r=0, b=0, l=0, "mm")) + 
@@ -2260,6 +2277,7 @@ sheet_projection_station = function (meta,
                          x=0.5,
                          y=0.75,
                          label=TeX(paste0("\\textbf{1 fois}")),
+                         family="Lato",
                          size=3, hjust=0.5, vjust=0.5,
                          color=IPCCgrey50) +
                 scale_x_continuous(limits=c(0, 1),
@@ -2278,7 +2296,7 @@ sheet_projection_station = function (meta,
                 return (X)
             }
 
-            axis = ggplot() + theme_void() + 
+            axis = ggplot() + theme_void_Lato() + 
                 theme(plot.background=element_rect(fill=IPCCgrey97,
                                                    color=NA),
                       panel.grid.major.y=element_line(color=IPCCgrey85,
@@ -2347,7 +2365,7 @@ sheet_projection_station = function (meta,
                 extreme_H = plan_of_herd(extreme_H, extreme_H_plan,
                                          verbose=verbose)
 
-                title = ggplot() + theme_void() + 
+                title = ggplot() + theme_void_Lato() + 
                     theme(panel.background=element_rect(fill=IPCCgrey97,
                                                         color=NA),
                           plot.margin=margin(t=0, r=0, b=0, l=0, "mm")) + 
@@ -2356,6 +2374,7 @@ sheet_projection_station = function (meta,
                              y=0.3,
                              label=TeX(Horizons_extreme[h+1]),
                              size=3, hjust=0.5, vjust=0.5,
+                             family="Lato",
                              color=IPCCgrey35) +
                     scale_x_continuous(limits=c(0, 1),
                                        expand=c(0, 0)) +
@@ -2426,7 +2445,7 @@ sheet_projection_station = function (meta,
                     extreme_sL = plan_of_herd(extreme_sL, extreme_sL_plan,
                                               verbose=verbose)
 
-                    plot = ggplot() + theme_void() +
+                    plot = ggplot() + theme_void_Lato() +
                         theme(panel.background=element_rect(fill=IPCCgrey97,
                                                             color=NA),
                               plot.margin=margin(t=0, r=0, b=0, l=0, "mm"))
@@ -2458,7 +2477,7 @@ sheet_projection_station = function (meta,
                                            height=extreme_H_sL_n_height,
                                            verbose=verbose)
 
-                    text = ggplot() + theme_void() + 
+                    text = ggplot() + theme_void_Lato() + 
                         theme(panel.background=element_rect(fill=IPCCgrey97,
                                                             color=NA),
                               plot.margin=margin(t=0, r=0, b=0, l=0, "mm")) + 
@@ -2467,6 +2486,7 @@ sheet_projection_station = function (meta,
                                  y=0.75,
                                  label=TeX(paste0("\\textbf{", nH_r1, " fois}")),
                                  size=3, hjust=0.5, vjust=0.5,
+                                 family="Lato",
                                  color=color) +
                         annotate("text",
                                  x=0.5,
@@ -2474,6 +2494,7 @@ sheet_projection_station = function (meta,
                                  label=paste0("(", nH_min_r1, " - ",
                                               nH_max_r1, ")"),
                                  size=2, hjust=0.5, vjust=0.5,
+                                 family="Lato",
                                  color=color) +
                         scale_x_continuous(limits=c(0, 1),
                                            expand=c(0, 0)) +
@@ -2501,7 +2522,7 @@ sheet_projection_station = function (meta,
                                               nDelta_variable_H),
                                         y=rep(Delta_variable_H, each=2))
                     
-                    plot = ggplot() + theme_void() + 
+                    plot = ggplot() + theme_void_Lato() + 
                         theme(plot.background=element_rect(fill=IPCCgrey97,
                                                             color=NA),
                               panel.grid.major.y=element_line(color=IPCCgrey85,
@@ -2604,7 +2625,7 @@ sheet_projection_station = function (meta,
                                            verbose=verbose)
 
 
-                    # text = ggplot() + theme_void() + 
+                    # text = ggplot() + theme_void_Lato() + 
                     #     theme(panel.background=element_rect(fill=IPCCgrey97,
                     #                                         color=NA),
                     #           plot.margin=margin(t=0, r=0, b=0, l=0, "mm")) + 

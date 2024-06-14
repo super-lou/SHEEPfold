@@ -56,7 +56,7 @@ panel_mini_map = function (meta, Shapefiles,
     cf$default = TRUE
 
     # Open a new plot with the personalise theme
-    map = ggplot() + theme_void() +
+    map = ggplot() + theme_void_Lato() +
         # Fixed coordinate system (remove useless warning)
         cf +
         
@@ -134,6 +134,7 @@ panel_mini_map = function (meta, Shapefiles,
         annotate("text",
                  x=max(xint)+xmin+gpct(1, xlim), y=ymin_km,
                  vjust=0, hjust=0, label="km",
+                 family="Lato",
                  color=IPCCgrey40, size=echelle_km_size)
     # For all graduations
     for (x in xint) {
@@ -146,6 +147,7 @@ panel_mini_map = function (meta, Shapefiles,
             annotate("text",
                      x=x+xmin, y=ymax+gpct(0.5, ylim),
                      vjust=0, hjust=0.5, label=x/1E3,
+                     family="Lato",
                      color=IPCCgrey40, size=echelle_size)
     }
 

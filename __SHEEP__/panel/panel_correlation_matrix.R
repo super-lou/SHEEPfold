@@ -281,7 +281,7 @@ panel_correlation_matrix = function (dataEX,
 
     VariableTeX = convert2TeX(Variable)
 
-    cm = ggplot() + theme_void() + coord_fixed(clip="off") +
+    cm = ggplot() + theme_void_Lato() + coord_fixed(clip="off") +
         theme(text=element_text(family="Helvetica"),
               plot.margin=margin)
 
