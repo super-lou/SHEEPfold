@@ -432,7 +432,7 @@ sheet_projection_station = function (meta,
             medQJ_H = panel_spaghetti(dataMOD,
                                     Colors_tmp,
                                     title=paste0("(", letters[id_letter+j], ") Régime hydrologique"),
-                                    unit="$m^{3}/s$",
+                                    unit="m",
                                     subtitle=Horizons_medQJ[j],
                                     alpha=0.85,
                                     alpha_non_color=0.1,
@@ -2728,9 +2728,12 @@ sheet_projection_station = function (meta,
 
 
 ## 3. MERGING ________________________________________________________
-        
-        
-        
+        input = paste0(code, "_projection_datasheet_",
+                       c(1, 2), ".pdf")
+        output = paste0(code, "_projection_datasheet.pdf")
+        qpdf::pdf_combine(input=file.path(figdir, input),
+                          output=file.path(figdir, output))
+        unlink(input)
     }
     return (Pages)
 }
