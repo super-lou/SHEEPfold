@@ -432,7 +432,7 @@ sheet_projection_station = function (meta,
             medQJ_H = panel_spaghetti(dataMOD,
                                     Colors_tmp,
                                     title=paste0("(", letters[id_letter+j], ") Régime hydrologique"),
-                                    unit="m^{3}$/$s",
+                                    unit="$m^{3}/s$",
                                     subtitle=Horizons_medQJ[j],
                                     alpha=0.85,
                                     alpha_non_color=0.1,
@@ -2725,6 +2725,11 @@ sheet_projection_station = function (meta,
                         height=paper_size[2], units='cm',
                         dpi=300,
                         device=cairo_pdf)
+
+
+## 3. MERGING ________________________________________________________
+        
+        
         
     }
     return (Pages)
