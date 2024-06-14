@@ -777,11 +777,11 @@ sheet_projection_station = function (meta,
         Labels = c("min", "0", "max")
         nLabels = length(Labels)
 
-        if (alt_config) {
-            vjust = 0.55
-        } else {
-            vjust = 0.63
-        }
+        # if (alt_config) {
+            vjust = 0.5
+        # } else {
+            # vjust = 0.55
+        # }
         
         for (k in 1:nLabels) {
             legend = legend +
