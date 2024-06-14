@@ -37,6 +37,7 @@ sheet_projection_station = function (meta,
                                      logo_info="",
                                      Pages=NULL,
                                      Shapefiles=NULL,
+                                     alt_config=FALSE,
                                      figdir="",
                                      verbose=FALSE) {
     
@@ -242,7 +243,7 @@ sheet_projection_station = function (meta,
         dy_SAFRAN = 0.06
         dx_SAFRAN = 0.135
         
-        dx0 = 0.16
+        dx0 = 0.15
         dx_narratif = 0.01
         dx_line = 0.05
         p_line = 0.75
@@ -428,6 +429,12 @@ sheet_projection_station = function (meta,
             
             Colors_tmp = Colors 
             names(Colors_tmp) = paste0(names(Colors_tmp), "|median")
+
+            if (alt_config) {
+                ratio_title = 1/6.7
+            } else {
+                ratio_title = 1/6.6
+            }
             
             medQJ_H = panel_spaghetti(dataMOD,
                                     Colors_tmp,
@@ -457,7 +464,7 @@ sheet_projection_station = function (meta,
                                     convertTeX=FALSE,
                                     dx0_title=0.03,
                                     dx0_subtitle=0.095,
-                                    ratio_title=1/6.6,
+                                    ratio_title=ratio_title,
                                     margin_title=
                                         margin(t=2, r=margin_r,
                                                b=0, l=margin_l, "mm"),
@@ -1486,7 +1493,7 @@ sheet_projection_station = function (meta,
 
         footName = 'Synthèse des projections sous RCP 8.5'
         if (is.null(Pages)) {
-            n_page = i
+            n_page = 1
         } else {
             if (nrow(Pages) == 0) {
                 n_page = 1
@@ -2679,7 +2686,7 @@ sheet_projection_station = function (meta,
 
 ### 2.4. Foot ________________________________________________________
         if (is.null(Pages)) {
-            n_page = i
+            n_page = 2
         } else {
             if (nrow(Pages) == 0) {
                 n_page = 1
