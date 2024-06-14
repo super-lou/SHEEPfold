@@ -431,7 +431,7 @@ sheet_projection_station = function (meta,
             names(Colors_tmp) = paste0(names(Colors_tmp), "|median")
 
             if (alt_config) {
-                ratio_title = 1/6.8
+                ratio_title = 1/6.6
                 margin_title =
                     margin(t=2, r=margin_r,
                            b=1, l=margin_l, "mm")
