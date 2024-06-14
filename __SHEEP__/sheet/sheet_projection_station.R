@@ -243,7 +243,7 @@ sheet_projection_station = function (meta,
         dy_SAFRAN = 0.06
         dx_SAFRAN = 0.135
         
-        dx0 = 0.15
+        dx0 = 0.14
         dx_narratif = 0.01
         dx_line = 0.05
         p_line = 0.75
@@ -431,7 +431,7 @@ sheet_projection_station = function (meta,
             names(Colors_tmp) = paste0(names(Colors_tmp), "|median")
 
             if (alt_config) {
-                ratio_title = 1/6.7
+                ratio_title = 1/6.9
             } else {
                 ratio_title = 1/6.6
             }
@@ -2737,9 +2737,10 @@ sheet_projection_station = function (meta,
 ## 3. MERGING ________________________________________________________
         input = paste0(code, "_projection_datasheet_",
                        c(1, 2), ".pdf")
+        input = file.path(figdir, input)
         output = paste0(code, "_projection_datasheet.pdf")
-        qpdf::pdf_combine(input=file.path(figdir, input),
-                          output=file.path(figdir, output))
+        output = file.path(figdir, output)
+        qpdf::pdf_combine(input=input, output=output)
         unlink(input)
     }
     return (Pages)
