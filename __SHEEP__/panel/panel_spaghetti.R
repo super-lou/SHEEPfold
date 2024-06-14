@@ -105,7 +105,7 @@ panel_spaghetti = function (data_code, Colors=NULL,
     }
 
     if (isTitleAbove | isLegend) {
-        title = ggplot() + theme_void_Lato() +
+        title = ggplot() + theme_void() +
             theme(plot.margin=margin_title)
 
         dx0 = 0.05

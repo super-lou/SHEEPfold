@@ -133,7 +133,7 @@ sheet_criteria_map = function (dataEX_criteria,
             herd = bring_grass(verbose=verbose)
             herd = plan_of_herd(herd, plan, verbose=verbose)
             
-            title = ggplot() + theme_void_Lato() +
+            title = ggplot() + theme_void() +
                 theme(plot.margin=margin(t=0, r=0, b=0, l=0, "cm"))
 
             if (is_foot) {

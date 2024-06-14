@@ -78,7 +78,7 @@ panel_stripes = function (Value, Date,
 
     Color = get_colors(Value, res$upBin, res$lowBin, Palette)
 
-    stripes = ggplot2::ggplot() + ggplot2::theme_void_Lato() +
+    stripes = ggplot2::ggplot() + ggplot2::theme_void() +
         ggplot2::theme(plot.margin=margin_stripes)
 
     if (is.null(x_color)) {

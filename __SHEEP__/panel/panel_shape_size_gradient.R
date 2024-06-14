@@ -40,7 +40,7 @@ panel_shape_size_gradient = function (shape="rect",
     dS = cumsum(Size) - Size/2
     X = dX + dS
 
-    plot = ggplot() + theme_void_Lato() +
+    plot = ggplot() + theme_void() +
         coord_fixed(clip="off") + 
         theme(text=element_text(family="Helvetica"),
               plot.margin=margin)

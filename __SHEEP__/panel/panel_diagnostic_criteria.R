@@ -291,7 +291,7 @@ panel_diagnostic_criteria = function (dataEX_criteria,
 
     
 ## 3. GRAPHICAL INITIALISATION _______________________________________
-    Ind = ggplot() + theme_void_Lato() + coord_fixed(clip="off") +
+    Ind = ggplot() + theme_void() + coord_fixed(clip="off") +
         theme(plot.margin=margin_add,
               plot.title=element_text(size=9,
                                       vjust=0, hjust=dTitle,

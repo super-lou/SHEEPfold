@@ -62,7 +62,7 @@ panel_shape_info = function (Shape="rect",
     Cross = rev(Cross)
 
     
-    plot = ggplot() + theme_void_Lato() +
+    plot = ggplot() + theme_void() +
         coord_fixed(clip="off") + 
         theme(text=element_text(family="Helvetica"),
               plot.margin=margin)

@@ -44,7 +44,7 @@ panel_colorbar_circle = function (bin,
     nColor = length(Palette)
     nBin = length(bin)
     
-    plot = ggplot() + theme_void_Lato() +
+    plot = ggplot() + theme_void() +
         theme(plot.margin=margin)
 
 

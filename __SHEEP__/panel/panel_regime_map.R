@@ -49,7 +49,7 @@ panel_regime_map = function (meta,
     cf$default = TRUE
 
     # Open a new plot with the personalise theme
-    map = ggplot() + theme_void_Lato() + cf +
+    map = ggplot() + theme_void() + cf +
         theme(plot.margin=margin)        
     
     xlim = c(90000, 1250000)

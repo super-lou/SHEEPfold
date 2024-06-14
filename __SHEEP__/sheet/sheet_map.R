@@ -185,7 +185,7 @@ sheet_map = function (list_df2plot, meta, shapefile_list,
             }
             
             # Open a new plot with the personalise theme
-            map = ggplot() + theme_void_Lato() +
+            map = ggplot() + theme_void() +
                 
                 # theme(panel.background=element_rect(color = "#EC4899")) + 
                 
@@ -626,7 +626,7 @@ sheet_map = function (list_df2plot, meta, shapefile_list,
                 Ytitle = Yline + 0.8
    
                 # New plot with void theme
-                leg = ggplot() + theme_void_Lato() +
+                leg = ggplot() + theme_void() +
                     
                     # Plots separation lines
                     geom_line(aes(x=c(0, 9.7), y=c(84.4, 84.4)),
@@ -1031,7 +1031,7 @@ peu altérés par les activités humaines."
                                       label=label)
                 
                 # New plot with void theme
-                leg = ggplot() + theme_void_Lato() +
+                leg = ggplot() + theme_void() +
                     
                     # Plots separation lines
                     geom_line(aes(x=c(0, 9.7), y=c(79.3, 79.3)),

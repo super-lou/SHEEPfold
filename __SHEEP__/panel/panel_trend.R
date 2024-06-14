@@ -95,7 +95,7 @@ panel_trend = function (variable,
 
     
 ## TITLE _____________________________________________________________
-    title = ggplot() + theme_void_Lato()
+    title = ggplot() + theme_void()
 
     color_trend = c()
 

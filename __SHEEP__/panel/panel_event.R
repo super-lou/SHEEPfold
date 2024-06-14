@@ -24,7 +24,7 @@
 panel_event = function(event, colorEvent, colorTextEvent) {
 
     if (event != 'Resume' & event != 'None') {
-        plot = ggplot() + theme_void_Lato() +
+        plot = ggplot() + theme_void() +
             
             theme(plot.margin=margin(t=0, r=3, b=0, l=0, unit="mm")) + 
             
