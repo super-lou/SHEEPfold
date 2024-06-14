@@ -131,7 +131,7 @@ panel_axis = function(X,
 
 
     
-    axis = ggplot2::ggplot() +  theme_void() +
+    axis = ggplot2::ggplot() +  theme_void_Lato() +
         coord_cartesian(clip="off") +
         ggplot2::theme(plot.margin=axis_margin,
                        axis.ticks.y=element_blank(),

@@ -57,7 +57,7 @@ panel_colorbar = function (min, max, palette_name,
     midBin = zoo::rollmean(bin, 2)
     
     
-    plot = ggplot() + theme_void() +
+    plot = ggplot() + theme_void_Lato() +
         coord_fixed(clip="off") + 
         theme(text=element_text(family="Helvetica"),
               plot.margin=margin)

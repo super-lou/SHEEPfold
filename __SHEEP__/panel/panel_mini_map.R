@@ -56,7 +56,7 @@ panel_mini_map = function (meta, Shapefiles,
     cf$default = TRUE
 
     # Open a new plot with the personalise theme
-    map = ggplot() + theme_void() +
+    map = ggplot() + theme_void_Lato() +
         # Fixed coordinate system (remove useless warning)
         cf +
         
