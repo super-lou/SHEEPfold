@@ -1529,7 +1529,7 @@ sheet_projection_station = function (meta,
                         height=paper_size[2], units='cm',
                         dpi=300,
                         device=cairo_pdf)
-        embed_fonts(file.path(figdir, filename))
+        # embed_fonts(file.path(figdir, filename))
 
         
 ## 2. PAGE 2 _________________________________________________________
