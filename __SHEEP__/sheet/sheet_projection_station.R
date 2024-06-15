@@ -204,10 +204,10 @@ sheet_projection_station = function (meta,
 
     for (i in 1:nCode) {
         code = Code[i]
-        if (verbose) {
+        # if (verbose) {
             print(paste0("diagnostic station datasheet for ", code,
                          "   ", round(i/nCode*100, 1), "% done"))
-        }
+        # }
 
         id_letter = 0
         
@@ -1526,29 +1526,29 @@ sheet_projection_station = function (meta,
 
         
 ### 1.6. End _________________________________________________________
-        res = return_to_sheepfold(herd,
-                                  page_margin=page_margin,
-                                  paper_size="A4",
-                                  hjust=0, vjust=1,
-                                  verbose=verbose)
-        plot = res$plot
-        paper_size = res$paper_size
-        # plot = void()
-        # paper_size = c(21, 29.7)
+        # res = return_to_sheepfold(herd,
+        #                           page_margin=page_margin,
+        #                           paper_size="A4",
+        #                           hjust=0, vjust=1,
+        #                           verbose=verbose)
+        # plot = res$plot
+        # paper_size = res$paper_size
+        # # plot = void()
+        # # paper_size = c(21, 29.7)
         
-        filename = paste0(code, "_projection_datasheet_1.pdf")
+        # filename = paste0(code, "_projection_datasheet_1.pdf")
 
-        if (!(file.exists(figdir))) {
-            dir.create(figdir, recursive=TRUE)
-        }
+        # if (!(file.exists(figdir))) {
+        #     dir.create(figdir, recursive=TRUE)
+        # }
         
-        ggplot2::ggsave(plot=plot,
-                        path=figdir,
-                        filename=filename,
-                        width=paper_size[1],
-                        height=paper_size[2], units='cm',
-                        dpi=300,
-                        device=cairo_pdf)
+        # ggplot2::ggsave(plot=plot,
+        #                 path=figdir,
+        #                 filename=filename,
+        #                 width=paper_size[1],
+        #                 height=paper_size[2], units='cm',
+        #                 dpi=300,
+        #                 device=cairo_pdf)
 
         
 ## 2. PAGE 2 _________________________________________________________
@@ -2464,24 +2464,28 @@ sheet_projection_station = function (meta,
                         theme(panel.background=element_rect(fill=IPCCgrey97,
                                                             color=NA),
                               plot.margin=margin(t=0, r=0, b=0, l=0, "mm"))
-                    if (nH_r0 < rp) {
+
+                    if (!is.na(nH_r0)) {
+                        if (nH_r0 < rp) {
+                            plot = plot +
+                                annotate("point",
+                                         x=x_dot[(nH_r0+1):rp],
+                                         y=y_dot[(nH_r0+1):rp],
+                                         size=1.35,
+                                         fill=color_light,
+                                         color="transparent",
+                                         shape=21)
+                        }
                         plot = plot +
                             annotate("point",
-                                     x=x_dot[(nH_r0+1):rp],
-                                     y=y_dot[(nH_r0+1):rp],
+                                     x=x_dot[1:nH_r0],
+                                     y=y_dot[1:nH_r0],
                                      size=1.35,
-                                     fill=color_light,
+                                     fill=color,
                                      color="transparent",
                                      shape=21)
                     }
                     plot = plot +
-                        annotate("point",
-                                 x=x_dot[1:nH_r0],
-                                 y=y_dot[1:nH_r0],
-                                 size=1.35,
-                                 fill=color,
-                                 color="transparent",
-                                 shape=21) +
                         scale_x_continuous(limits=c(-dp_x, 1+dp_x),
                                            expand=c(0, 0)) +
                         scale_y_continuous(limits=c(-dp_y, 1+dp_y),
@@ -2495,22 +2499,27 @@ sheet_projection_station = function (meta,
                     text = ggplot() + theme_void_Lato() + 
                         theme(panel.background=element_rect(fill=IPCCgrey97,
                                                             color=NA),
-                              plot.margin=margin(t=0, r=0, b=0, l=0, "mm")) + 
-                        annotate("text",
-                                 x=0.5,
-                                 y=0.75,
-                                 label=TeX(paste0("\\textbf{", nH_r1, " fois}")),
-                                 size=3, hjust=0.5, vjust=0.5,
-                                 family="Lato",
-                                 color=color) +
-                        annotate("text",
-                                 x=0.5,
-                                 y=0.3,
-                                 label=paste0("(", nH_min_r1, " - ",
-                                              nH_max_r1, ")"),
-                                 size=2, hjust=0.5, vjust=0.5,
-                                 family="Lato",
-                                 color=color) +
+                              plot.margin=margin(t=0, r=0, b=0, l=0, "mm"))
+
+                    if (!is.na(nH_r0)) {
+                        text = text +
+                            annotate("text",
+                                     x=0.5,
+                                     y=0.75,
+                                     label=TeX(paste0("\\textbf{", nH_r1, " fois}")),
+                                     size=3, hjust=0.5, vjust=0.5,
+                                     family="Lato",
+                                     color=color) +
+                            annotate("text",
+                                     x=0.5,
+                                     y=0.3,
+                                     label=paste0("(", nH_min_r1, " - ",
+                                                  nH_max_r1, ")"),
+                                     size=2, hjust=0.5, vjust=0.5,
+                                     family="Lato",
+                                     color=color)
+                    }
+                    text = text +
                         scale_x_continuous(limits=c(0, 1),
                                            expand=c(0, 0)) +
                         scale_y_continuous(limits=c(0, 1),
