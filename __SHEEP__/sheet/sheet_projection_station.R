@@ -1526,29 +1526,29 @@ sheet_projection_station = function (meta,
 
         
 ### 1.6. End _________________________________________________________
-        # res = return_to_sheepfold(herd,
-        #                           page_margin=page_margin,
-        #                           paper_size="A4",
-        #                           hjust=0, vjust=1,
-        #                           verbose=verbose)
-        # plot = res$plot
-        # paper_size = res$paper_size
-        # # plot = void()
-        # # paper_size = c(21, 29.7)
+        res = return_to_sheepfold(herd,
+                                  page_margin=page_margin,
+                                  paper_size="A4",
+                                  hjust=0, vjust=1,
+                                  verbose=verbose)
+        plot = res$plot
+        paper_size = res$paper_size
+        # plot = void()
+        # paper_size = c(21, 29.7)
         
-        # filename = paste0(code, "_projection_datasheet_1.pdf")
+        filename = paste0(code, "_projection_datasheet_1.pdf")
 
-        # if (!(file.exists(figdir))) {
-        #     dir.create(figdir, recursive=TRUE)
-        # }
+        if (!(file.exists(figdir))) {
+            dir.create(figdir, recursive=TRUE)
+        }
         
-        # ggplot2::ggsave(plot=plot,
-        #                 path=figdir,
-        #                 filename=filename,
-        #                 width=paper_size[1],
-        #                 height=paper_size[2], units='cm',
-        #                 dpi=300,
-        #                 device=cairo_pdf)
+        ggplot2::ggsave(plot=plot,
+                        path=figdir,
+                        filename=filename,
+                        width=paper_size[1],
+                        height=paper_size[2], units='cm',
+                        dpi=300,
+                        device=cairo_pdf)
 
         
 ## 2. PAGE 2 _________________________________________________________
