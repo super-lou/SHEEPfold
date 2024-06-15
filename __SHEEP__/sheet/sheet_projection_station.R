@@ -371,7 +371,7 @@ sheet_projection_station = function (meta,
         for (j in 1:nVariables_medQJ) {
 
             variable = Variables_medQJ[j]
-            print(variable)
+            # print(variable)
             
             dataMOD = dataEX_serie_code[[variable]]
             dataMOD$date = as.Date("1970-01-01") + lubridate::yday(dataMOD$date)-1
@@ -856,7 +856,7 @@ sheet_projection_station = function (meta,
         
         for (j in 1:nVariables_serie) {
             variable = Variables_serie[j]
-            print(variable)
+            # print(variable)
             
             variable_to_display =
                 metaEX_serie$variable_fr[metaEX_serie$variable_en == variable]
@@ -1597,7 +1597,7 @@ sheet_projection_station = function (meta,
             type = Types[j]
             type_short = Types_short[j]
 
-            print(type)
+            # print(type)
 
             Variables_delta_type = Variables_delta[TypesALL == type]
             nVariables_delta_type = length(Variables_delta_type)
@@ -2039,7 +2039,7 @@ sheet_projection_station = function (meta,
             x_dot = get(paste0("x_", rp, "dot"))
             y_dot = get(paste0("y_", rp, "dot"))
             
-            print(variable)
+            # print(variable)
             
             title_text = Titles_extreme[j]
 
