@@ -1526,30 +1526,29 @@ sheet_projection_station = function (meta,
 
         
 ### 1.6. End _________________________________________________________
-        res = return_to_sheepfold(herd,
-                                  page_margin=page_margin,
-                                  paper_size="A4",
-                                  hjust=0, vjust=1,
-                                  verbose=verbose)
-        plot = res$plot
-        paper_size = res$paper_size
-        # plot = void()
-        # paper_size = c(21, 29.7)
+        # res = return_to_sheepfold(herd,
+        #                           page_margin=page_margin,
+        #                           paper_size="A4",
+        #                           hjust=0, vjust=1,
+        #                           verbose=verbose)
+        # plot = res$plot
+        # paper_size = res$paper_size
+        # # plot = void()
+        # # paper_size = c(21, 29.7)
         
-        filename = paste0(code, "_projection_datasheet_1.pdf")
+        # filename = paste0(code, "_projection_datasheet_1.pdf")
 
-        if (!(file.exists(figdir))) {
-            dir.create(figdir, recursive=TRUE)
-        }
+        # if (!(file.exists(figdir))) {
+        #     dir.create(figdir, recursive=TRUE)
+        # }
         
-        ggplot2::ggsave(plot=plot,
-                        path=figdir,
-                        filename=filename,
-                        width=paper_size[1],
-                        height=paper_size[2], units='cm',
-                        dpi=300,
-                        device=cairo_pdf)
-        # extrafont::embed_fonts(file.path(figdir, filename))
+        # ggplot2::ggsave(plot=plot,
+        #                 path=figdir,
+        #                 filename=filename,
+        #                 width=paper_size[1],
+        #                 height=paper_size[2], units='cm',
+        #                 dpi=300,
+        #                 device=cairo_pdf)
 
         
 ## 2. PAGE 2 _________________________________________________________
@@ -1603,8 +1602,6 @@ sheet_projection_station = function (meta,
             Variables_delta_type = Variables_delta[TypesALL == type]
             nVariables_delta_type = length(Variables_delta_type)
 
-            # print(Variables_delta_type)
-
             grepl_first = function (pattern, table) {
                 which(grepl(get_regexp(pattern), table))[1]
             }
@@ -1621,10 +1618,15 @@ sheet_projection_station = function (meta,
                 c(Variables_delta_type[nchar(Units) == 1],
                   Variables_delta_type[nchar(Units) > 1])
 
+            grepl_first = function (pattern, table) {
+                which(grepl(get_regexp(pattern), table))[1]
+            }
+            Ok = sapply(Variables_delta_type, grepl_first,
+                        table=metaEX_criteria$variable_en)
+            
             Variables_delta_type_display =
                 gsub("(delta)|([{])|([}])|([_]H[[:digit:]])", "",
                      metaEX_criteria$variable_fr[Ok])
-            
             
             delta_type_plan = matrix(c("title", Variables_delta_type_display, "void"),
                                      ncol=nVariables_delta_type+2, byrow=TRUE)
@@ -1678,7 +1680,7 @@ sheet_projection_station = function (meta,
             for (k in 1:nVariables_delta_type) {
                 variable = Variables_delta_type[k]
                 variable_display = Variables_delta_type_display[k]
-
+                
                 variable_4ElicuSenpai = variable_display
                 variable_4ElicuSenpai = gsub("QSA", "QS", variable_4ElicuSenpai)
                 variable_4ElicuSenpai = gsub("QMA", "QM", variable_4ElicuSenpai)
