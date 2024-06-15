@@ -777,12 +777,6 @@ sheet_projection_station = function (meta,
         Labels = c("min", "0", "max")
         nLabels = length(Labels)
 
-        # if (alt_config) {
-            vjust = 0.5
-        # } else {
-            # vjust = 0.55
-        # }
-        
         for (k in 1:nLabels) {
             legend = legend +
                 annotate("line",
@@ -797,7 +791,7 @@ sheet_projection_station = function (meta,
                              dx_stripe_palette_text,
                          y=y_stripe + dy_stripe_palette*kLabels[k],
                          label=Labels[k],
-                         hjust=0, vjust=vjust, size=1.9,
+                         hjust=0, vjust=0.5, size=1.9,
                          family="Lato",
                          color=IPCCgrey35)
         }

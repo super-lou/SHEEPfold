@@ -97,20 +97,38 @@ panel_info_station = function(data_code,
     
     if ('title' %in% to_do | 'all' %in% to_do) {
         # Converts all texts to graphical object in the right position
-        gtext1 = richtext_grob(
-            paste0("<b style='font-size:14pt; color:", refCOL, "'>",
-                   codeLight, "</b>",
-                   nbsp(1),
-                   "<span style='font-size:14pt; color:", refCOL, "'>", "-", "</span>",
-                   nbsp(1),
-                   "<span style='font-size:14pt; color:", refCOL, "'>",
-                   gsub(" [[]", paste0(nbsp(1), "["), meta_code$name), "</span>"),
-            x=0, y=1,
-            gp=gpar(fontfamily="Lato"),
-            margin=unit(c(t=0, r=5, b=0, l=0),
-                        "mm"),
-            hjust=0, vjust=1)
-                               # gp=gpar(col=refCOL, fontsize=14))
+        # gtext1 = richtext_grob(
+        #     paste0("<b style='font-size:14pt; color:", refCOL, "'>",
+        #            codeLight, "</b>",
+        #            nbsp(1),
+        #            "<span style='font-size:14pt; color:", refCOL, "'>", "-", "</span>",
+        #            nbsp(1),
+        #            "<span style='font-size:14pt; color:", refCOL, "'>",
+        #            gsub(" [[]", paste0(nbsp(1), "["), meta_code$name), "</span>"),
+        #     x=0, y=1,
+        #     gp=gpar(fontfamily="Lato"),
+        #     margin=unit(c(t=0, r=5, b=0, l=0),
+        #                 "mm"),
+        #     hjust=0, vjust=1)
+
+        title = paste0("\\textbf{", codeLight, "} - ", meta_code$name)
+        
+        gtext1 = ggplot() + theme_void_Lato() +
+            theme(plot.margin=margin(t=0, r=5,
+                                     b=0, l=0, "mm")) + 
+            annotate("text",
+                     x=0, y=0.94,
+                     label=TeX(title),
+                     color=refCOL,
+                     size=5, hjust=0, vjust=1,
+                     family="Lato",
+                     color=IPCCgrey23) +
+            scale_x_continuous(limits=c(0, 1),
+                               expand=c(0, 0)) +
+            scale_y_continuous(limits=c(0, 1),
+                               expand=c(0, 0))
+        
+
     } else if ('short_title' %in% to_do) {
         # Name of the datasheet
         text1 = paste(
