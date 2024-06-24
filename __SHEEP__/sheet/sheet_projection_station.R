@@ -732,7 +732,7 @@ sheet_projection_station = function (meta,
 
         Lines = c("Les palettes de couleur",
                   "sont communes aux",
-                  "quatres narratifs pour", 
+                  "quatre narratifs pour", 
                   "chaque variable.")
         nLines = length(Lines)
         
@@ -1566,7 +1566,7 @@ sheet_projection_station = function (meta,
                              verbose=verbose)
 
         text = paste0("(", letters[id_letter+1], ") ",
-                      "Changement en ", Horizons_delta[2], " (H2) et ",
+                      "Changements en ", Horizons_delta[2], " (H2) et ",
                       "en ", Horizons_delta[3], " (H3) par rapport à la ",
                       Horizons_delta[1])
         
@@ -1684,6 +1684,7 @@ sheet_projection_station = function (meta,
                 variable_4ElicuSenpai = variable_display
                 variable_4ElicuSenpai = gsub("QSA", "QS", variable_4ElicuSenpai)
                 variable_4ElicuSenpai = gsub("QMA", "QM", variable_4ElicuSenpai)
+                variable_4ElicuSenpai = gsub("debut", "début", variable_4ElicuSenpai)
                 if (grepl("Q[[:digit:]]+A", variable_4ElicuSenpai)) {
                     variable_4ElicuSenpai = gsub("A", "", variable_4ElicuSenpai)
                 }
