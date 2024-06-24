@@ -160,7 +160,7 @@ sheet_projection_station = function (meta,
     nVariables_extreme = length(Variables_extreme)
     rp_Variables_extreme = c(10, 5)
     div_Variables_extreme = 30/rp_Variables_extreme
-    limits_bar_y = list(c(-50, 100), c(-100, 50))
+    limits_bar_y = list(c(-100, 100), c(-100, 100))
 
     Variables_delta = metaEX_criteria$variable_en
     Topics = metaEX_criteria$topic_fr
