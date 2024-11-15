@@ -33,6 +33,7 @@ sheet_criteria_map = function (dataEX_criteria,
                                is_foot=TRUE,
                                is_secteur=FALSE,
                                is_warning=FALSE,
+                               for_paper=FALSE,
                                HM_by_shape=FALSE,
                                remove_warning_lim=FALSE,
                                figdir="",
@@ -52,6 +53,8 @@ sheet_criteria_map = function (dataEX_criteria,
     
     map_height =
         paper_size[1] - page_margin["t"] - page_margin["b"] - foot_height
+
+    title_height = map_height/2
     
     if (is_foot) {
         plan = matrix(c("title", "map", "foot",
@@ -96,7 +99,12 @@ sheet_criteria_map = function (dataEX_criteria,
     #     UnitTeX = rep("\\small{proportion en %}", nVariable)
     # }
     Unit = metaEX_criteria$unit_fr
-    UnitTeX = convert2TeX(Unit, size="small", bold=FALSE)
+    if (for_paper) {
+        size = "tiny"
+    } else {
+        size = "small"
+    }
+    UnitTeX = convert2TeX(Unit, size=size, bold=FALSE)
     PX = get_alphabet_in_px()
     
     for (i in 1:nHM) {
@@ -136,73 +144,83 @@ sheet_criteria_map = function (dataEX_criteria,
             title = ggplot() + theme_void_Lato() +
                 theme(plot.margin=margin(t=0, r=0, b=0, l=0, "cm"))
 
-            if (is_foot) {
-                if (is.null(subtitle)) {
-                    y1 = 0.98
-                    y3 = 0.875
+            if (!for_paper) {
+                if (is_foot) {
+                    if (is.null(subtitle)) {
+                        y1 = 0.98
+                        y3 = 0.875
+                    } else {
+                        y1 = 0.98
+                        y2 = 0.89
+                        y3 = 0.825
+                    }
+
                 } else {
-                    y1 = 0.98
-                    y2 = 0.89
-                    y3 = 0.825
+                    if (is.null(subtitle)) {
+                        y1 = 0.98
+                        y3 = 0.89
+                    } else {
+                        y1 = 0.98
+                        y2 = 0.9
+                        y3 = 0.84
+                    }
                 }
-
-            } else {
-                if (is.null(subtitle)) {
-                    y1 = 0.98
-                    y3 = 0.89
-                } else {
-                    y1 = 0.98
-                    y2 = 0.9
-                    y3 = 0.84
-                }
-            }
-            y4 = y3-0.07
-            newline = 0.04
-            
-            title = title +
-                annotate("text",
-                         x=0,
-                         y=y1,
-                         label=TeX(paste0("\\textbf{", hm2Disp, "}")),
-                         size=7, hjust=0, vjust=1,
-                         color=hm_color)
-
-            if (!is.null(subtitle)) {
-                title = title +
-                    annotate("shadowText",
-                             x=0,
-                             y=y2,
-                             label=subtitle,
-                             size=3, hjust=0, vjust=1,
-                             bg.color="white",
-                             bg.r=0.15,
-                             color=hm_color)
-            }
-
-            title = title +
-                annotate("text",
-                         x=0,
-                         y=y3,
-                         label=TeX(paste0(VariableTeX[j],
-                                          " ", UnitTeX[j])),
-                         size=4, hjust=0, vjust=1,
-                         color=IPCCgrey40)
-
-            
-            glose = metaEX_criteria$glose[metaEX_criteria$variable_en == variable]
-            glose = guess_newline(glose, px=20, PX=PX)
-            glose = unlist(strsplit(glose, "\n"))
-            
-            for (k in 1:length(glose)) {
+                y4 = y3-0.07
+                newline = 0.04
+                
                 title = title +
                     annotate("text",
                              x=0,
-                             y=y4-(k-1)*newline,
-                             label=glose[k],
-                             size=2.5, hjust=0, vjust=1,
+                             y=y1,
+                             label=TeX(paste0("\\textbf{", hm2Disp, "}")),
+                             size=7, hjust=0, vjust=1,
+                             color=hm_color)
+
+                if (!is.null(subtitle)) {
+                    title = title +
+                        annotate("shadowText",
+                                 x=0,
+                                 y=y2,
+                                 label=subtitle,
+                                 size=3, hjust=0, vjust=1,
+                                 bg.color="white",
+                                 bg.r=0.15,
+                                 color=hm_color)
+                }
+
+                title = title +
+                    annotate("text",
+                             x=0,
+                             y=y3,
+                             label=TeX(paste0(VariableTeX[j],
+                                              " ", UnitTeX[j])),
+                             size=4, hjust=0, vjust=1,
+                             color=IPCCgrey40)
+                
+                glose = metaEX_criteria$glose[metaEX_criteria$variable_en ==
+                                              variable]
+                glose = guess_newline(glose, px=20, PX=PX)
+                glose = unlist(strsplit(glose, "\n"))
+                
+                for (k in 1:length(glose)) {
+                    title = title +
+                        annotate("text",
+                                 x=0,
+                                 y=y4-(k-1)*newline,
+                                 label=glose[k],
+                                 size=2.5, hjust=0, vjust=1,
+                                 color=IPCCgrey40)
+                }
+            } else {
+                title = title +
+                    annotate("text",
+                             x=0.02,
+                             y=0.93,
+                             label=TeX(paste0(VariableTeX[j],
+                                              " ", UnitTeX[j])),
+                             size=8, hjust=0, vjust=1,
                              color=IPCCgrey40)
             }
-
             
             
             title = title +
@@ -214,6 +232,7 @@ sheet_criteria_map = function (dataEX_criteria,
             herd = add_sheep(herd,
                              sheep=title,
                              id="title",
+                             height=title_height,
                              verbose=verbose)
 
             dataEX_criteria_variable =
@@ -246,7 +265,8 @@ sheet_criteria_map = function (dataEX_criteria,
                                      prob=prob,
                                      is_secteur=is_secteur,
                                      is_warning=is_warning,
-                                     hm_by_shape=hm_by_shape,
+                                     for_paper=for_paper,
+                                     HM_by_shape=HM_by_shape,
                                      remove_warning_lim=remove_warning_lim,
                                      Shapefiles=Shapefiles,
                                      margin_map,

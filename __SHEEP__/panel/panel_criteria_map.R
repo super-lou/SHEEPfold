@@ -32,7 +32,8 @@ panel_criteria_map = function (dataEX_criteria_hm_variable,
                                prob=0.1,
                                is_secteur=FALSE,
                                is_warning=FALSE,
-                               hm_by_shape=FALSE,
+                               for_paper=FALSE,
+                               HM_by_shape=FALSE,
                                remove_warning_lim=FALSE,
                                Shapefiles=Shapefiles,
                                margin=margin(t=0, r=0, b=0, l=0, "cm"),
@@ -154,7 +155,7 @@ panel_criteria_map = function (dataEX_criteria_hm_variable,
         # }
         
     } else {
-        if (hm_by_shape) {
+        if (HM_by_shape) {
             dataEX_criteria_variable = dataEX_criteria_hm_variable
             
         } else {
@@ -186,20 +187,19 @@ panel_criteria_map = function (dataEX_criteria_hm_variable,
                                                         names(meta)))]),
                            list("crs"=2154)))
 
-        get_name = function (col) { 
-            secteurHydro[which(col), ]$CdSecteurH
+        get_name = function (col) {
+            as.character(secteurHydro[which(col), ]$CdSecteurH[1])
         }
         meta$Secteur = apply(st_intersects(secteurHydro,
                                            points,
                                            sparse=FALSE),
                              2, get_name)
-
         dataEX_criteria_variable = dplyr::left_join(dataEX_criteria_variable,
                                          dplyr::select(meta,
                                                        c("code",
                                                          "Secteur")),
                                          by="code")
-        
+
         if (is_warning) {
             dataEX_criteria_variable =
                 dplyr::summarise(
@@ -224,7 +224,6 @@ panel_criteria_map = function (dataEX_criteria_hm_variable,
                              by="code")
     }
 
-    
     if (!is_warning) {
         if (is.null(reverse_palette)) {
             reverse_palette = FALSE
@@ -287,9 +286,6 @@ panel_criteria_map = function (dataEX_criteria_hm_variable,
             # print(length(bin))
             # print(length(Palette))
             # print("")
-            
-            
-            
         }
         
         if (grepl("(RAT)|(HYP)", variable)) {
@@ -329,37 +325,94 @@ panel_criteria_map = function (dataEX_criteria_hm_variable,
 
 
     } else {
-        colorStep = 10
-        min_variable = 0
-        max_variable = 100
-        Palette_level = 0:colorStep
-        Palette = c(IPCCfreshblue,
-                    get_IPCC_Palette("red_ramp",
-                                     colorStep=colorStep,
-                                     reverse=TRUE))
-        
-        res = compute_colorBin(min_variable,
-                               max_variable,
-                               colorStep=colorStep+1,
-                               center=NULL,
-                               include=c(FALSE, TRUE))
-        bin = res$bin
-        upBin = res$upBin
-        lowBin = res$lowBin
 
-        dataEX_criteria_variable$fill = get_colors(
-            dataEX_criteria_variable[[variable]],
-            upBin=upBin,
-            lowBin=lowBin,
-            Palette=Palette,
-            include_min=c(FALSE, TRUE, rep(FALSE, 9)),
-            include_max=c(TRUE, FALSE, rep(TRUE, 9)))
+        if (for_paper) {
+            # colorStep = 10
+            # min_variable = 0
+            # max_variable = 100
+            # Palette_level = 0:colorStep
+            # Palette = c(get_IPCC_Palette("greyblue_ramp",
+            #                              colorStep=colorStep,
+            #                              reverse=TRUE),
+            #             COLORmediumgreen)
+            # res = compute_colorBin(min_variable,
+            #                        max_variable,
+            #                        colorStep=colorStep+1,
+            #                        center=NULL,
+            #                        include=c(TRUE, FALSE))
+            # bin = res$bin
+            # upBin = res$upBin
+            # lowBin = res$lowBin
+            # dataEX_criteria_variable$fill = get_colors(
+            #     100-dataEX_criteria_variable[[variable]],
+            #     upBin=upBin,
+            #     lowBin=lowBin,
+            #     Palette=Palette,
+            #     include_min=rep(TRUE, 11),
+            #     include_max=rep(FALSE, 11))
+            
+            colorStep = 10
+            Palette = get_IPCC_Palette("YlGnBu",
+                                       colorStep=colorStep,
+                                       reverse=FALSE)
+            colorStep = 5
+            Palette = get_IPCC_Palette("YlGnBu_prettier",
+                                       colorStep=colorStep,
+                                       reverse=TRUE)
+            colorStep = 5
+            Palette = RColorBrewer::brewer.pal(colorStep, "YlGnBu")
+
+            min_variable = 0
+            max_variable = 100
+            Palette_level = 1:colorStep
+            
+            res = compute_colorBin(min_variable,
+                                   max_variable,
+                                   colorStep=colorStep,
+                                   center=NULL,
+                                   include=c(TRUE, TRUE))
+            bin = res$bin
+            upBin = res$upBin
+            lowBin = res$lowBin
+            
+            dataEX_criteria_variable$fill = get_colors(
+                100-dataEX_criteria_variable[[variable]],
+                upBin=upBin,
+                lowBin=lowBin,
+                Palette=Palette)
+            
+        } else {
+            colorStep = 10
+            min_variable = 0
+            max_variable = 100
+            Palette_level = 0:colorStep
+            Palette = c(IPCCfreshblue,
+                        get_IPCC_Palette("red_ramp",
+                                         colorStep=colorStep,
+                                         reverse=TRUE))
+            res = compute_colorBin(min_variable,
+                                   max_variable,
+                                   colorStep=colorStep+1,
+                                   center=NULL,
+                                   include=c(FALSE, TRUE))
+            bin = res$bin
+            upBin = res$upBin
+            lowBin = res$lowBin
+            dataEX_criteria_variable$fill = get_colors(
+                dataEX_criteria_variable[[variable]],
+                upBin=upBin,
+                lowBin=lowBin,
+                Palette=Palette,
+                include_min=c(FALSE, TRUE, rep(FALSE, 9)),
+                include_max=c(TRUE, FALSE, rep(TRUE, 9)))
+        }
+        
         dataEX_criteria_variable$color = "grey75"
         dataEX_criteria_variable$stroke = 0.4
     }
 
     dataEX_criteria_variable$shape = 21
-    if (hm_by_shape) {
+    if (HM_by_shape) {
         shape = c(21, 22, 23, 24, 25)
 
         HM = levels(factor(dataEX_criteria_variable$HM))
@@ -377,8 +430,7 @@ panel_criteria_map = function (dataEX_criteria_hm_variable,
     # dataEX_criteria_variable$color[is.na(dataEX_criteria_variable$fill)] = NA
     dataEX_criteria_variable$color[is.na(dataEX_criteria_variable$fill)] = "grey75"
     dataEX_criteria_variable$level[is.na(dataEX_criteria_variable$fill)] = 0
-    
-    
+
     level = as.numeric(levels(factor(dataEX_criteria_variable$level)))
 
     map = map +
@@ -404,31 +456,55 @@ panel_criteria_map = function (dataEX_criteria_hm_variable,
 
     if (is_secteur | is_warning) {
         dataEX_criteria_variable = dplyr::rename(dataEX_criteria_variable,
-                                      CdSecteurH=Secteur)
-        # secteurHydro = dplyr::filter(secteurHydro,
-                                     # CdSecteurH %in%
-                                     # dataEX_criteria_variable$CdSecteurH)
+                                                 CdSecteurH=Secteur)
         secteurHydro = dplyr::full_join(secteurHydro,
                                         dataEX_criteria_variable,
                                         by="CdSecteurH")
+        secteurHydro$color = IPCCgrey99
         map = map +
             geom_sf(data=secteurHydro,
-                    color=IPCCgrey99,
+                    color=secteurHydro$color,
                     size=0.1,
                     fill=secteurHydro$fill)
-
         map = map +
             geom_sf(data=france,
                     color=IPCCgrey99,
                     fill=NA,
                     linewidth=0.8)
     }
-    
+
     map = map +
         geom_sf(data=france,
                 color=IPCCgrey50,
                 fill=NA,
                 linewidth=0.35)
+
+    # if (for_paper) {
+    #     threshold = 6000
+
+    #     secteurHydro_point = secteurHydro %>%
+    #         dplyr::filter(as.integer(get(variable)) == 0)
+    #     %>%
+    #         dplyr::mutate(
+    #                    centroid=sf::st_centroid(geometry),
+    #                    distance=as.numeric(sf::st_distance(
+    #                                                centroid,
+    #                                                sf::st_boundary(geometry),
+    #                                                by_element=TRUE)),
+    #                    is_not_inside = is.na(as.integer(sf::st_within(centroid,
+    #                                                                   geometry))) |
+    #                        distance < threshold,
+    #                    point = dplyr::if_else(is_not_inside,
+    #                                           sf::st_point_on_surface(geometry),
+    #                                           centroid),
+    #                    X = sf::st_coordinates(point)[, 1],
+    #                    Y = sf::st_coordinates(point)[, 2])
+    #     map = map +
+    #         geom_point(data=secteurHydro_point,
+    #                    aes(x=X, y=Y), 
+    #                    shape=21, size=0.7,
+    #                    color="white", fill="white")
+    # }
     
     if (!is_secteur & !is_warning) {
         for (l in level) {
@@ -472,7 +548,7 @@ panel_criteria_map = function (dataEX_criteria_hm_variable,
                      verbose=verbose)
 
     if (!is_secteur & !is_warning &
-        !remove_warning_lim & !hm_by_shape) {
+        !remove_warning_lim & !HM_by_shape) {
         ca = panel_colorbar_circle(c(0, 1),
                                    c("transparent",
                                      "transparent"),
@@ -491,7 +567,7 @@ panel_criteria_map = function (dataEX_criteria_hm_variable,
                                    margin=margin(t=0.2, r=0.5,
                                                  b=0.5, l=2.5,
                                                  "cm"))
-    } else if (hm_by_shape & nHM > 1) {
+    } else if (HM_by_shape & nHM > 1) {
         ca = panel_colorbar_circle(c(0, 0.5, 1),
                                    c("transparent",
                                      "transparent",
@@ -528,7 +604,7 @@ panel_criteria_map = function (dataEX_criteria_hm_variable,
         text_size = 3
         on_circle = FALSE
         d_space = 0.15
-        margin = margin(t=1.5, r=0.5, b=2.5, l=5.3, "cm")
+        margin = margin(t=1.4, r=0.5, b=0.8, l=5.5, "cm")
 
     } else if (grepl("(RAT)|(HYP)", variable) & !is_warning) {
         bin = c(0, 1)
@@ -542,11 +618,19 @@ panel_criteria_map = function (dataEX_criteria_hm_variable,
         margin = margin(t=3.7, r=0, b=4.9, l=3.9, "cm")
 
     } else {
-        label = NULL
+        if (is_warning) {
+            label = paste0("\\textbf{", bin, "}\\small{%}")
+        } else {
+            label = NULL
+        }
         text_size = 3
         on_circle = FALSE
         d_space = 0.15
-        margin = margin(t=0.3, r=0.5, b=2.1, l=5.5, "cm")
+        if (for_paper & colorStep < 8) {            
+            margin = margin(t=2, r=0.3, b=1, l=5.6, "cm")
+        } else {
+            margin = margin(t=1.4, r=0.3, b=0.8, l=5.6, "cm")
+        }
     }
 
     cb = panel_colorbar_circle(bin,
@@ -555,7 +639,7 @@ panel_criteria_map = function (dataEX_criteria_hm_variable,
                                d_line=0.2,
                                linewidth=0.35,
                                d_space=d_space,
-                               d_text=0.5,
+                               d_text=0.6,
                                text_size=text_size,
                                label=label,
                                ncharLim=4,

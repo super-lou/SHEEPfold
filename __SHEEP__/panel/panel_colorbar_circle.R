@@ -28,7 +28,7 @@ panel_colorbar_circle = function (bin,
                                   d_space=0.5,
                                   d_text=0.5,
                                   text_size=2,
-                                  text_fontface="bold",
+                                  # text_fontface="bold",
                                   label=NULL,
                                   ncharLim=4,
                                   stroke=NULL,
@@ -86,10 +86,10 @@ panel_colorbar_circle = function (bin,
                 annotate("text",
                          x=d_line+d_space,
                          y=(i-1)-1/2,
-                         label=Label[i],
+                         label=TeX(Label[i]),
                          size=text_size,
                          hjust=0, vjust=0.5,
-                         fontface=text_fontface,
+                         # fontface=text_fontface,
                          color=colorText)
 
         } else {
@@ -97,10 +97,10 @@ panel_colorbar_circle = function (bin,
                 annotate("text",
                          x=d_line+d_space,
                          y=(i-1),
-                         label=Label[i],
+                         label=TeX(Label[i]),
                          size=text_size,
                          hjust=0, vjust=0.5,
-                         fontface=text_fontface,
+                         # fontface=text_fontface,
                          color=colorText)
         }
     }
@@ -110,7 +110,7 @@ panel_colorbar_circle = function (bin,
                            limits=c(0,
                                     d_line+d_space+d_text)) + 
         scale_y_continuous(expand=c(0, 0),
-                           limits=c(-1/2,
+                           limits=c(-1/2-1,
                                     nBin+1/2))
     
 
