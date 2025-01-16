@@ -1,22 +1,23 @@
-# Copyright 2022 Louis Héraut (louis.heraut@inrae.fr)*1,
-#                Éric Sauquet (eric.sauquet@inrae.fr)*1
+# Copyright 2022-2024 Louis Héraut (louis.heraut@inrae.fr)*1,
+#                     Éric Sauquet (eric.sauquet@inrae.fr)*1,
+#                     Jean-Philippe Vidal (jean-philippe.vidal@inrae.fr)*1
 #
-# *1   INRAE, France
+# *1   INRAE, UR RiverLy, Villeurbanne, France
 #
-# This file is part of dataSheep R package.
+# This file is part of SHEEPfold R toolbox.
 #
-# dataSheep R package is free software: you can redistribute it and/or
+# SHEEPfold R toolbox is free software: you can redistribute it and/or
 # modify it under the terms of the GNU General Public License as
 # published by the Free Software Foundation, either version 3 of the
 # License, or (at your option) any later version.
 #
-# dataSheep R package is distributed in the hope that it will be useful, but
-# WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-# General Public License for more details.
+# SHEEPfold R toolbox is distributed in the hope that it will be
+# useful, but WITHOUT ANY WARRANTY; without even the implied warranty
+# of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+# See the GNU General Public License for more details.
 #
 # You should have received a copy of the GNU General Public License
-# along with dataSheep R package.
+# along with SHEEPfold R toolbox.
 # If not, see <https://www.gnu.org/licenses/>.
 
 
@@ -355,12 +356,12 @@ panel_criteria_map = function (dataEX_criteria_hm_variable,
             Palette = get_IPCC_Palette("YlGnBu",
                                        colorStep=colorStep,
                                        reverse=FALSE)
-            colorStep = 5
-            Palette = get_IPCC_Palette("YlGnBu_prettier",
-                                       colorStep=colorStep,
-                                       reverse=TRUE)
-            colorStep = 5
-            Palette = RColorBrewer::brewer.pal(colorStep, "YlGnBu")
+            # colorStep = 5
+            # Palette = get_IPCC_Palette("YlGnBu_prettier",
+                                       # colorStep=colorStep,
+                                       # reverse=TRUE)
+            # colorStep = 5
+            # Palette = RColorBrewer::brewer.pal(colorStep, "YlGnBu")
 
             min_variable = 0
             max_variable = 100
